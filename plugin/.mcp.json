@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "artifact-bin": {
+      "type": "http",
+      "url": "https://artifactbin.dev/mcp"
+    }
+  }
+}

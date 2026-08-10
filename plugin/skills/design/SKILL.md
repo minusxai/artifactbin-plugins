@@ -1,0 +1,135 @@
+---
+name: "design"
+description: "Design fundamentals for artifact-bin documents (hierarchy, spacing, color, typography). Read before authoring an artifact-bin markup artifact when no more specific design skill applies."
+---
+
+# artifact-bin design guide
+
+Read this before authoring anything a human judges with their eyes. Approach
+every artifact as the design lead at a small studio known for versatility:
+deliberate choices about palette, type, and layout, pitched at the treatment
+the task actually calls for — never templated. The kit gives you components;
+this page is about using FEWER of them, better.
+
+## Calibrate the treatment
+
+- A doc deserves the same craft as a landing page — what changes is the
+  treatment. A plan, memo, or working report wants a UTILITARIAN treatment:
+  real hierarchy, considered spacing, a proper palette, no giant hero,
+  flourishes tasteful and few.
+- Something the user will keep, present, or share — a launch page, a deck for
+  an audience, a flagship report — wants an EDITORIAL treatment: opinionated
+  calls, one real aesthetic risk where it serves the work.
+- When unsure: a well-composed page is never the wrong answer; an
+  over-designed one sometimes is.
+
+## Ground it in the subject
+
+- Pin one concrete subject, its audience, and the page's single job before
+  authoring. Distinctive choices come from the subject's own world — its
+  materials, instruments, vernacular — not from a house style.
+- Build with real content throughout, never lorem placeholder.
+
+## Plan before you build
+
+Sketch a compact plan first: which theme and template and WHY (https://artifactbin.dev/docs/themes,
+https://artifactbin.dev/docs/templates), the layout concept in a sentence, where the one bold
+moment goes. If any part of the plan reads like the generic default you would
+produce for any similar page, revise that part. Then build to the plan.
+
+## Hierarchy
+
+- One idea per viewport. A headline states the FINDING ("Churn halved after
+  onboarding"), never the topic ("Churn analysis").
+- Contrast in size is the design: small uppercase tracked eyebrows against
+  large tight headlines beats five mid-sized headings.
+- Body copy caps at `max-w-prose` (~65ch); evidence (charts, tables) breaks
+  wider. Width contrast IS the layout.
+- Give big headlines `text-balance`, uppercase labels `tracking-widest`, and
+  aligned digits `tabular-nums`.
+
+## Space
+
+- Whitespace is structure, not waste. Pad sections generously (`py-16`) and
+  let the gap between sections exceed the gap within one.
+- Space sibling groups with flex/grid `gap-*`, not per-element margins that
+  collapse or double.
+- Align to the grid; when in doubt, flush left. Centered body copy is almost
+  always wrong.
+- Wide content (tables, code) gets its own `overflow-x-auto` container — the
+  page never scrolls sideways.
+
+## Color
+
+- In `markup`, theme tokens ONLY (`text-muted-foreground`, `bg-muted`,
+  `border-border`, `--chart-1..5`) — the theme owns hue; hardcoded hex
+  fights it.
+- ONE accent, meaning one thing (the subject, the exception). Context sits in
+  grays. If everything is highlighted, nothing is.
+- Semantic state color (good / warning / critical) is separate from the
+  accent and doesn't count as your accent.
+
+## Charts
+
+- The title states the takeaway; axes and units do the explaining.
+- Direct labels beat legends; gridlines stay barely-there; no gradients,
+  shadows, or 3D — data-ink only.
+- Every number a viewer might question binds to a real `ref:` dataset.
+
+## Copy is design material
+
+- Write from the reader's side of the screen: name things by what people
+  recognize, not how the system is built.
+- Active voice; a control says exactly what happens. Errors say what went
+  wrong and how to fix it — no apologies, no vagueness.
+- Specific beats clever.
+
+## Structure is information
+
+- Eyebrows, numbering, dividers, and labels must encode something TRUE about
+  the content, not decorate it.
+- Numbered markers (01 / 02 / 03) only when the content really is a sequence
+  whose order the reader needs.
+
+## When it is a UI, not a document
+
+- A dashboard is scanned and operated, not read: summary before detail;
+  what needs attention reads at a glance.
+- Encode state in form as well as number — a badge, a severity stripe — and
+  make what's interactive look interactive.
+
+## Avoid the default AI look
+
+Unprompted AI design clusters around a few looks: cream + serif + terracotta;
+near-black with one acid accent; a purple-blue gradient hero; emoji as
+section markers; everything centered; rounded cards with accent rails. If
+your user asks for one of these, follow their words exactly; otherwise don't
+spend your freedom there — pick the theme and structure from the SUBJECT, not
+from habit.
+
+## Restraint
+
+- Prefer plain typography over one more Card. Decoration that carries no
+  information comes out.
+- Spend your boldness in ONE place; keep everything around it quiet.
+- Pick the theme for the mood and let it work — do not re-style what it
+  already styles.
+
+## The `html` tier owns everything
+
+The above is mostly free in `markup` (the theme carries fonts, palette, and
+color modes). Raw `html` artifacts carry it all themselves:
+
+- The CSP blocks font CDNs — a linked webfont silently falls back. Inline an
+  `@font-face` data URI or design on a system stack.
+- Handle both color schemes via `prefers-color-scheme`, or commit to one and
+  paint the background and every color explicitly — a transparent body
+  borrows whatever ground the viewer's browser paints.
+- Choose your neutrals: a grey with a slight hue bias toward the accent reads
+  as chosen; a pure mid-grey reads as unconsidered.
+- Watch selector specificity (don't let two classes fight over section
+  spacing), close every element, give keyboard focus a visible state, respect
+  `prefers-reduced-motion`.
+
+Then author with the vocabulary: https://artifactbin.dev/docs/markup (components),
+https://artifactbin.dev/docs/themes (design systems), https://artifactbin.dev/docs/templates (genres).

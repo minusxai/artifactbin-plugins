@@ -1,0 +1,9 @@
+{
+  "name": "artifact-bin",
+  "description": "Publish self-contained artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link.",
+  "version": "0.1.0",
+  "author": {
+    "name": "minusx"
+  },
+  "homepage": "https://artifactbin.dev"
+}
