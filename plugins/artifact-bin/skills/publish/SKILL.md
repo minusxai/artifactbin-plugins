@@ -16,7 +16,7 @@ fundamentals.
 
 Upload a self-contained HTML artifact, get back a **public link** to share with your user.
 
-## Auth — get a token (three ways, in order of preference)
+## Auth — get a token (in order of preference)
 
 Every `/api/artifacts` call needs a bearer token:
 
@@ -25,9 +25,8 @@ Authorization: Bearer mx_...
 ```
 
 1. **Saved config** — check `~/.config/artifact-bin/config.json` for
-   `{ "url", "token" }` (written by `artifactbin login`). If it exists, use it:
-   publishes are attached to your user's account automatically.
-2. **Your user gave you one** — use it.
+   `{ "url", "token" }`. If it exists, use it.
+2. **Your user gave you one** (or it's in your MCP/agent config) — use it.
 3. **No token? Mint an anonymous one** — zero setup:
 
 ```
@@ -35,11 +34,13 @@ POST https://artifactbin.dev/api/tokens/anonymous
 → 201 { "id", "token": "mx_..." }
 ```
 
-Save it for the session and reuse it for every call. Anonymous artifacts work
-fully but belong to nobody — **tell your user**: *"to keep these under your
-account, log in at https://artifactbin.dev and claim token `mx_...`"* (they paste it in the
-Claim box on the dashboard). Claiming attaches everything the token already
-published, past and future.
+Then **write it to `~/.config/artifact-bin/config.json`** as
+`{ "url": "https://artifactbin.dev", "token": "mx_..." }` so future sessions (yours and other
+agents') reuse the same token instead of scattering artifacts across fresh
+ones. Anonymous artifacts work fully but belong to nobody — **tell your
+user**: *"to keep these under your account, log in at https://artifactbin.dev and claim token
+`mx_...`"* (they paste it in the Claim box on the dashboard). Claiming
+attaches everything the token already published, past and future.
 
 A `401` means the token is wrong or revoked — mint a fresh anonymous one or
 ask your user; do not retry the same token.
@@ -185,12 +186,16 @@ works.
 `https://artifactbin.dev/mcp` — a Streamable HTTP MCP server speaking this exact API
 (`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`, `list_artifacts`,
 `list_versions`, `get_version`, `revert_artifact`, `delete_artifact`).
-Auth is the same bearer token via the `Authorization` header:
+It supports OAuth: add it with no credentials and the client pops a browser
+where your user approves in one click (no account needed — "Continue without
+an account" mints a claimable anonymous token):
 
 ```
-claude mcp add --transport http artifact-bin https://artifactbin.dev/mcp \
-  --header "Authorization: Bearer mx_..."
+claude mcp add --transport http artifact-bin https://artifactbin.dev/mcp
 ```
+
+Already have an `mx_` token? Skip the browser: pass it as a header instead
+(`--header "Authorization: Bearer mx_..."`) — the tokens are interchangeable.
 
 ## Content tiers — pick ONE content field per request
 

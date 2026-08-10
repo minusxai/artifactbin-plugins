@@ -6,8 +6,8 @@ public links your user can open, share, and co-edit live.
 ## Install (Claude Code)
 
 ```
-/plugin marketplace add minusxai/artifact-bin-plugin
-/plugin install artifact-bin@artifact-bin
+/plugin marketplace add minusxai/minusx-plugins
+/plugin install artifact-bin@minusx
 ```
 
 Local development (from the artifact-bin repo): `npm run build:plugin`, then

@@ -1,13 +1,13 @@
 {
-  "name": "artifact-bin",
-  "description": "Publish self-contained artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link.",
+  "name": "minusx",
+  "description": "minusx plugins for Claude Code.",
   "owner": {
     "name": "minusx"
   },
   "plugins": [
     {
       "name": "artifact-bin",
-      "source": "./plugin",
+      "source": "./plugins/artifact-bin",
       "description": "Publish self-contained artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link."
     }
   ]

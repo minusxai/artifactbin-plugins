@@ -1,13 +1,15 @@
-# artifact-bin plugin marketplace
+# minusx plugins
 
-Claude Code marketplace for the **artifact-bin** plugin — skills + MCP
-server for publishing self-contained artifacts to https://artifactbin.dev.
+Claude Code marketplace for minusx plugins. Add it once, install what you want:
 
 ```
-/plugin marketplace add minusxai/artifact-bin-plugin
-/plugin install artifact-bin@artifact-bin
+/plugin marketplace add minusxai/minusx-plugins
+/plugin install artifact-bin@minusx
 ```
 
-Everything in this repo is GENERATED and force-forwarded from the private
-artifact-bin repo by its publish pipeline — do not edit or PR here; changes
-land via the artifact-bin doc sources. Plugin details: [plugin/README.md](plugin/README.md).
+## Plugins
+
+- **artifact-bin** — Publish self-contained artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link. Details: [plugins/artifact-bin/README.md](plugins/artifact-bin/README.md)
+
+Everything in this repo is GENERATED and force-forwarded by the source repos'
+publish pipelines — do not edit or PR here.
