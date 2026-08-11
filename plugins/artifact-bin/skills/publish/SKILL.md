@@ -187,8 +187,8 @@ works.
 (`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`, `list_artifacts`,
 `list_versions`, `get_version`, `revert_artifact`, `delete_artifact`).
 It supports OAuth: add it with no credentials and the client pops a browser
-where your user approves in one click (no account needed — "Continue without
-an account" mints a claimable anonymous token):
+where your user logs in with their email (a one-time code — no password) and
+approves. Artifacts published through the connection belong to that account:
 
 ```
 claude mcp add --transport http artifact-bin https://artifactbin.dev/mcp
