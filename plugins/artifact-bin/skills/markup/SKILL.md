@@ -64,7 +64,8 @@ Create `dataset` / `viz` / `image` artifacts first, then bind them by id:
   artifact, `{"kind":"table"}` (the default when `viz` is absent) for a
   themed table.
 - `<Number data="ref:<datasetId>" col="revenue" agg="sum" prefix="$" format=",.0f" />`
-  — one live aggregated figure, inline.
+  — one live aggregated figure, inline. NEVER type a figure into prose that the data can compute — <Number> inline instead; typed figures go stale and are often simply wrong.
+  So write "revenue reached <Number … agg="sum" />", never "revenue reached 19400".
 - `<Param name="region" data={{"data":"ref:<datasetId>","column":"region"}} />`
   — a viewer-facing filter control; embeds with matching `filters` respond.
 - `<img src="ref:<imageId>" />` — an uploaded image artifact.
