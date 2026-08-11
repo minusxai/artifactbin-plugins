@@ -76,7 +76,8 @@ validated against the dataset's real columns at publish
 ## Layout components
 
 - `<SlideDeck><Slide title="…">…</Slide>…</SlideDeck>` — a presentation; each
-  slide fills the viewport (the `deck` template).
+  slide fills the viewport (the `deck` template). Hand-rolled sections work
+  too: `h-screen` / `min-h-screen` resolve against the reader's viewport.
 - `<Grid><GridItem x={0} y={0} w={6} h={3}>…</GridItem>…</Grid>` — the
   12-column dashboard canvas (the `dashboard` template); humans can drag
   tiles in the editor.
