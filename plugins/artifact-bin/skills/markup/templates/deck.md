@@ -4,7 +4,7 @@ Presentation deck — full-viewport slides in acts; quiet paper slides between f
 
 A boardroom keynote rendered as a scroll: one idea per full-viewport slide, headlines you could speak aloud to the room, generous emptiness as the luxury. The deck moves in ACTS — quiet paper slides punctuated by full-bleed solid-accent dividers — and its structure is announced (contents, numbered acts), never discovered.
 
-Beats: Cover → Contents (mirrors the act titles) → Act divider (solid accent, per act) → Content slides (statement / columns / chart / table / big number) → Quote or image slide (a breather per act) → Timeline / roadmap → Close
+Beats: Cover → Contents (mirrors the act titles) → Act divider (solid accent — at least one per deck, one per act) → Content slides (statement / columns / chart / table / big number) → Quote or image slide (a breather per act) → Timeline / roadmap → Close
 
 ## Deck — a presentation that scrolls
 
@@ -12,7 +12,8 @@ Voice: a keynote. Every slide headline is a spoken sentence ("Retention pays for
 increase"), never a label ("Retention"). One idea per slide. A good slide is ~40% empty —
 put the air BELOW the content, not around it.
 
-THE SLIDE (every slide, no exceptions; fixed/sticky are banned — a slide is a tall section):
+THE SLIDE (every CONTENT slide — accent dividers are the one exemption, see below;
+fixed/sticky are banned — a slide is a tall section):
 - The deck is `<SlideDeck>` wrapping one `<Slide>` per slide. `<Slide>` already fills the
   reader's real viewport (`--mx-vh`, platform-provided, with a headless fallback) as a flex
   column — add the dressing per slide: `<Slide title="…" className="border-b border-border py-14">`.
@@ -25,8 +26,14 @@ THE SLIDE (every slide, no exceptions; fixed/sticky are banned — a slide is a 
 - FOOTER META closes every content slide: `<div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Deck title — date</span><span className="font-semibold">07</span></div>`.
 
 ACTS AND COLOR RHYTHM (the interleaving that makes it feel designed):
-- Group slides into 2-4 numbered acts. Each act OPENS with a full-bleed solid-accent divider:
-  `<section className="min-h-[var(--mx-vh,760px)] flex flex-col justify-center bg-primary text-primary-foreground -mx-6 @2xl:-mx-12 px-6 @2xl:px-12">`
+- EVERY deck ships at least one full-bleed solid-accent divider slide, however short it is.
+  A deck of quiet paper slides is the failure this genre exists to prevent — the divider is
+  not decoration you drop when slides are scarce, it is the one slide that makes the rest
+  read as a deck. Asked for N slides, the divider is one of the N; spend it, don't skip it.
+- Group slides into 2-4 numbered acts, and each act OPENS with a divider. Under 6 slides,
+  run ONE act: cover → divider → content → content → close. Above that, one divider per act.
+- The divider is a `<Slide>` like every other, minus the header band and footer meta:
+  `<Slide title="Act one" className="justify-center bg-primary text-primary-foreground -mx-6 @2xl:-mx-12 px-6 @2xl:px-12">`
   carrying a giant TONE-ON-TONE act numeral (same hue, darker: `<span className="text-9xl font-bold text-primary-foreground/25">02</span>`
   — or a darker literal of the accent) and the act title below it. Nothing else on the slide.
 - Dividers are the ONLY saturated slides; everything between is quiet paper. That alternation
@@ -35,6 +42,9 @@ ACTS AND COLOR RHYTHM (the interleaving that makes it feel designed):
   `tabular-nums`) whose titles mirror the dividers EXACTLY.
 
 SLIDE TYPES (pick per beat; each stays one idea):
+- Act divider (MANDATORY, at least one per deck): the full-bleed accent slide above — act
+  numeral + act title on `bg-primary`, no band, no footer, no body copy. Pick this FIRST,
+  before filling any content slot, then mirror its title in the contents slide.
 - Statement: at most 3 one-line bullets with square accent markers
   (`<span className="inline-block size-2 bg-primary mr-3">`), then air. No paragraphs.
 - Columns (2 or 3): equal cells on one gutter, and EACH COLUMN OPENS UNDER A RULE
@@ -84,10 +94,13 @@ Skeleton (cover → divider → chart slide; extend the pattern per act):
 </div>
 
 Do
+- Ship at least one solid-accent divider slide — a five-slide deck still gets one.
 - Speakable headlines; huge type, few words; the air below the content.
 - One accent element per figure; contents ↔ dividers mirrored to the word.
 Don't
-- Color a content slide's ground; two charts on a slide; paragraphs (three lines max).
+- Ship a deck of nothing but paper slides; color a CONTENT slide's ground (the divider is
+  the exception, and it is the only one).
+- Two charts on a slide; paragraphs (three lines max).
 - Scroll-snap/parallax tricks; cramming a slide to avoid adding one — add the slide.
 
 Components: `https://artifactbin.dev/docs/markup`; publish API: `https://artifactbin.dev/docs/llm`.
