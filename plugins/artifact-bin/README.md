@@ -1,6 +1,6 @@
 # artifact-bin plugin
 
-Skills + MCP server for publishing self-contained artifacts to https://artifactbin.dev —
+Skills + MCP server for publishing self-contained HTML artifacts to https://artifactbin.dev —
 public links your user can open, share, and co-edit live.
 
 ## Install (Claude Code)

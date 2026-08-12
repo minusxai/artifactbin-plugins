@@ -1,6 +1,6 @@
 ---
 name: "publish"
-description: "Publish self-contained artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link. Use when the user wants to publish, share, or host a page, report, dashboard, deck, dataset, chart, or image, or mentions artifact-bin."
+description: "Publish self-contained HTML artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link. Use when the user wants to publish, share, or host a page, report, dashboard, deck, dataset, chart, or image, or mentions artifact-bin."
 ---
 
 With this plugin installed, prefer the artifact-bin MCP tools
