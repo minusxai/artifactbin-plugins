@@ -42,7 +42,7 @@ format at the door.)
   `position: fixed/sticky` and external `url()`/`@import` are stripped, and
   `100vh` is rewritten to the reader-viewport variable.
 - **Self-contained subresources**: `src`/`srcSet`/`poster` must be a
-  `ref:<artifactId>` or a `data:image/` URL — an external URL is rejected
+  `ref:<id>` or a `data:image/` URL — an external URL is rejected
   (`400 invalid_jsx`). Links (`href`) may point anywhere.
 - **Theme tokens first**: colors like `text-muted-foreground`,
   `bg-muted`, `border-border`, `text-foreground`, `bg-background` follow the
@@ -172,7 +172,7 @@ Anything else is rejected by name with the allowed set echoed back.
   <section className="py-16">
     <h2 className="reveal-up text-2xl font-semibold tracking-tight">01 · A claim, never a topic</h2>
     <p className="mt-4 max-w-prose text-muted-foreground">Set up the chart — what to look at and why.</p>
-    <div className="reveal-up mt-6"><Question title="Revenue by month" data="ref:art_…" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
+    <div className="reveal-up mt-6"><Question title="Revenue by month" data="ref:…" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
   </section>
 </div>
 ```

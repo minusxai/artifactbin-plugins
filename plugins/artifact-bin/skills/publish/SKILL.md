@@ -52,12 +52,28 @@ ask your user; do not retry the same token.
 ```
 POST https://artifactbin.dev/api/artifacts
 { "title": "Optional title", "description": "Optional", "html": "<!doctype html>..." }
-→ 201 { "id": "art_...", "slug": "...", "url": "https://artifactbin.dev/a/<slug>", "version": 1 }
+→ 201 { "id": "<6-char id>", "url": "https://artifactbin.dev/a/<id>", "version": 1 }
 ```
 
 `html` here is one of six content fields — `markup | markdown | html |
 dataset | viz | image`; every endpoint takes exactly ONE of them (see
 **Content tiers** below). Give `url` to your user — that's the deliverable.
+
+**Visibility (who can open that url):** every artifact carries
+`"visibility": "public" | "private"`. `public` = anyone with the link can
+read (nothing is ever listed publicly). `private` = only the owner's
+logged-in account plus emails they invite on the share page. Defaults:
+**anonymous tokens publish `public`; account-owned tokens publish
+`private`** — so when your user asks for a link to send to OTHER people and
+your token is account-owned, pass `"visibility": "public"` (create or PUT)
+or tell them to flip it from the page's share menu. Asking for `private`
+on an anonymous token is a `400 private_requires_account`, never a silent
+downgrade.
+
+**Folders (optional):** pass `"folder": "2026/08/reports"` (create or PUT)
+to organize the file in the owner's dashboard. Organization only — the URL
+keeps working wherever the file moves. Segments are `[a-zA-Z0-9_-]`, max 8
+deep.
 Example:
 
 ```bash
@@ -72,7 +88,7 @@ jq -n --rawfile html artifact.html '{"title":"My page","html":$html}' \
 ```
 PUT https://artifactbin.dev/api/artifacts/<id>
 { "html": "<!doctype html>...", "title": "optional new title" }
-→ 200 { "id", "slug", "url", "version": <bumped> }
+→ 200 { "id", "url", "version": <bumped> }
 ```
 
 Full replacement — send the complete new content, not a diff. The previous
@@ -113,14 +129,14 @@ or without a text change). Those are document-level and never conflict.
 
 ```
 GET https://artifactbin.dev/api/artifacts/<id>
-→ 200 { "id", "slug", "url", "title", "description", "format", "html", "version", ... }
+→ 200 { "id", "url", "title", "description", "format", "html", "version", ... }
 ```
 
 ### List your artifacts
 
 ```
 GET https://artifactbin.dev/api/artifacts
-→ 200 { "artifacts": [ { "id", "slug", "url", "title", "version", "updated_at", ... } ] }
+→ 200 { "artifacts": [ { "id", "url", "title", "version", "updated_at", ... } ] }
 ```
 
 ### Version history & revert (undo a bad edit)
@@ -129,7 +145,7 @@ Every `PUT` archives the previous state. To roll back:
 
 ```
 GET  https://artifactbin.dev/api/artifacts/<id>/versions   → 200 { "versions": [ { "version", "title", "created_at" } ] }
-POST https://artifactbin.dev/api/artifacts/<id>/revert     { "version": 1 } → 200 { "id", "slug", "url", "version": <new> }
+POST https://artifactbin.dev/api/artifacts/<id>/revert     { "version": 1 } → 200 { "id", "url", "version": <new> }
 ```
 
 A revert creates a NEW version (the pre-revert state is archived too), so
@@ -145,11 +161,11 @@ DELETE https://artifactbin.dev/api/artifacts/<id>
 Permanent: the public link dies and version history is erased. Confirm with
 your user before deleting anything they shared.
 
-### Screenshot / export as an image (no auth, curlable)
+### Screenshot / export as an image (curlable; readable = exportable)
 
 ```
-GET https://artifactbin.dev/a/<slug>/export             → image/png of the fully rendered page
-GET https://artifactbin.dev/a/<slug>/export?format=jpg  → image/jpeg
+GET https://artifactbin.dev/a/<id>/export             → image/png of the fully rendered page
+GET https://artifactbin.dev/a/<id>/export?format=jpg  → image/jpeg
 ```
 
 Rendered on demand in a server-side headless browser — full page at 1200px
@@ -157,7 +173,7 @@ wide, repeat fetches cached until the artifact changes, nothing stored. Use it
 to eyeball your own output or hand your user a static image:
 
 ```bash
-curl -sS -o report.png "https://artifactbin.dev/a/<slug>/export"
+curl -sS -o report.png "https://artifactbin.dev/a/<id>/export"
 ```
 
 Share pages also carry `og:image` pointing at this URL, so links pasted into
@@ -170,6 +186,8 @@ works.
 | Status | Meaning | What to do |
 |---|---|---|
 | 400 | `invalid_json` / `one_of_markdown_html_markup` / `invalid_jsx` / `invalid_refs` / `unknown_theme` | Fix the request body — `details` names each problem with its span |
+| 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public` or `private`; `private` needs an account-owned token |
+| 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
 | 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
 | 403 | `quota_exceeded` | This token is at its artifact cap — delete something or use another token |
 | 404 | `not_found` | No artifact with that id belongs to your token |
@@ -221,8 +239,8 @@ POST https://artifactbin.dev/api/artifacts
      https://artifactbin.dev/docs/templates; after picking, read https://artifactbin.dev/docs/templates/<name>
      for the chosen genre's beats and layout grammar.
    - `colorMode`: `light | dark`.
-   - Reference your data artifacts as `ref:<artifactId>` (see data tiers).
-   - Humans edit the SAME document WYSIWYG at `https://artifactbin.dev/a/<slug>` (an edit
+   - Reference your data artifacts as `ref:<id>` (see data tiers).
+   - Humans edit the SAME document WYSIWYG at `https://artifactbin.dev/a/<id>` (an edit
      mode on the page itself) — you and your user are editing one artifact,
      versioned together.
 
@@ -231,12 +249,12 @@ POST https://artifactbin.dev/api/artifacts
    effort; title defaults from the first `#` heading; same `theme` field.
    Read-back returns the JSX, not your markdown.
 
-3. **`html`** — raw escape hatch, full control, you write everything. But the user CANNOT edit it WYSIWYG at `https://artifactbin.dev/a/<slug>` — they see the source, not a design view. Use this only for content that cannot be expressed in markup or markdown.
+3. **`html`** — raw escape hatch, full control, you write everything. But the user CANNOT edit it WYSIWYG at `https://artifactbin.dev/a/<id>` — they see the source, not a design view. Use this only for content that cannot be expressed in markup or markdown.
 
 4. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
    `columns` type declarations), `viz` (a reusable chart recipe — shape
    below), `image` (a base64 `data:` URL). Create these first, then bind
-   them in markup as `ref:<artifactId>`; dataset creation echoes the
+   them in markup as `ref:<id>`; dataset creation echoes the
    inferred columns so you know what to bind.
 
    A `viz` recipe is the one shape the prose above can't give you: a
@@ -302,6 +320,9 @@ API:
 - `DELETE https://artifactbin.dev/api/artifacts/<id>` — permanent delete (confirm with your user)
 - `GET https://artifactbin.dev/api/artifacts/<id>/versions` — version history
 - `POST https://artifactbin.dev/api/artifacts/<id>/revert` — roll back to a version
-- `https://artifactbin.dev/a/<slug>` — the public share page (the deliverable)
-- `https://artifactbin.dev/a/<slug>/export` — the page as a PNG (`?format=jpg` too; curlable, no auth)
-- `https://artifactbin.dev/a/<slug>/raw` — the bytes: stored html, dataset/viz JSON, image, markup source
+- `https://artifactbin.dev/a/<id>` — the share page (the deliverable). Owned docs redirect
+  to a pretty URL (`/@username/<folder>/<id>-<title>`); BOTH forms always
+  work — anything carrying the id resolves and self-corrects, so hand out
+  whichever you have.
+- `https://artifactbin.dev/a/<id>/export` — the page as a PNG (`?format=jpg` too; curlable, no auth)
+- `https://artifactbin.dev/a/<id>/raw` — the bytes: stored html, dataset/viz JSON, image, markup source
