@@ -48,14 +48,17 @@ Layout grammar
 - Asymmetry over symmetry: `@3xl:grid-cols-[3fr_2fr]` splits, not centered stacks.
 - Footnotes where claims need method: a hairline-topped `text-xs text-muted-foreground`
   line closing the chapter ("Note: balance-sheet figures as of May-26, single data point.").
+- Motion, rationed to the report register: `animate-fade-up` on the hero (staggered
+  standfirst), `reveal-up` on each chapter's evidence block. No marquee, no ambient
+  loops — the boardroom does not blink.
 
 Skeleton (hero → KPI strip → one chapter with breaker + takeaways rail → interlude → close):
 
 <div data-design="tw" className="@container px-6 @2xl:px-12">
   <header className="py-16 @2xl:py-24 max-w-4xl">
-    <p className="text-xs uppercase tracking-widest text-muted-foreground">Eyebrow · names the beat, ~4 words</p>
-    <h1 className="mt-4 text-5xl @2xl:text-7xl font-bold tracking-tight leading-[1.05]">The headline states the finding, with its number</h1>
-    <p className="mt-6 text-lg text-muted-foreground max-w-prose">The standfirst earns the scroll in one sentence: why this matters and to whom.</p>
+    <p className="animate-fade-in text-xs uppercase tracking-widest text-muted-foreground">Eyebrow · names the beat, ~4 words</p>
+    <h1 className="animate-fade-up mt-4 text-5xl @2xl:text-7xl font-bold tracking-tight leading-[1.05]">The headline states the finding, with its number</h1>
+    <p className="animate-fade-up [animation-delay:200ms] mt-6 text-lg text-muted-foreground max-w-prose">The standfirst earns the scroll in one sentence: why this matters and to whom.</p>
   </header>
   <section className="grid @2xl:grid-cols-4 divide-x divide-border border-y border-border">
     4 cells: small-caps label → single-value embed (~170px) → muted italic prior period beneath
@@ -68,10 +71,10 @@ Skeleton (hero → KPI strip → one chapter with breaker + takeaways rail → i
     <div className="mt-10 grid @3xl:grid-cols-[3fr_2fr] gap-10 items-start">
       <div>
         <p className="max-w-prose text-muted-foreground">Two to four sentences set up the chart — what to look at and why it matters.</p>
-        <div className="mt-6"><Question id={N} height="430px" /></div>
+        <div className="reveal-up mt-6"><Question id={N} height="430px" /></div>
         <p className="mt-3 text-sm text-muted-foreground">The caption states what the chart proves, at the data's precision.</p>
       </div>
-      <aside className="border-t-2 border-foreground pt-4">
+      <aside className="reveal-up [transition-delay:150ms] border-t-2 border-foreground pt-4">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Takeaways</p>
         <ul className="mt-4 space-y-3 text-sm">
           <li><strong>Two-word lead:</strong> one sentence, one live number.</li>
@@ -83,7 +86,7 @@ Skeleton (hero → KPI strip → one chapter with breaker + takeaways rail → i
   </section>
   <aside className="-mx-6 @2xl:-mx-12 my-16 bg-foreground text-background py-20 px-6 text-center">
     <p className="text-sm uppercase tracking-widest opacity-70">The interlude: one number, no chart, full width</p>
-    <div className="mt-6 mx-auto max-w-md"><Question id={N} height="200px" /></div>
+    <div className="reveal-scale mt-6 mx-auto max-w-md"><Question id={N} height="200px" /></div>
   </aside>
   <section className="py-16 border-t border-border">
     <h2 className="text-3xl font-semibold max-w-2xl">The takeaway restates the lead with its earned weight</h2>

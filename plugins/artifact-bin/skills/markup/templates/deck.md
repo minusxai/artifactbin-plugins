@@ -74,8 +74,8 @@ Skeleton (cover → divider → chart slide; extend the pattern per act):
     <Slide title="Cover" className="border-b border-border py-14">
       <p className="text-xs uppercase tracking-widest font-semibold text-primary">Company · Quarter</p>
       <hr className="mt-3" />
-      <h1 className="mt-auto text-6xl @2xl:text-8xl font-bold tracking-tight max-w-4xl">The title states the one finding</h1>
-      <p className="mt-6 text-lg text-muted-foreground max-w-xl">A standfirst no longer than the breath it takes to say it.</p>
+      <h1 className="animate-fade-up mt-auto text-6xl @2xl:text-8xl font-bold tracking-tight max-w-4xl">The title states the one finding</h1>
+      <p className="animate-fade-up [animation-delay:200ms] mt-6 text-lg text-muted-foreground max-w-xl">A standfirst no longer than the breath it takes to say it.</p>
       <div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Author</span><span>Date</span></div>
     </Slide>
     <Slide title="Act one" className="justify-center bg-primary text-primary-foreground -mx-6 @2xl:-mx-12 px-6 @2xl:px-12">
@@ -96,6 +96,8 @@ Skeleton (cover → divider → chart slide; extend the pattern per act):
 Do
 - Ship at least one solid-accent divider slide — a five-slide deck still gets one.
 - Speakable headlines; huge type, few words; the air below the content.
+- At most a cover entrance (`animate-fade-up`, staggered) — slides page, they don't
+  perform.
 - One accent element per figure; contents ↔ dividers mirrored to the word.
 Don't
 - Ship a deck of nothing but paper slides; color a CONTENT slide's ground (the divider is

@@ -32,10 +32,27 @@ this page is about using FEWER of them, better.
 
 ## Plan before you build
 
-Sketch a compact plan first: which theme and template and WHY (https://artifactbin.dev/docs/themes,
-https://artifactbin.dev/docs/templates), the layout concept in a sentence, where the one bold
-moment goes. If any part of the plan reads like the generic default you would
-produce for any similar page, revise that part. Then build to the plan.
+Sketch a compact plan first: which theme and WHY (https://artifactbin.dev/docs/themes), the
+layout concept in a sentence, where the one bold moment goes, and what the
+subject's MOTIF is (below). Templates (https://artifactbin.dev/docs/templates) are genre
+references, not contracts — pick one when the content is genuinely that
+genre, deviate where the subject knows better, and omit the template
+entirely when the subject suggests its own structure. If any part of the
+plan reads like the generic default you would produce for any similar page,
+revise that part. Then build to the plan.
+
+## The subject motif
+
+The strongest pages carry ONE device drawn from the subject's own world and
+commit every label to it: a video explainer whose chapters are frame ranges
+under a drawn frame-ruler; an incident report typeset as a flight recorder
+log; shipping data wearing a harbor-master's console. This is the scrolly
+template's "conceit" — but it works at ANY register, deadpan as well as
+theatrical, and it does not need the scrolly costume: a sober technical
+explainer with mono chapter stamps and an inline-SVG motif reads as designed
+without a single joke. Invent the motif from the subject, express it in the
+chapter labels, the figure numbering, and one small drawn SVG element — then
+stop; one motif, total commitment, no second conceit.
 
 ## Hierarchy
 
@@ -61,13 +78,31 @@ produce for any similar page, revise that part. Then build to the plan.
 
 ## Color
 
-- In `markup`, theme tokens ONLY (`text-muted-foreground`, `bg-muted`,
-  `border-border`, `--chart-1..5`) — the theme owns hue; hardcoded hex
-  fights it.
+- In `markup`, theme tokens are the default (`text-muted-foreground`,
+  `bg-muted`, `border-border`, `--chart-1..5`) — the theme owns hue, and a
+  page built on hex fights it. ONE bespoke accent (`text-[#e2483d]`) is the
+  sanctioned exception when the subject demands a hue no theme carries.
 - ONE accent, meaning one thing (the subject, the exception). Context sits in
   grays. If everything is highlighted, nothing is.
 - Semantic state color (good / warning / critical) is separate from the
   accent and doesn't count as your accent.
+
+## Motion
+
+- Leverage motion deliberately. Think about where and if animation can
+  serve the subject: a page-load sequence, a scroll-triggered reveal,
+  hover micro-interactions, ambient atmosphere. An orchestrated moment
+  usually lands harder than scattered effects; choose what the direction
+  calls for. Sometimes less is more — extra animation contributes to the
+  feeling that a design is AI-generated.
+- You have real CSS: custom `@keyframes` in a `<style>` block attached
+  to classes, the kit's one-class shortcuts, and the scroll-reveal
+  observer contract (`data-reveal` + `data-mx-seen`) for
+  animate-when-visible without JS — see https://artifactbin.dev/docs/markup "Motion".
+  Utilities compile `!important` and always beat authored CSS: design
+  the two layers, don't fight them.
+- Everything fails open where it must: captures, exports, edit mode, and
+  reduced-motion viewers see the finished page.
 
 ## Charts
 

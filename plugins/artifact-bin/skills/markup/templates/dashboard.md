@@ -38,5 +38,7 @@ Do
 Don't
 - Prose paragraphs between tiles; hand-rolled flex/grid tile layout; `height=` on embeds
   inside cells; nested Grids; a Grid wrapping the header or footnote.
+- Entrance or reveal animation on tiles — an operating view is read at a glance, not
+  choreographed; hover states are the only motion a dashboard needs.
 
 Components: `https://artifactbin.dev/docs/markup`; publish API: `https://artifactbin.dev/docs/llm`.

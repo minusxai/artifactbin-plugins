@@ -25,16 +25,31 @@ format at the door.)
 - **Static JSX only**: literal props (strings, numbers, booleans, arrays,
   `{{…}}` objects). No expressions, no event handlers, no spreads, no
   `<script>`/`<iframe>`.
-- **Style with Tailwind classes via `className`** — `<style>` blocks and the
-  `style=` attribute are rejected. Start the document with a
+- **Style with Tailwind classes via `className`** — utilities carry layout,
+  type, and spacing. Start the document with a
   `<div data-design="tw" className="@container …">` wrapper; use `@2xl:`
   container variants for responsive layout.
+- **Custom CSS lives in a `<style>` block, never inline**: for anything
+  Tailwind cannot express (custom `@keyframes`, compound selectors, textures)
+  add ONE top-level style block, with the CSS wrapped in a template literal so
+  its braces read as data — `<style>{`.rise { … }`}</style>` — and
+  reference it by class. Inline `style=` attributes are rejected. Scope rules
+  to your own class names (bare element selectors leak into chart/embed
+  chrome), and take colors from theme tokens (`var(--primary)`,
+  `var(--muted-foreground)`) so themes keep working. The cascade contract:
+  **utilities compile `!important`** — a Tailwind class always beats your
+  CSS, so never fight a utility from a style block. At save,
+  `position: fixed/sticky` and external `url()`/`@import` are stripped, and
+  `100vh` is rewritten to the reader-viewport variable.
 - **Self-contained subresources**: `src`/`srcSet`/`poster` must be a
   `ref:<artifactId>` or a `data:image/` URL — an external URL is rejected
   (`400 invalid_jsx`). Links (`href`) may point anywhere.
-- **Theme tokens over hex**: colors like `text-muted-foreground`,
+- **Theme tokens first**: colors like `text-muted-foreground`,
   `bg-muted`, `border-border`, `text-foreground`, `bg-background` follow the
-  active theme; hardcoded palettes fight it.
+  active theme; a page built on hardcoded palettes fights it. ONE bespoke
+  accent via arbitrary values (`text-[#e2483d]`) is legitimate when the
+  subject demands a hue no theme carries — spend it on the one bold moment,
+  and know it will not follow a human's later theme switch.
 - `theme` — a complete design system (fonts + full token palette). Pick by
   the subject's mood, then read https://artifactbin.dev/docs/themes/<name> for the chosen
   theme's full authoring guidance:
@@ -44,9 +59,15 @@ format at the door.)
   - `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones; Fraunces display over Figtree, extra-round corners.
   - `broadsheet` — Newspaper/report — paper white, ink, steel blue; Source Serif 4.
   - `industry` — Professional, square — slate and industrial blue; Barlow Condensed display over Barlow.
-- `template` (genre hint) — the document's structural genre. Pick by the
-  content's shape, then read https://artifactbin.dev/docs/templates/<name> for the chosen
-  genre's beats and layout grammar:
+- `template` (genre hint) — the document's structural genre, a REFERENCE not
+  a contract: read https://artifactbin.dev/docs/templates/<name> for the chosen genre's beats,
+  and deviate (or omit `template` entirely) when the subject suggests a
+  better structure of its own. When the user's ask clearly names a genre
+  (slides → `deck`, operating view → `dashboard`, board report → `editorial`),
+  pick it; when it doesn't, **default to `scrolly`** — the designed, motif-led
+  treatment is the better unspecified-case bet than a sober report. Genuinely
+  torn between two readings of the ask? Clarify with the user, offering the
+  candidates as options:
   - `editorial` — Long-read feature or board report — chaptered argument with page breakers and a takeaways rail on every section.
   - `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers.
   - `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks.
@@ -83,6 +104,50 @@ validated against the dataset's real columns at publish
   12-column dashboard canvas (the `dashboard` template); humans can drag
   tiles in the editor.
 
+## Motion (classes + your own CSS — no JS)
+
+Think in moments, not effects: a page-load sequence for the hero, scroll
+reveals for each section's evidence, hover micro-interactions on what is
+interactive, at most one ambient loop for atmosphere. One orchestrated
+moment lands harder than scattered effects. Everything fails open —
+captures, exports, edit mode, and reduced-motion viewers always see the
+finished, fully visible page.
+
+- **Custom animation**: define `@keyframes` in your `<style>` block and
+  attach them to classes — any easing, any choreography. Guard loops with
+  `@media (prefers-reduced-motion: reduce)` in your CSS.
+- **Scroll reveals, custom** (stories run no JS — the platform observer does
+  the watching): stamp the element `data-reveal`, hide it under
+  `:root[data-mx-motion] .your-class:not([data-mx-seen])`, and give it a
+  transition to its natural state. The live viewer stamps `data-mx-seen`
+  when the reader reaches it; the `data-mx-motion` root flag exists ONLY in
+  the live view, which is what keeps captures and edit mode fully visible.
+- **Kit shortcuts** (one class, no CSS needed):
+  - `animate-marquee` — a real ticker: `overflow-hidden` band around
+    `<div className="flex w-max animate-marquee">` whose content appears
+    TWICE (two identical spans); speed via `[animation-duration:20s]`.
+  - `reveal` `reveal-up` `reveal-left` `reveal-right` `reveal-scale` —
+    prebuilt scroll reveals; stagger siblings with
+    `[transition-delay:120ms]`, `[transition-delay:240ms]`.
+  - `animate-fade-up` `animate-fade-in` `animate-scale-in` — hero load
+    entrances, staggered with `[animation-delay:200ms]`.
+  - `animate-float` (one ambient bob), `animate-caret-blink` (terminal caret).
+- **Hover micro-interactions**: plain Tailwind — `transition
+  hover:-translate-y-1`, `hover:bg-muted` — on cards and links.
+
+## Inline SVG (subject motifs)
+
+A minimal drawing subset renders inline for motifs and small diagrams — a
+frame ruler, a route map, a sparkline decoration:
+
+`<svg viewBox="0 0 640 48" className="w-full">` with
+`g path line polyline polygon rect circle ellipse text tspan defs
+linearGradient radialGradient stop clipPath title desc` (canonical camelCase
+for `clipPath`/`linearGradient`/`radialGradient`). Use `currentColor` and
+token-driven classes so the drawing follows the theme; gradients and clips
+must reference LOCAL ids only (`fill="url(#g)"` — external `url(…)` targets
+are rejected). No `use`/`image`/`foreignObject`/SMIL.
+
 ## Component vocabulary (the complete allowlist)
 
 Kit components:
@@ -91,7 +156,7 @@ Kit components:
 
 Plus the embeds `Question` `Param` `Number`, and these HTML tags:
 
-`div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary`
+`div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary` `svg` `g` `defs` `path` `line` `polyline` `polygon` `rect` `circle` `ellipse` `text` `tspan` `linearGradient` `radialGradient` `stop` `clipPath` `title` `desc`
 
 Anything else is rejected by name with the allowed set echoed back.
 
@@ -100,14 +165,14 @@ Anything else is rejected by name with the allowed set echoed back.
 ```jsx
 <div data-design="tw" className="@container px-6 py-12 @2xl:px-12 @2xl:py-16">
   <header className="max-w-4xl">
-    <p className="text-xs uppercase tracking-widest text-muted-foreground">Eyebrow</p>
-    <h1 className="mt-4 text-5xl @2xl:text-7xl font-bold tracking-tight leading-[1.05]">The headline states the finding</h1>
-    <p className="mt-6 text-lg text-muted-foreground max-w-prose">The standfirst earns the scroll in one sentence.</p>
+    <p className="animate-fade-in text-xs uppercase tracking-widest text-muted-foreground">Eyebrow</p>
+    <h1 className="animate-fade-up mt-4 text-5xl @2xl:text-7xl font-bold tracking-tight leading-[1.05]">The headline states the finding</h1>
+    <p className="animate-fade-up [animation-delay:200ms] mt-6 text-lg text-muted-foreground max-w-prose">The standfirst earns the scroll in one sentence.</p>
   </header>
   <section className="py-16">
-    <h2 className="text-2xl font-semibold tracking-tight">01 · A claim, never a topic</h2>
+    <h2 className="reveal-up text-2xl font-semibold tracking-tight">01 · A claim, never a topic</h2>
     <p className="mt-4 max-w-prose text-muted-foreground">Set up the chart — what to look at and why.</p>
-    <div className="mt-6"><Question title="Revenue by month" data="ref:art_…" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
+    <div className="reveal-up mt-6"><Question title="Revenue by month" data="ref:art_…" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
   </section>
 </div>
 ```
@@ -116,7 +181,10 @@ Anything else is rejected by name with the allowed set echoed back.
 
 - DO cap body copy at `max-w-prose`; let charts break wider.
 - DO use `ref:` datasets for every number a viewer might question.
-- DON'T hardcode hex colors, shadows, or fonts — the theme owns those.
+- DO spend motion deliberately: a hero entrance + section reveals, not
+  every element animating.
+- DON'T build the palette from hex — tokens follow the theme; one bespoke
+  accent is the exception, fonts never are.
 - DON'T reach for `html` because a component is missing — ask for the tag;
   most of HTML is already allowed.
 - DON'T re-send markdown after reading a document back: read-back is JSX and
@@ -155,8 +223,18 @@ this file — read the one you picked.
 
 A `template` is the document's structural GENRE — its beat structure and
 layout grammar — orthogonal to the design `theme`, which is purely a token
-set. Set it as the top-level `template` field on a `markup`/`markdown`
-artifact and author the beats it prescribes.
+set. It is a REFERENCE, not a contract: each page documents a genre's beats
+as a proven starting point, and a structure derived from the subject itself
+beats any of them. Deviate deliberately, or omit the `template` field and go
+bespoke — that is a first-class choice, not a fallback.
+
+Choosing: when the ask clearly names a genre (slides → `deck`, operating
+view → `dashboard`, board report / long-read → `editorial`), pick it. When
+it is NOT obvious from the user's instructions, **default to `scrolly`** —
+its conceit-led, designed treatment (at whatever register the subject can
+carry, deadpan included) is the strongest default for an unspecified ask.
+If you are genuinely torn between readings, clarify with the user and offer
+the candidate genres as options rather than guessing.
 
 Pick ONE by the content's shape, then read its page for the beats and layout
 grammar — details about a genre you didn't pick are noise:

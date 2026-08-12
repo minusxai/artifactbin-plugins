@@ -2,7 +2,7 @@
 
 Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks.
 
-Curious, witty, second-person — and DRESSED UP: the story wears a costume (a mission console, a field report, a race broadcast) and every element plays along. The scroll IS the story, suspense lives between chapters, and fun, visual stunningness is the point — serious about the data, theatrical about everything else.
+Curious, witty, second-person — and DRESSED UP: the story wears a costume (a mission console, a field report, a race broadcast) and every element plays along. The scroll IS the story, suspense lives between chapters, and fun, visual stunningness is the point — serious about the data, theatrical about everything else. The costume itself can run deadpan (a technical console, straight-faced) or full broadcast — pick the register the subject can carry.
 
 Beats: Console hero / cold open (the conceit announces itself) → Ticker band → Chapters (3-5), each opened by a page-break band → Twist → Payoff → Methodology footer
 
@@ -22,27 +22,42 @@ THE FUN KIT (compose 4-6 per story; pace them, never all on one screen):
 - Console topbar: a slim full-bleed bar opening the story — conceit name left, status chip
   and timestamp right, strong rule below. It scrolls away (fixed/sticky stay banned).
 - Two-tone headline: huge condensed uppercase claim with THE one word in the accent —
-  `<h1 className="text-6xl @2xl:text-8xl font-bold uppercase tracking-tight">The strait went <span className="text-primary">dark.</span></h1>`.
+  `<h1 className="animate-fade-up text-6xl @2xl:text-8xl font-bold uppercase tracking-tight">The strait went <span className="text-primary">dark.</span></h1>`
+  (the hero one enters with `animate-fade-up`; chapter ones ride `reveal-up` instead).
 - Ticker band: a full-bleed accent strip of repeating key stats
-  ("··· CARGO -97% ··· DAILY 95→5 ··· WAR 28 FEB ···") on a
-  `flex flex-wrap whitespace-nowrap` row inside an `overflow-hidden` band. Use it as a
-  static section seam once or twice; motion is optional and limited to built-in Tailwind
-  `animate-*` utilities.
+  ("··· CARGO -97% ··· DAILY 95→5 ··· WAR 28 FEB ···") that actually SCROLLS: an
+  `overflow-hidden` band around `<div className="flex w-max animate-marquee">` whose
+  content appears twice (two identical spans) so the -50% loop repeats seamlessly;
+  `[animation-duration:20s]` tunes the speed. Use it as a section seam once or twice.
+- Scroll reveals: each chapter's evidence enters as the reader reaches it — `reveal-up`
+  on the chart slab, staggered stat cards (`[transition-delay:120ms]`, `240ms`). One
+  reveal beat per chapter; captures and reduced-motion viewers always see the page
+  finished.
+- Drawn motif: one small inline `<svg>` in the conceit's voice — the console's frame
+  ruler, the case file's route map — `currentColor` strokes so it follows the theme,
+  local `url(#id)` refs only.
+- Custom choreography: when the kit's motion isn't enough, write your own `@keyframes`
+  in the document's `<style>{`...`}</style>` block (marching-ants borders, a sweeping
+  radar line, a typed-on heading) — class-scoped, reduced-motion-guarded, and never
+  fighting a utility (utilities are !important).
 - Page-break band: chapters open with a full-bleed inverted strip (`bg-foreground
   text-background -mx-6 @2xl:-mx-12 py-10`) carrying a small centered mono label ("↓
   SITREP 04 · THE STANDOFF NOW") and a GIANT ghost chapter numeral bleeding off one edge —
   a huge 15%-opacity numeral in the accent. Large type IS the decoration.
 - Stamped section label: the chapter kicker in a bordered, slightly rotated box
-  (`inline-block border-2 border-foreground px-3 py-1 -rotate-2 font-mono text-xs
-  uppercase tracking-widest`) with an italic muted aside sitting beside it.
+  (`reveal-left inline-block border-2 border-foreground px-3 py-1 -rotate-2 font-mono
+  text-xs uppercase tracking-widest`) sliding in from the left, with an italic muted
+  aside sitting beside it.
 - Hard-shadow chart slab: charts sit in framed cards with an OFFSET SOLID shadow — a solid
-  color block behind the graph, no blur, printed-poster feel: `border-2 border-foreground
-  shadow-[8px_8px_0_0_var(--primary)]` (or the foreground token; alternate per chapter).
+  color block behind the graph, no blur, printed-poster feel: `reveal-up border-2
+  border-foreground shadow-[8px_8px_0_0_var(--primary)]` (or the foreground token;
+  alternate per chapter) — each slab reveals as its chapter is reached.
 - Figure spec strip: under each chart, a dashed-top footer row — `FIG.02 · WHAT IT SHOWS`
   left, an accent annotation right ("MAR ONWARD: THE GAP").
 - Dashed stat cards: `border-2 border-dashed border-foreground/60` cards — mono kicker, a
   giant accent single-value embed, one-line caption. Arrow notation for change ("3,253 → 129"
-  — as a suffix in the embed's columnFormats, still live).
+  — as a suffix in the embed's columnFormats, still live). Stagger a row of them:
+  `reveal-up`, then `reveal-up [transition-delay:120ms]`, `[transition-delay:240ms]`.
 - Chip row: small bordered mono tags of the key facts under the hero ("TANKERS 43%",
   "DAILY 95→5", "● CLOSED").
 - Texture: a faint blueprint grid on quiet sections via Tailwind arbitrary background
