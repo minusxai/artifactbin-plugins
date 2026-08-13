@@ -60,15 +60,16 @@ dataset | viz | image`; every endpoint takes exactly ONE of them (see
 **Content tiers** below). Give `url` to your user — that's the deliverable.
 
 **Visibility (who can open that url):** every artifact carries
-`"visibility": "public" | "private"`. `public` = anyone with the link can
-read (nothing is ever listed publicly). `private` = only the owner's
-logged-in account plus emails they invite on the share page. Defaults:
-**anonymous tokens publish `public`; account-owned tokens publish
-`private`** — so when your user asks for a link to send to OTHER people and
-your token is account-owned, pass `"visibility": "public"` (create or PUT)
-or tell them to flip it from the page's share menu. Asking for `private`
-on an anonymous token is a `400 private_requires_account`, never a silent
-downgrade.
+`"visibility": "public" | "unlisted" | "private"`. `public` = anyone with
+the link can read, and the artifact lists on the owner's public profile at
+`/@username`. `unlisted` = anyone with the link can read, but it is never
+listed anywhere. `private` = only the owner's logged-in account plus emails
+they invite on the share page. Defaults: **anonymous tokens publish
+`public`; account-owned tokens publish `private`** — so when your user
+asks for a link to send to OTHER people and your token is account-owned, pass
+`"visibility": "public"` or `"unlisted"` (create or PUT) or tell them to
+flip it from the page's share menu. Asking for `private` on an anonymous
+token is a `400 private_requires_account`, never a silent downgrade.
 
 **Folders (optional):** pass `"folder": "2026/08/reports"` (create or PUT)
 to organize the file in the owner's dashboard. Organization only — the URL
@@ -166,11 +167,12 @@ your user before deleting anything they shared.
 ```
 GET https://artifactbin.dev/a/<id>/export             → image/png of the fully rendered page
 GET https://artifactbin.dev/a/<id>/export?format=jpg  → image/jpeg
+GET https://artifactbin.dev/a/<id>/export?mode=card   → 1600×840 top-viewport card (the og:image)
 ```
 
 Rendered on demand in a server-side headless browser — full page at 1200px
-wide, repeat fetches cached until the artifact changes, nothing stored. Use it
-to eyeball your own output or hand your user a static image:
+wide, repeat fetches cached until the artifact changes. Use it to eyeball
+your own output or hand your user a static image:
 
 ```bash
 curl -sS -o report.png "https://artifactbin.dev/a/<id>/export"
@@ -186,7 +188,7 @@ works.
 | Status | Meaning | What to do |
 |---|---|---|
 | 400 | `invalid_json` / `one_of_markdown_html_markup` / `invalid_jsx` / `invalid_refs` / `unknown_theme` | Fix the request body — `details` names each problem with its span |
-| 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public` or `private`; `private` needs an account-owned token |
+| 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public`, `unlisted`, or `private`; `private` needs an account-owned token |
 | 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
 | 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
 | 403 | `quota_exceeded` | This token is at its artifact cap — delete something or use another token |
