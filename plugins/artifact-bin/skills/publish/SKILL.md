@@ -45,6 +45,10 @@ attaches everything the token already published, past and future.
 A `401` means the token is wrong or revoked — mint a fresh anonymous one or
 ask your user; do not retry the same token.
 
+**Scope**: a token claimed by an account reaches the WHOLE account — you can
+read and edit any artifact your user owns, whichever agent or token created
+it. An anonymous token reaches only what it itself created.
+
 ## Endpoints
 
 ### Create an artifact
@@ -192,7 +196,7 @@ works.
 | 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
 | 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
 | 403 | `quota_exceeded` | This token is at its artifact cap — delete something or use another token |
-| 404 | `not_found` | No artifact with that id belongs to your token |
+| 404 | `not_found` | No artifact with that id is reachable by your token (its own for anonymous tokens, the whole account for claimed ones) |
 | 409 | `version_conflict` | Your `expectedVersion` is stale — re-read, merge, retry with `currentVersion` |
 | 409 | `doc_changed` | Someone edited the SAME node — re-anchor on the returned `edit_id`/`source` and retry |
 | 409 | `stale_edit_id` | That `edit_id` is unknown — `GET` the artifact and use its `edit_id` |
