@@ -68,7 +68,7 @@ format at the door.)
   treatment is the better unspecified-case bet than a sober report. Genuinely
   torn between two readings of the ask? Clarify with the user, offering the
   candidates as options:
-  - `editorial` — Long-read feature or board report — chaptered argument with page breakers and a takeaways rail on every section.
+  - `editorial` — Typeset document/report — one centered text column paced in pages by a repeated folio rule, with numbered figures as the only wide elements.
   - `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers.
   - `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks.
   - `dashboard` — Operating view — a grid of draggable KPI and chart tiles with a one-line takeaway; almost no prose.
@@ -242,7 +242,7 @@ the candidate genres as options rather than guessing.
 Pick ONE by the content's shape, then read its page for the beats and layout
 grammar — details about a genre you didn't pick are noise:
 
-- `editorial` — Long-read feature or board report — chaptered argument with page breakers and a takeaways rail on every section. → https://artifactbin.dev/docs/templates/editorial
+- `editorial` — Typeset document/report — one centered text column paced in pages by a repeated folio rule, with numbered figures as the only wide elements. → https://artifactbin.dev/docs/templates/editorial
 - `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers. → https://artifactbin.dev/docs/templates/deck
 - `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks. → https://artifactbin.dev/docs/templates/scrolly
 - `dashboard` — Operating view — a grid of draggable KPI and chart tiles with a one-line takeaway; almost no prose. → https://artifactbin.dev/docs/templates/dashboard

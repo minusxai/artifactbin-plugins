@@ -62,8 +62,35 @@ stop; one motif, total commitment, no second conceit.
   large tight headlines beats five mid-sized headings.
 - Body copy caps at `max-w-prose` (~65ch); evidence (charts, tables) breaks
   wider. Width contrast IS the layout.
-- Give big headlines `text-balance`, uppercase labels `tracking-widest`, and
-  aligned digits `tabular-nums`.
+
+## Typography
+
+Typography carries the page even when the page isn't about typography.
+
+- The PAIRING comes with the theme: a display face on headings, a body face on
+  everything else, and (in most themes) a mono utility face — chosen as a set.
+  Pick the theme whose pairing matches the document's voice (`/docs/themes`)
+  and never fight it with a second family; the one sanctioned accent is a
+  color, not a font.
+- Spend the pairing in three ROLES. DISPLAY carries the argument: few, large,
+  `tracking-tight`, `text-balance`, sentence case. BODY carries reading:
+  `leading-relaxed`, capped at `max-w-prose`. UTILITY (`font-mono` where the
+  theme bundles one) carries the apparatus — eyebrows, folios, figure numbers,
+  axis and table digits, captions.
+- Set a SCALE and stay on it: 3-4 sizes per document with a real jump between
+  roles (`text-xs` apparatus · `text-base`/`text-lg` body · `text-4xl`+
+  display). Two adjacent sizes doing different jobs reads as a mistake.
+- Uppercase belongs to the apparatus only, always tracked (`tracking-widest`);
+  never letterspace lowercase body copy. Aligned digits get `tabular-nums`.
+- Weight is hierarchy's cheapest lever — `font-semibold` headings over bold
+  paragraphs; if everything is bold, nothing is.
+- No webfont URLs: authored `<style>` blocks strip every external `url()` /
+  `@import` at save (exfiltration + self-contained-capture guards), so a
+  Google Fonts link is silently inert. A `data:` URI `@font-face` passes,
+  but the platform way is the theme's bundled pairing.
+
+Every template names how these roles are spent (its "Type register") — the
+genre changes the register, never the roles.
 
 ## Space
 

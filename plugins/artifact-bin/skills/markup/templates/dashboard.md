@@ -12,6 +12,11 @@ Voice: terse and factual. One sentence of prose per section, maximum; the tiles 
 story. The layout IS the product: everything visual lives inside ONE `<Grid>` per section so
 the reader can drag and resize tiles in edit mode — never lay tiles out with flex/grid CSS.
 
+Type register (the theme's pairing, spent the operations way): display speaks once —
+the verdict h1; the utility face runs everything that repeats — kickers, tile labels,
+axis and table digits (`tabular-nums` always); body barely exists (the one sentence
+per section and the footnote).
+
 SKELETON (adapt cols/rows to the data; 12 columns × 86px rows):
 - Header OUTSIDE the Grid: kicker `<p className="text-xs uppercase tracking-widest font-semibold text-primary">Ops · Weekly</p>`,
   then the verdict as the h1 — a spoken sentence ("Activation is up; payment friction is the

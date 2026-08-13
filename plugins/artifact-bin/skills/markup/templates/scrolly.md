@@ -11,6 +11,11 @@ Beats: Console hero / cold open (the conceit announces itself) → Ticker band �
 Voice: curious, witty, second person ("you'd expect X — that's not what happened").
 Honesty rules hold: the humor is in the telling, never at the data's expense.
 
+Type register (the theme's pairing, spent the console way): the utility face IS the
+conceit's voice — mono uppercase tracked for every label, ticker, stamp, and spec
+strip; display shouts the two-tone claims, condensed and huge; body stays in short
+two-column bursts between them.
+
 THE CONCEIT (the single biggest lever): invent a fiction the data lives inside — a mission
 console, a case file, a broadcast — and commit EVERY element to it: name the fake console
 ("STRAIT WATCH · TRAFFIC MONITOR"), chapter labels in its voice ("SITREP 02 · THE
@@ -47,7 +52,9 @@ THE FUN KIT (compose 4-6 per story; pace them, never all on one screen):
 - Stamped section label: the chapter kicker in a bordered, slightly rotated box
   (`reveal-left inline-block border-2 border-foreground px-3 py-1 -rotate-2 font-mono
   text-xs uppercase tracking-widest`) sliding in from the left, with an italic muted
-  aside sitting beside it.
+  aside sitting beside it — ONE flex row (`flex flex-wrap items-baseline gap-x-4`)
+  sitting full-width ABOVE the chapter headline. Never park the label in its own grid
+  column: two small lines beside a tall chapter is a mostly-empty rail at desktop widths.
 - Hard-shadow chart slab: charts sit in framed cards with an OFFSET SOLID shadow — a solid
   color block behind the graph, no blur, printed-poster feel: `reveal-up border-2
   border-foreground shadow-[8px_8px_0_0_var(--primary)]` (or the foreground token;
@@ -76,11 +83,23 @@ the platform's scrolly scene, no sticky needed) → PAYOFF: the full-width chart
 moral in one huge two-tone sentence → small honest methodology footer in the conceit's
 voice ("END OF TRANSMISSION · sources, window, exclusions").
 
+Only the BANDS run full-bleed (ticker, page-break, inverted twist); each chapter's
+content lives in a centered width-capped shell (`mx-auto max-w-6xl`) so the story
+alternates bleed and column instead of stretching edge to edge. Every chapter opens
+the same way — band, label row, headline — repeated verbatim; the twist is the one
+sanctioned break.
+
+BALANCE the grid's weight: a split (`@3xl:grid-cols-[3fr_2fr]`) is earned only when
+both columns carry comparable height — prose one side, evidence the other. If one
+cell would hold just a label, a stamp, or a lone stat, stack it above instead; a
+short column beside a tall one reads as a hole in the page, not as asymmetry.
+
 Do
 - Commit to the conceit in every label; alternate dark/light grounds between chapters.
 - One reveal per chapter; direct-label the thing being followed; captions do jokes AND work.
 Don't
 - Fake sticky scenes; walls of prose; two conceits; a payoff without its number; the whole
   fun kit on one screen.
+- A chapter label in its own side column; chapter prose running full width uncapped.
 
 Components: `https://artifactbin.dev/docs/markup`; publish API: `https://artifactbin.dev/docs/llm`.

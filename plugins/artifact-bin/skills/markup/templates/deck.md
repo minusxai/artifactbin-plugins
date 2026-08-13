@@ -12,6 +12,11 @@ Voice: a keynote. Every slide headline is a spoken sentence ("Retention pays for
 increase"), never a label ("Retention"). One idea per slide. A good slide is ~40% empty —
 put the air BELOW the content, not around it.
 
+Type register (the theme's pairing, spent the keynote way): display does the speaking —
+huge spoken headlines, few words; the utility face runs the chrome — kickers, footer
+meta, slide numbers, contents rows; body appears only in standfirsts and captions,
+never in paragraphs.
+
 THE SLIDE (every CONTENT slide — accent dividers are the one exemption, see below;
 fixed/sticky are banned — a slide is a tall section):
 - The deck is `<SlideDeck>` wrapping one `<Slide>` per slide. `<Slide>` already fills the
