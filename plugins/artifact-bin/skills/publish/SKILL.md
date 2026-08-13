@@ -24,6 +24,10 @@ Every `/api/artifacts` call needs a bearer token:
 Authorization: Bearer mx_...
 ```
 
+0. **Your user pasted a start link** (`https://artifactbin.dev/a/<id>/start?k=...`) — GET it
+   for that document's instructions, then `POST` the same `/start?k=` URL
+   once: it answers `{ "token": "mx_..." }`. The link is single-use and
+   expires in minutes; the token it yields is yours for every later call.
 1. **Saved config** — check `~/.config/artifact-bin/config.json` for
    `{ "url", "token" }`. If it exists, use it.
 2. **Your user gave you one** (or it's in your MCP/agent config) — use it.
