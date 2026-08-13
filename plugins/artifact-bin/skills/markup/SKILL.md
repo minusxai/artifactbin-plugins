@@ -89,7 +89,10 @@ Create `dataset` / `viz` / `image` artifacts first, then bind them by id:
   So write "revenue reached <Number … agg="sum" />", never "revenue reached 19400".
 - `<Param name="region" data={{"data":"ref:<datasetId>","column":"region"}} />`
   — a viewer-facing filter control; embeds with matching `filters` respond.
-- `<img src="ref:<imageId>" />` — an uploaded image artifact.
+- `<img src="ref:<imageId>" />` — an uploaded image artifact (publish the
+  image first: POST a base64 `data:` URL, or the raw bytes under a
+  `Content-Type: image/<type>` header — see `/docs/llm`). A remote
+  `https://` src is rejected; artifacts are self-contained.
 
 Every `ref:<id>` must name an artifact YOUR token owns; bindings are
 validated against the dataset's real columns at publish

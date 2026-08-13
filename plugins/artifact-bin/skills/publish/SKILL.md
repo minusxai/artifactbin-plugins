@@ -255,9 +255,21 @@ POST https://artifactbin.dev/api/artifacts
 
 4. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
    `columns` type declarations), `viz` (a reusable chart recipe — shape
-   below), `image` (a base64 `data:` URL). Create these first, then bind
+   below), `image`. Create these first, then bind
    them in markup as `ref:<id>`; dataset creation echoes the
    inferred columns so you know what to bind.
+
+   An `image` accepts two forms: a base64 `data:` URL in the JSON body
+   (`{ "image": "data:image/png;base64,…" }`), OR — with no JSON envelope —
+   the raw bytes as the request body under a `Content-Type: image/<type>`
+   header, which skips base64 entirely:
+   ```bash
+   curl -X POST https://artifactbin.dev/api/artifacts -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: image/png" --data-binary @chart.png
+   ```
+   Either way the bytes are stored once (content-addressed) and served from
+   `https://artifactbin.dev/a/<id>/raw`; bind it in markup as `<img src="ref:<id>" />`.
+   Max `5,000,000` bytes (png|jpeg|webp|gif|svg+xml).
 
    A `viz` recipe is the one shape the prose above can't give you: a
    vega/vega-lite `template` whose `{{token}}`s are filled from declared
