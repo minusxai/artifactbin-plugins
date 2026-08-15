@@ -59,13 +59,15 @@ it. An anonymous token reaches only what it itself created.
 
 ```
 POST https://artifactbin.dev/api/artifacts
-{ "title": "Optional title", "description": "Optional", "html": "<!doctype html>..." }
-→ 201 { "id": "<6-char id>", "url": "https://artifactbin.dev/a/<id>", "version": 1 }
+{ "title": "Optional title", "description": "Optional", "markup": "<h1 className=\"text-4xl font-bold\">Hello</h1>" }
+→ 201 { "id": "<6-char id>", "url": "https://artifactbin.dev/a/<id>", "version": 1, "markup": "<canonical source>" }
 ```
 
-`html` here is one of six content fields — `markup | markdown | html |
-dataset | viz | image`; every endpoint takes exactly ONE of them (see
-**Content tiers** below). Give `url` to your user — that's the deliverable.
+`markup` is one of four content fields — `markup | dataset | viz | image`;
+every endpoint takes exactly ONE of them (see **Content tiers** below). Give
+`url` to your user — that's the deliverable. The response echoes the stored
+`markup`, which is CANONICAL: it may differ from what you sent (formatting is
+normalized, a `<Helmet>` is hoisted to the top). Edit against the echo.
 
 **Visibility (who can open that url):** every artifact carries
 `"visibility": "public" | "unlisted" | "private"`. `public` = anyone with
@@ -86,7 +88,7 @@ deep.
 Example:
 
 ```bash
-jq -n --rawfile html artifact.html '{"title":"My page","html":$html}' \
+jq -n --rawfile markup artifact.jsx '{"title":"My page","markup":$markup}' \
   | curl -sS -X POST https://artifactbin.dev/api/artifacts \
       -H "Authorization: Bearer $ARTIFACT_TOKEN" -H 'Content-Type: application/json' \
       --data-binary @-
@@ -96,7 +98,7 @@ jq -n --rawfile html artifact.html '{"title":"My page","html":$html}' \
 
 ```
 PUT https://artifactbin.dev/api/artifacts/<id>
-{ "html": "<!doctype html>...", "title": "optional new title" }
+{ "markup": "<h1 className=\"text-4xl\">Replaced</h1>", "title": "optional new title" }
 → 200 { "id", "url", "version": <bumped> }
 ```
 
@@ -138,7 +140,7 @@ or without a text change). Those are document-level and never conflict.
 
 ```
 GET https://artifactbin.dev/api/artifacts/<id>
-→ 200 { "id", "url", "title", "description", "format", "html", "version", ... }
+→ 200 { "id", "url", "title", "description", "format", "markup", "version", ... }
 ```
 
 ### List your artifacts
@@ -195,7 +197,7 @@ works.
 
 | Status | Meaning | What to do |
 |---|---|---|
-| 400 | `invalid_json` / `one_of_markdown_html_markup` / `invalid_jsx` / `invalid_refs` / `unknown_theme` | Fix the request body — `details` names each problem with its span |
+| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `unknown_theme` | Fix the request body — `details` names each problem with its span |
 | 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public`, `unlisted`, or `private`; `private` needs an account-owned token |
 | 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
 | 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
@@ -237,13 +239,16 @@ POST https://artifactbin.dev/api/artifacts
   "theme": "nocturne", "template": "editorial", "colorMode": "light" }
 ```
 
-   - Vocabulary: plain HTML tags + ~60 kit components (Card, Tabs, Badge,
+   - Vocabulary: an ALLOWLIST of ~87 HTML tags + ~60 kit components (Card, Tabs, Badge,
      SlideDeck/Slide, Grid/GridItem, …) + live data embeds (`<Question>`
      charts/tables, `<Number>`, `<Param>` filters) — **read
-     https://artifactbin.dev/docs/markup for the full reference before authoring.**
+     https://artifactbin.dev/docs/markup for the full reference before authoring.** A refused
+     tag answers 400 with the whole allowed set in `allowed_html_tags`, so
+     guess and correct rather than asking for the list up front. `<title>`,
+     `<style>` and `<script>` are document-level: they live in `<Helmet>`.
    - Style with Tailwind classes via `className`; inline `style=` is rejected.
-     One top-level `<style>{`…`}</style>` block is allowed for custom CSS.
-     Override theme variables there under `:root` (for example
+     Custom CSS goes in the Helmet's one `<style>{`…`}</style>` block —
+     override theme variables there under `:root` (for example
      `--background`, `--primary`, `--chart-1..5`, `--font-display`).
    - `theme`: `modernist | classical | nocturne | organic | broadsheet | industry`
      — one-liners at https://artifactbin.dev/docs/themes; after picking, read
@@ -257,14 +262,23 @@ POST https://artifactbin.dev/api/artifacts
      mode on the page itself) — you and your user are editing one artifact,
      versioned together.
 
-2. **`markdown`** — input convenience: converted to `markup` (story JSX) at
-   the door and stored as a markup artifact. Quick docs with zero design
-   effort; title defaults from the first `#` heading; same `theme` field.
-   Read-back returns the JSX, not your markdown.
+2. **Prose and raw HTML live INSIDE markup**, not beside it:
+   - Write prose as ordinary tags — `<h1>`, `<p>`, `<ul>`, `<blockquote>`,
+     `<table>`, `<figure>`, inline SVG. There is no markdown here: one
+     authoring language, and every paragraph stays individually editable in the
+     WYSIWYG (a markdown blob would be one opaque node).
+   - Unclassed tags already read well (the platform typography floor styles
+     them); reach for `className` utilities when you want design.
+   - **`<Helmet>`** — at most ONE per document, holding at most one each of
+     `<title>`, `<style>{\`…\`}</style>`, `<script>{\`…\`}</script>`, plus
+     `<meta name content />` pairs. This is the only place a document may
+     carry custom CSS or JS. It may be written anywhere; it is hoisted to the
+     top of the document when stored.
+     Your script runs in the SERVED document after it hydrates, inside a
+     sandboxed frame with an opaque origin: no network, no cookies, no access
+     to the surrounding page.
 
-3. **`html`** — raw escape hatch, full control, you write everything. But the user CANNOT edit it WYSIWYG at `https://artifactbin.dev/a/<id>` — they see the source, not a design view. Use this only for content that cannot be expressed in markup or markdown.
-
-4. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
+3. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
    `columns` type declarations), `viz` (a reusable chart recipe — shape
    below), `image`. Create these first, then bind
    them in markup as `ref:<id>`; dataset creation echoes the
@@ -300,18 +314,21 @@ POST https://artifactbin.dev/api/artifacts
                                        "y": { "field": "{{y}}", "type": "quantitative" } } } } }
 ```
 
-`PUT` accepts any tier and may switch an artifact between them; `GET` returns
-the `markup` source plus `theme` for round-trip editing.
+`PUT` replaces content wholesale; `GET` returns the `markup` source plus
+`theme` for round-trip editing.
 
-### Rules for artifact HTML (the `html` tier)
+### Rules every document lives by
 
-Artifact pages are served with a strict Content-Security-Policy: **all network
-access is blocked**. Anything external will silently fail to load.
+Documents are served with a strict Content-Security-Policy inside a sandboxed
+frame: **all outbound network access is blocked**. Anything external silently
+fails to load.
 
-- ONE self-contained file. Inline all CSS in `<style>` and all JS in `<script>`.
+- ONE self-contained document. Custom CSS in `<Helmet><style>`, custom JS in
+  `<Helmet><script>` — one of each, at most.
 - No CDN `<script src>`, no external stylesheets, no web fonts, no `fetch`/XHR.
-- Images/media only as `data:` URIs.
-- The page is sandboxed: forms and popups won't work; design content to be self-contained.
+- Images/media only as `data:` URIs or `ref:<id>` to an image artifact.
+- Your `<script>` may not contain the sequence `</script` (it cannot be
+  escaped in a served document) — split it: `"</scr" + "ipt>"`.
 - Max size: 2,000,000 bytes (~2 MB) including embedded data: URIs.
 
 ## Typical workflow
@@ -338,7 +355,7 @@ API:
 
 - `POST https://artifactbin.dev/api/tokens/anonymous` — mint a token (no auth)
 - `https://artifactbin.dev/mcp` — MCP server (same token, same operations)
-- `POST https://artifactbin.dev/api/artifacts` — create (`markup` | `markdown` | `html` | `dataset` | `viz` | `image`)
+- `POST https://artifactbin.dev/api/artifacts` — create (`markup` | `dataset` | `viz` | `image`)
 - `GET https://artifactbin.dev/api/artifacts` — list yours
 - `GET https://artifactbin.dev/api/artifacts/<id>` — read one back (source + theme)
 - `PUT https://artifactbin.dev/api/artifacts/<id>` — replace content, bump version, same link
@@ -350,4 +367,4 @@ API:
   work — anything carrying the id resolves and self-corrects, so hand out
   whichever you have.
 - `https://artifactbin.dev/a/<id>/export` — the page as a PNG (`?format=jpg` too; curlable, no auth)
-- `https://artifactbin.dev/a/<id>/raw` — the bytes: stored html, dataset/viz JSON, image, markup source
+- `https://artifactbin.dev/a/<id>/raw` — the served document (HTML), or dataset/viz JSON, or image bytes

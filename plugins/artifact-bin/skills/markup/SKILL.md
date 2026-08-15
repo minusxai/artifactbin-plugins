@@ -23,16 +23,48 @@ format at the door.)
 ## Ground rules
 
 - **Static JSX only**: literal props (strings, numbers, booleans, arrays,
-  `{{…}}` objects). No expressions, no event handlers, no spreads, no
-  `<script>`/`<iframe>`.
+  `{{…}}` objects). No expressions, no spreads, no `<iframe>`, and no inline
+  event handlers (`onClick=` is rejected) — the markup is data, never code.
+- **But the document DOES run your JavaScript.** One `<script>` lives in the
+  `<Helmet>` (below) and runs in the served document after it hydrates, so
+  hand-written interactivity is ported, not rewritten: attach behaviour with
+  `addEventListener` instead of inline handlers, and query your own ids and
+  classes as usual.
+
+## `<Helmet>` — the document's own head
+
+At most ONE per document, holding at most one each of `<title>`, `<style>`
+and `<script>`, plus `<meta name content />` pairs. Write it anywhere; it is
+hoisted to the top when stored. This is the ONLY place a document may carry
+custom CSS or JS — a `<style>` or `<title>` in the body is refused and told
+to come here. (An `<svg>` keeps its OWN `<title>`: that is the graphic's
+accessibility label, a different element sharing the name, and as many as you
+have icons is fine.)
+
+```jsx
+<Helmet>
+  <title>Quarterly review</title>
+  <style>{`.rise { animation: rise .9s both } @keyframes rise { from { opacity: 0 } }`}</style>
+  <script>{`
+    document.getElementById('tab-2').addEventListener('click', function () {
+      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = true; });
+      document.getElementById('panel-2').hidden = false;
+    });
+  `}</script>
+</Helmet>
+```
+
+Your script runs inside a sandboxed frame with an opaque origin: no network,
+no cookies, no access to the surrounding page. `</script` cannot appear in
+the text (split it: `'</scr' + 'ipt'`).
 - **Style with Tailwind classes via `className`** — utilities carry layout,
   type, and spacing. Start the document with a
   `<div data-design="tw" className="@container …">` wrapper; use `@2xl:`
   container variants for responsive layout.
-- **Custom CSS lives in a `<style>` block, never inline**: for anything
-  Tailwind cannot express (custom `@keyframes`, compound selectors, textures)
-  add ONE top-level style block, with the CSS wrapped in a template literal so
-  its braces read as data — `<style>{`.rise { … }`}</style>` — and
+- **Custom CSS lives in the Helmet's `<style>` block, never inline**: for
+  anything Tailwind cannot express (custom `@keyframes`, compound selectors,
+  textures) put it in that one block, with the CSS wrapped in a template
+  literal so its braces read as data — `<style>{`.rise { … }`}</style>` — and
   reference it by class. Inline `style=` attributes are rejected. Scope rules
   to your own class names (bare element selectors leak into chart/embed
   chrome), and take colors from theme tokens (`var(--primary)`,
@@ -43,7 +75,7 @@ format at the door.)
   `100vh` is rewritten to the reader-viewport variable.
 - **Override a theme in CSS**: the selected theme is stamped on the iframe
   document root, and built-in colors, charts, radius, and fonts are variables.
-  Put overrides in your top-level style block under `:root` — no theme-name
+  Put overrides in the Helmet's style block under `:root` — no theme-name
   selector, specificity trick, or `!important`:
   `<style>{`:root { --background: #0c0d0e; --primary: #ff6a1f; --chart-1: #ec6100; --font-display: Georgia, serif; }`}</style>`.
   Available palette keys are `--background`, `--foreground`,
@@ -187,7 +219,7 @@ Kit components:
 
 Plus the embeds `Question` `Param` `Number`, and these HTML tags:
 
-`div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary` `svg` `g` `defs` `path` `line` `polyline` `polygon` `rect` `circle` `ellipse` `text` `tspan` `linearGradient` `radialGradient` `stop` `clipPath` `title` `desc`
+`div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `video` `audio` `track` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary` `button` `input` `label` `select` `option` `optgroup` `textarea` `fieldset` `legend` `output` `meter` `progress` `datalist` `canvas` `dialog` `template` `svg` `g` `defs` `path` `line` `polyline` `polygon` `rect` `circle` `ellipse` `text` `tspan` `linearGradient` `radialGradient` `stop` `clipPath` `title` `desc`
 
 Anything else is rejected by name with the allowed set echoed back.
 
@@ -218,7 +250,7 @@ Anything else is rejected by name with the allowed set echoed back.
   accent is the exception, fonts never are.
 - DON'T reach for `html` because a component is missing — ask for the tag;
   most of HTML is already allowed.
-- DON'T re-send markdown after reading a document back: read-back is JSX and
+- DON'T author in markdown: there is no markdown tier, and read-back is JSX and
   that is the round-trip format.
 
 Read `https://artifactbin.dev/docs/llm` for auth, endpoints, versioning, and the MCP server;
@@ -234,8 +266,8 @@ component and Tailwind token class follows. Set it as the top-level `theme`
 field on a `markup`/`markdown` artifact; humans can switch it later in the
 editor without recompiling.
 
-Override the chosen theme with ordinary CSS in the markup's top-level
-`<style>` block. The theme is on the iframe document root, so the supported
+Override the chosen theme with ordinary CSS in the markup's
+`<Helmet><style>` block. The theme is on the iframe document root, so the supported
 selector is simply `:root`:
 
 ```css

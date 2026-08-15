@@ -122,8 +122,9 @@ genre changes the register, never the roles.
   usually lands harder than scattered effects; choose what the direction
   calls for. Sometimes less is more — extra animation contributes to the
   feeling that a design is AI-generated.
-- You have real CSS: custom `@keyframes` in a `<style>` block attached
-  to classes, the kit's one-class shortcuts, and the scroll-reveal
+- You have real CSS *and* real JavaScript: custom `@keyframes` in the
+  Helmet's `<style>` block attached to classes, a `<Helmet><script>` that
+  runs in the served document (attach handlers with `addEventListener`), the kit's one-class shortcuts, and the scroll-reveal
   observer contract (`data-reveal` + `data-mx-seen`) for
   animate-when-visible without JS — see https://artifactbin.dev/docs/markup "Motion".
   Utilities compile `!important` and always beat authored CSS: design
