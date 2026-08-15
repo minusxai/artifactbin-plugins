@@ -41,6 +41,18 @@ format at the door.)
   CSS, so never fight a utility from a style block. At save,
   `position: fixed/sticky` and external `url()`/`@import` are stripped, and
   `100vh` is rewritten to the reader-viewport variable.
+- **Override a theme in CSS**: the selected theme is stamped on the iframe
+  document root, and built-in colors, charts, radius, and fonts are variables.
+  Put overrides in your top-level style block under `:root` — no theme-name
+  selector, specificity trick, or `!important`:
+  `<style>{`:root { --background: #0c0d0e; --primary: #ff6a1f; --chart-1: #ec6100; --font-display: Georgia, serif; }`}</style>`.
+  Available palette keys are `--background`, `--foreground`,
+  `--card`/`--card-foreground`, `--popover`/`--popover-foreground`,
+  `--primary`/`--primary-foreground`, `--secondary`/`--secondary-foreground`,
+  `--muted`/`--muted-foreground`, `--accent`/`--accent-foreground`,
+  `--destructive`/`--destructive-foreground`, `--border`, `--input`,
+  `--ring`, `--radius`, and `--chart-1..5`; type keys are
+  `--font-body`, `--font-display`, and `--font-mono`.
 - **Self-contained subresources**: `src`/`srcSet`/`poster` must be a
   `ref:<id>` or a `data:image/` URL — an external URL is rejected
   (`400 invalid_jsx`). Links (`href`) may point anywhere.
@@ -214,6 +226,22 @@ A `theme` is a complete design system — fonts plus the full token palette
 component and Tailwind token class follows. Set it as the top-level `theme`
 field on a `markup`/`markdown` artifact; humans can switch it later in the
 editor without recompiling.
+
+Override the chosen theme with ordinary CSS in the markup's top-level
+`<style>` block. The theme is on the iframe document root, so the supported
+selector is simply `:root`:
+
+```css
+:root {
+  --background: #0c0d0e;
+  --primary: #ff6a1f;
+  --chart-1: #ec6100;
+  --font-display: Georgia, serif;
+}
+```
+
+This repaints the actual page ground, recolors token classes and charts, and
+retargets headings. It needs no theme-name selector and no `!important`.
 
 Pick ONE by the subject's mood, then read its page for the full authoring
 guidance — details about a theme you didn't pick are noise:

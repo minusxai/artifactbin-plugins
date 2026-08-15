@@ -241,7 +241,10 @@ POST https://artifactbin.dev/api/artifacts
      SlideDeck/Slide, Grid/GridItem, …) + live data embeds (`<Question>`
      charts/tables, `<Number>`, `<Param>` filters) — **read
      https://artifactbin.dev/docs/markup for the full reference before authoring.**
-   - Style with Tailwind classes via `className` (no `<style>`, no `style=`).
+   - Style with Tailwind classes via `className`; inline `style=` is rejected.
+     One top-level `<style>{`…`}</style>` block is allowed for custom CSS.
+     Override theme variables there under `:root` (for example
+     `--background`, `--primary`, `--chart-1..5`, `--font-display`).
    - `theme`: `modernist | classical | nocturne | organic | broadsheet | industry`
      — one-liners at https://artifactbin.dev/docs/themes; after picking, read
      https://artifactbin.dev/docs/themes/<name> for the chosen theme's full guidance.
