@@ -101,6 +101,13 @@ Create `dataset` / `viz` / `image` artifacts first, then bind them by id:
   So write "revenue reached <Number … agg="sum" />", never "revenue reached 19400".
 - `<Param name="region" data={{"data":"ref:<datasetId>","column":"region"}} />`
   — a viewer-facing filter control; embeds with matching `filters` respond.
+  `data` also takes an authored array (`data={["2023","2024"]}` — no
+  dataset needed; `options` is an accepted alias), and `widget="buttons"`
+  renders the choices as a pill group ("All" + one button per choice)
+  instead of the select.
+- `<Icon name="chart-bar" />` — a lucide icon, inline (kebab-case names from
+  lucide.dev; unknown names render a question mark). Size it with a Tailwind
+  `size-*` class; it inherits `currentColor`.
 - `<img src="ref:<imageId>" />` — an uploaded image artifact (publish the
   image first: POST a base64 `data:` URL, or the raw bytes under a
   `Content-Type: image/<type>` header — see `/docs/llm`). A remote
@@ -176,7 +183,7 @@ are rejected). No `use`/`image`/`foreignObject`/SMIL.
 
 Kit components:
 
-`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `SlideDeck` `Slide` `Video`
+`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `SlideDeck` `Slide` `Video` `Icon`
 
 Plus the embeds `Question` `Param` `Number`, and these HTML tags:
 
