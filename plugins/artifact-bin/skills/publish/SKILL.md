@@ -42,9 +42,8 @@ Then **write it to `~/.config/artifact-bin/config.json`** as
 `{ "url": "https://artifactbin.dev", "token": "mx_..." }` so future sessions (yours and other
 agents') reuse the same token instead of scattering artifacts across fresh
 ones. Anonymous artifacts work fully but belong to nobody — **tell your
-user**: *"to keep these under your account, log in at https://artifactbin.dev and claim token
-`mx_...`"* (they paste it in the Claim box on the dashboard). Claiming
-attaches everything the token already published, past and future.
+user**: *"to keep these under your account, log in at https://artifactbin.dev and claim token `mx_...`"* (they paste it in the Claim box on the dashboard). Claiming attaches everything the token already
+published, past and future.
 
 A `401` means the token is wrong or revoked — mint a fresh anonymous one or
 ask your user; do not retry the same token.
@@ -239,7 +238,7 @@ POST https://artifactbin.dev/api/artifacts
   "theme": "nocturne", "template": "editorial", "colorMode": "light" }
 ```
 
-   - Vocabulary: an ALLOWLIST of ~87 HTML tags + ~60 kit components (Card, Tabs, Badge,
+   - Vocabulary: an ALLOWLIST of 104 HTML tags + 64 kit components (Card, Tabs, Badge,
      SlideDeck/Slide, Grid/GridItem, …) + live data embeds (`<Question>`
      charts/tables, `<Number>`, `<Param>` filters) — **read
      https://artifactbin.dev/docs/markup for the full reference before authoring.** A refused
