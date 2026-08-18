@@ -196,7 +196,7 @@ works.
 
 | Status | Meaning | What to do |
 |---|---|---|
-| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `unknown_theme` | Fix the request body — `details` names each problem with its span |
+| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `invalid_sql` / `unknown_theme` | Fix the request body — `details` names each problem with its span (`invalid_sql` carries the engine's message with candidate columns) |
 | 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public`, `unlisted`, or `private`; `private` needs an account-owned token |
 | 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
 | 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
@@ -238,9 +238,10 @@ POST https://artifactbin.dev/api/artifacts
   "theme": "nocturne", "template": "editorial", "colorMode": "light" }
 ```
 
-   - Vocabulary: an ALLOWLIST of 104 HTML tags + 64 kit components (Card, Tabs, Badge,
+   - Vocabulary: an ALLOWLIST of 104 HTML tags + 65 kit components (Card, Tabs, Badge,
      SlideDeck/Slide, Grid/GridItem, …) + live data embeds (`<Question>`
-     charts/tables, `<Number>`, `<Param>` filters) — **read
+     charts/tables, `<Number>`) over `<Query>`/`<Value>` declared in
+     `<Helmet>` and bound with `data="$name"` — **read
      https://artifactbin.dev/docs/markup for the full reference before authoring.** A refused
      tag answers 400 with the whole allowed set in `allowed_html_tags`, so
      guess and correct rather than asking for the list up front. `<title>`,
@@ -256,7 +257,10 @@ POST https://artifactbin.dev/api/artifacts
      https://artifactbin.dev/docs/templates; after picking, read https://artifactbin.dev/docs/templates/<name>
      for the chosen genre's beats and layout grammar.
    - `colorMode`: `light | dark`.
-   - Reference your data artifacts as `ref:<id>` (see data tiers).
+   - Data: declare `<Value>`/`<Query>` in `<Helmet>` (SQL over your
+     datasets as `ref_<id>` tables) and bind by `$name` — `<Question
+     data="$q">`, `<DataTable data="$q">`, `<select value="$region"
+     options="$regions">`. Images/recipes stay `ref:<id>` (see data tiers).
    - Humans edit the SAME document WYSIWYG at `https://artifactbin.dev/a/<id>` (an edit
      mode on the page itself) — you and your user are editing one artifact,
      versioned together.
@@ -279,9 +283,13 @@ POST https://artifactbin.dev/api/artifacts
 
 3. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
    `columns` type declarations), `viz` (a reusable chart recipe — shape
-   below), `image`. Create these first, then bind
-   them in markup as `ref:<id>`; dataset creation echoes the
-   inferred columns so you know what to bind.
+   below), `image`. Create these first. A DATASET is read through SQL: in
+   `<Helmet>`, `<Query name="sales">{`select … from ref_<datasetId> …`}</Query>`
+   (DuckDB dialect, one SELECT; `$name` binds a `<Value>`), then
+   `data="$sales"` on `<Question>`/`<Number>`/`<DataTable>`. Dataset
+   creation echoes the inferred columns AND a ready-to-paste Query+Question.
+   Recipes and images bind as `ref:<id>`. `data="ref:<id>"` and the old
+   Param control are retired (400 with the replacement named).
 
    An `image` accepts two forms: a base64 `data:` URL in the JSON body
    (`{ "image": "data:image/png;base64,…" }`), OR — with no JSON envelope —

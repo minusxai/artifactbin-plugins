@@ -34,10 +34,12 @@ format at the door.)
 ## `<Helmet>` — the document's own head
 
 At most ONE per document, holding at most one each of `<title>`, `<style>`
-and `<script>`, plus `<meta name content />` pairs. Write it anywhere; it is
-hoisted to the top when stored. This is the ONLY place a document may carry
-custom CSS or JS — a `<style>` or `<title>` in the body is refused and told
-to come here. (An `<svg>` keeps its OWN `<title>`: that is the graphic's
+and `<script>`, plus `<meta name content />` pairs, plus the document's DATA
+declarations — any number of `<Value>` and `<Query>` (see "Data" below).
+Write it anywhere; it is hoisted to the top when stored. This is the ONLY
+place a document may carry custom CSS or JS or declare data — a `<style>`,
+`<title>`, `<Value>` or `<Query>` in the body is refused and told to come
+here. (An `<svg>` keeps its OWN `<title>`: that is the graphic's
 accessibility label, a different element sharing the name, and as many as you
 have icons is fine.)
 
@@ -56,7 +58,14 @@ have icons is fine.)
 
 Your script runs inside a sandboxed frame with an opaque origin: no network,
 no cookies, no access to the surrounding page. `</script` cannot appear in
-the text (split it: `'</scr' + 'ipt'`).
+the text (split it: `'</scr' + 'ipt'`). It DOES get the document's data:
+`window.mx` is defined before it runs — `mx.params.get('region')`,
+`mx.params.set('region', 'EU')` (every dependent query re-runs and every
+bound embed re-renders), `mx.params.subscribe(values => …)`,
+`mx.data.get('sales')` (`{rows, columns}`), `mx.data.pending()` (the
+queries a re-run has in flight — their previous rows stay in `get`
+meanwhile), `mx.data.subscribe((state, pending) => …)`, `mx.refresh()`.
+Plain values in and out; no React.
 - **Style with Tailwind classes via `className`** — utilities carry layout,
   type, and spacing. Start the document with a
   `<div data-design="tw" className="@container …">` wrapper; use `@2xl:`
@@ -118,25 +127,89 @@ the text (split it: `'</scr' + 'ipt'`).
   - `dashboard` — Operating view — a grid of draggable KPI and chart tiles with a one-line takeaway; almost no prose.
 - `colorMode`: `light | dark`
 
-## Data embeds (live, data-driven)
+## Data — declare in Helmet, bind by `$name`
 
-Create `dataset` / `viz` / `image` artifacts first, then bind them by id:
+A document DECLARES its data in `<Helmet>` and refers to it everywhere else
+by name. One namespace; a name is either a TABLE (a `<Query>` or a table
+`<Value>`) or a SCALAR (a `<Value>`), and every reference is checked
+against that at publish — a typo is a `400` naming the token, never an
+embed that renders empty.
 
-- `<Question title="Revenue by month" data="ref:<datasetId>" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{…}}}} height="430px" />`
-  — a chart. The `viz` prop REQUIRES a `kind` discriminator:
-  `{"kind":"vega-lite","spec":{…}}` for an inline spec,
+```jsx
+<Helmet>
+  <Value name="region" type="string" />
+  <Value name="min_rev" type="number" default={1000} />
+  <Value name="tiny" type="table" value={[{"name":"John","age":34},{"name":"Mary","age":60}]} />
+  <Query name="regions">{`select distinct region from ref_<datasetId> order by 1`}</Query>
+  <Query name="sales">{`
+    select region, sum(revenue) as revenue
+    from ref_<datasetId>
+    where ($region is null or region = $region) and revenue >= $min_rev
+    group by 1 order by 2 desc
+  `}</Query>
+</Helmet>
+
+<select value="$region" options="$regions" />
+<input type="range" min={0} max={5000} value="$min_rev" />
+<Question title="Revenue by region" data="$sales" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{"x":{"field":"region","type":"nominal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" />
+<p>Total <Number data="$sales" col="revenue" agg="sum" prefix="$" format=",.0f" /></p>
+<DataTable data="$sales" height="420px" columns={[{"col":"region","title":"Region"},{"col":"revenue","title":"Revenue","fmt":"$,.0f","bar":true}]} />
+```
+
+**Declarations (Helmet only)**
+
+- `<Value name type default />` — a scalar the reader can change.
+  `type`: `string | number | boolean | date` (default `string`);
+  `default` must match it (dates are `YYYY-MM-DD`); no default = `null`,
+  which is how "$region is null" in SQL means "all".
+- `<Value name type="table" value={[{…}, …]} />` — an inline table (flat
+  objects, non-empty; `columns={[{name,type}]}` optional). Read it in SQL by
+  its bare name (`from tiny`) or bind it directly (`data="$tiny"`).
+- `<Query name>{`select …`}</Query>` — SQL (DuckDB dialect) as a
+  template-literal child, exactly one SELECT statement. A dataset artifact is
+  the table `ref_<datasetId>`; another query or table Value is a table by
+  its bare name (order does not matter; cycles are refused); a scalar Value
+  is the bound parameter `$name` — never interpolated. Every `ref_<id>`
+  must be a dataset YOUR token owns. The SQL is dry-run at publish against the
+  real columns: a bad column is a `400 {"error":"invalid_sql"}` carrying the
+  engine's own message with candidate names — read it and fix the query.
+  Results are cut at 5,000 rows (`<DataTable>` reads the rest a window at a
+  time); a query has 5 s.
+
+**Bindings (body)**
+
+- `<Question data="$table" viz={…} height="430px" />` — a chart over a
+  declared table. The `viz` prop REQUIRES a `kind` discriminator:
+  `{"kind":"vega-lite","spec":{…}}` for an inline spec (encoding fields are
+  checked against the query's RESULT columns at publish),
   `{"kind":"recipe","recipe":"ref:<vizId>","bindings":{…}}` for a recipe
   artifact, `{"kind":"table"}` (the default when `viz` is absent) for a
-  themed table.
-- `<Number data="ref:<datasetId>" col="revenue" agg="sum" prefix="$" format=",.0f" />`
+  small themed table, and `{"kind":"single_value","yCols":["revenue"],
+  "singleValueConfig":{"label":"Revenue","prefix":"$","format":",.0f"}}` for
+  a KPI TILE (the column is summed over the table's rows — so point it at a
+  one-row aggregate query; `format` is d3-format). `singleValueConfig`
+  anywhere else is refused with this shape named.
+- `<Number data="$table" col="revenue" agg="sum" prefix="$" format=",.0f" />`
   — one live aggregated figure, inline. NEVER type a figure into prose that the data can compute — <Number> inline instead; typed figures go stale and are often simply wrong.
   So write "revenue reached <Number … agg="sum" />", never "revenue reached 19400".
-- `<Param name="region" data={{"data":"ref:<datasetId>","column":"region"}} />`
-  — a viewer-facing filter control; embeds with matching `filters` respond.
-  `data` also takes an authored array (`data={["2023","2024"]}` — no
-  dataset needed; `options` is an accepted alias), and `widget="buttons"`
-  renders the choices as a pill group ("All" + one button per choice)
-  instead of the select.
+- `<DataTable data="$table" columns={[…]} sort={{"col":…,"dir":"desc"}} height="420px" />`
+  — THE way to show many rows: virtualised, sortable by header, and honest
+  about a cut result ("5,000 of 80,000", read more on scroll, sorted by the
+  engine). `columns` picks and orders what shows: `{col, title, fmt
+  (d3-format), align, bar: true (a proportional bar behind a number),
+  colorScale: "sequential" | "diverging", width}`. Absent `columns` = every
+  column of the table.
+- Native controls bind scalars two-way — no component needed:
+  `<select value="$region" options="$regions" />` (`options` = a table;
+  column 1 is the value, column 2 the label if present; a null-default scalar
+  gets an "All" entry), authored `<option>`s work too;
+  `<input type="range|number|text|date" value="$x" />`;
+  `<input type="checkbox" checked="$flag" />`; `<textarea value="$note" />`.
+  A change writes the value (typed by the declaration), every query that
+  binds `$x` re-runs, every embed over those queries re-renders. While a
+  re-run is in flight the embed keeps its rows, dims, and shows an
+  "updating…" chip (`aria-busy`); a query that fails shows the engine's
+  message in place of the embed.
 - `<Icon name="chart-bar" />` — a lucide icon, inline (kebab-case names from
   lucide.dev; unknown names render a question mark). Size it with a Tailwind
   `size-*` class; it inherits `currentColor`.
@@ -145,9 +218,9 @@ Create `dataset` / `viz` / `image` artifacts first, then bind them by id:
   `Content-Type: image/<type>` header — see `/docs/llm`). A remote
   `https://` src is rejected; artifacts are self-contained.
 
-Every `ref:<id>` must name an artifact YOUR token owns; bindings are
-validated against the dataset's real columns at publish
-(`400 {"error":"invalid_refs"}` on a miss).
+`ref:<id>` survives ONLY for images and recipes. A dataset is read through a
+`<Query>` — `data="ref:<id>"`, inline `data={[…]}` and `<Param>` are
+retired and refused by name.
 
 ## Layout components
 
@@ -215,9 +288,9 @@ are rejected). No `use`/`image`/`foreignObject`/SMIL.
 
 Kit components:
 
-`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `SlideDeck` `Slide` `Video` `Icon`
+`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `SlideDeck` `Slide` `Video` `Icon` `DataTable`
 
-Plus the embeds `Question` `Param` `Number`, and these HTML tags:
+Plus the embeds `Question` `Number` (`DataTable` is in the kit list), the Helmet declarations `Value` `Query`, and these HTML tags:
 
 `div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `video` `audio` `track` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary` `button` `input` `label` `select` `option` `optgroup` `textarea` `fieldset` `legend` `output` `meter` `progress` `datalist` `canvas` `dialog` `template` `svg` `g` `defs` `path` `line` `polyline` `polygon` `rect` `circle` `ellipse` `text` `tspan` `linearGradient` `radialGradient` `stop` `clipPath` `title` `desc`
 
@@ -226,6 +299,7 @@ Anything else is rejected by name with the allowed set echoed back.
 ## Skeleton (editorial)
 
 ```jsx
+<Helmet><Query name="monthly">{`select month, sum(revenue) revenue from ref_<datasetId> group by 1 order by 1`}</Query></Helmet>
 <div data-design="tw" className="@container px-6 py-12 @2xl:px-12 @2xl:py-16">
   <header className="max-w-4xl">
     <p className="animate-fade-in text-xs uppercase tracking-widest text-muted-foreground">Eyebrow</p>
@@ -235,7 +309,7 @@ Anything else is rejected by name with the allowed set echoed back.
   <section className="py-16">
     <h2 className="reveal-up text-2xl font-semibold tracking-tight">01 · A claim, never a topic</h2>
     <p className="mt-4 max-w-prose text-muted-foreground">Set up the chart — what to look at and why.</p>
-    <div className="reveal-up mt-6"><Question title="Revenue by month" data="ref:…" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
+    <div className="reveal-up mt-6"><Question title="Revenue by month" data="$monthly" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
   </section>
 </div>
 ```
@@ -243,7 +317,8 @@ Anything else is rejected by name with the allowed set echoed back.
 ## Do / Don't
 
 - DO cap body copy at `max-w-prose`; let charts break wider.
-- DO use `ref:` datasets for every number a viewer might question.
+- DO put every number a viewer might question behind a `<Query>` and a
+  `<Number>`/`<Question>`/`<DataTable>` — never hand-type a figure.
 - DO spend motion deliberately: a hero entrance + section reveals, not
   every element animating.
 - DON'T build the palette from hex — tokens follow the theme; one bespoke

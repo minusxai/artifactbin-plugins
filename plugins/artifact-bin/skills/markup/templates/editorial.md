@@ -41,8 +41,9 @@ of a page — move the break, not the caption.
 FIGURES (highly encouraged — aim for one per section; this template shows rather than
 decorates). Every figure is a `<figure>` with a FIG-numbered `<figcaption>`, numbered
 continuously across the document. Three kinds, all first-class:
-- Chart: `<Question data="ref:<datasetId>" viz={{"kind":"vega-lite","spec":{…}}}
-  height="380px" />` — Vega for every chart; quiet grays, ONE accented series, direct
+- Chart: `<Question data="$q" viz={{"kind":"vega-lite","spec":{…}}} height="380px" />`
+  over a `<Query name="q">{`select … from ref_<datasetId>`}</Query>` declared in
+  `<Helmet>` — Vega for every chart; quiet grays, ONE accented series, direct
   labels over legends. Evidence 380-440px; a lone number 170-220px.
 - Diagram: an inline `<svg>` drawn in `currentColor` strokes at hairline weights — the
   technical-report figure. Local `url(#id)` refs only.
@@ -105,7 +106,7 @@ Skeleton (title block → summary → one paged section with a figure → method
       <h2 className="text-2xl font-semibold tracking-tight">1. The section headline is a claim, never a topic</h2>
       <p className="mt-5 leading-relaxed">Two to four sentences set up the figure: what to look at, and what it will prove.</p>
       <figure className="my-10 @3xl:-mx-24">
-        <Question data="ref:datasetId" viz={{"kind":"vega-lite","spec":{}}} height="400px" />
+        <Question data="$q" viz={{"kind":"vega-lite","spec":{}}} height="400px" />
         <figcaption className="mt-3 border-t border-border pt-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">FIG. 01</span> — what the chart proves, at the data's precision.</figcaption>
       </figure>
       <p className="leading-relaxed text-muted-foreground">The paragraph after the figure says what follows from it — never repeats it.</p>
