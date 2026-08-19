@@ -56,8 +56,9 @@ have icons is fine.)
 </Helmet>
 ```
 
-Your script runs inside a sandboxed frame with an opaque origin: no network,
-no cookies, no access to the surrounding page. `</script` cannot appear in
+Your script runs in a sandboxed context with an opaque origin: no cookies,
+no access to the surrounding page, and no network except the document's own
+query endpoint (`/a/<id>/query`, the one URL its CSP admits — `mx` uses it). `</script` cannot appear in
 the text (split it: `'</scr' + 'ipt'`). It DOES get the document's data:
 `window.mx` is defined before it runs — `mx.params.get('region')`,
 `mx.params.set('region', 'EU')` (every dependent query re-runs and every

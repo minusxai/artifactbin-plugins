@@ -277,9 +277,10 @@ POST https://artifactbin.dev/api/artifacts
      `<meta name content />` pairs. This is the only place a document may
      carry custom CSS or JS. It may be written anywhere; it is hoisted to the
      top of the document when stored.
-     Your script runs in the SERVED document after it hydrates, inside a
-     sandboxed frame with an opaque origin: no network, no cookies, no access
-     to the surrounding page.
+     Your script runs in the SERVED document after it hydrates, in a
+     sandboxed context with an opaque origin: no cookies, no access to the
+     surrounding page, and no network except the document's own query
+     endpoint (the one URL its CSP admits).
 
 3. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
    `columns` type declarations), `viz` (a reusable chart recipe — shape
