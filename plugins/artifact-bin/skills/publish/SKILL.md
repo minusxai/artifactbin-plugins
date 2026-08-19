@@ -300,7 +300,8 @@ POST https://artifactbin.dev/api/artifacts
      -H "Content-Type: image/png" --data-binary @chart.png
    ```
    Either way the bytes are stored once (content-addressed) and served from
-   `https://artifactbin.dev/a/<id>/raw`; bind it in markup as `<img src="ref:<id>" />`.
+   `https://artifactbin.dev/a/<id>`; bind it in markup as `<img src="ref:<id>" />` and the
+   URL is resolved for you — you never write one.
    Max `5,000,000` bytes (png|jpeg|webp|gif|svg+xml).
 
    A `viz` recipe is the one shape the prose above can't give you: a
@@ -374,4 +375,3 @@ API:
   work — anything carrying the id resolves and self-corrects, so hand out
   whichever you have.
 - `https://artifactbin.dev/a/<id>/export` — the page as a PNG (`?format=jpg` too; curlable, no auth)
-- `https://artifactbin.dev/a/<id>/raw` — the served document (HTML), or dataset/viz JSON, or image bytes
