@@ -66,7 +66,11 @@ POST https://artifactbin.dev/api/artifacts
 every endpoint takes exactly ONE of them (see **Content tiers** below). Give
 `url` to your user — that's the deliverable. The response echoes the stored
 `markup`, which is CANONICAL: it may differ from what you sent (formatting is
-normalized, a `<Helmet>` is hoisted to the top). Edit against the echo.
+normalized, a `<Helmet>` is hoisted to the top, and a `<p>` holding block
+content — a `<div>`, a list, a table — becomes a `<div>`, because HTML's
+parser silently closes a paragraph at any block tag and the document would
+otherwise render as a different tree than you wrote). Edit against the echo:
+sending the `<p>` back will simply be rewritten again.
 
 **Visibility (who can open that url):** every artifact carries
 `"visibility": "public" | "unlisted" | "private"`. `public` = anyone with
