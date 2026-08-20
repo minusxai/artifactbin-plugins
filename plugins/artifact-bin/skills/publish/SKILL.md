@@ -328,13 +328,15 @@ POST https://artifactbin.dev/api/artifacts
 
 ### Rules every document lives by
 
-Documents are served with a strict Content-Security-Policy inside a sandboxed
-frame: **all outbound network access is blocked**. Anything external silently
-fails to load.
+Documents are served under a strict per-document Content-Security-Policy in a
+sandboxed context with an opaque origin: **no outbound network access except
+the document's own query endpoint**. Anything else external silently fails to
+load.
 
 - ONE self-contained document. Custom CSS in `<Helmet><style>`, custom JS in
   `<Helmet><script>` — one of each, at most.
-- No CDN `<script src>`, no external stylesheets, no web fonts, no `fetch`/XHR.
+- No CDN `<script src>`, no external stylesheets, no web fonts, no `fetch`/XHR
+  beyond the document's own query endpoint.
 - Images/media only as `data:` URIs or `ref:<id>` to an image artifact.
 - Your `<script>` may not contain the sequence `</script` (it cannot be
   escaped in a served document) — split it: `"</scr" + "ipt>"`.

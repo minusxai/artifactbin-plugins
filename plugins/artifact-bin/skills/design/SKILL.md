@@ -178,10 +178,10 @@ from habit.
 - Pick the theme for the mood and let it work — do not re-style what it
   already styles.
 
-## The `html` tier owns everything
+## What the theme does not do for you
 
 The above is mostly free in `markup` (the theme carries fonts, palette, and
-color modes). Raw `html` artifacts carry it all themselves:
+color modes). What your own Helmet CSS adds, you carry yourself:
 
 - The CSP blocks font CDNs — a linked webfont silently falls back. Inline an
   `@font-face` data URI or design on a system stack.

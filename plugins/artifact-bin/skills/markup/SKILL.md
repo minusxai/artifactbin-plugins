@@ -83,8 +83,8 @@ Plain values in and out; no React.
   CSS, so never fight a utility from a style block. At save,
   `position: fixed/sticky` and external `url()`/`@import` are stripped, and
   `100vh` is rewritten to the reader-viewport variable.
-- **Override a theme in CSS**: the selected theme is stamped on the iframe
-  document root, and built-in colors, charts, radius, and fonts are variables.
+- **Override a theme in CSS**: the selected theme is stamped on the document's
+  own root element, and built-in colors, charts, radius, and fonts are variables.
   Put overrides in the Helmet's style block under `:root` — no theme-name
   selector, specificity trick, or `!important`:
   `<style>{`:root { --background: #0c0d0e; --primary: #ff6a1f; --chart-1: #ec6100; --font-display: Georgia, serif; }`}</style>`.
@@ -241,7 +241,7 @@ normalized to the canonical embed player. Only these hosts render; anything
 else shows an "unsupported source" notice. Raw `<iframe>` stays rejected —
 `<Video>` is the only way to a nested frame.
 
-## Motion (classes + your own CSS — no JS)
+## Motion (classes, your own CSS, and the platform observer)
 
 Think in moments, not effects: a page-load sequence for the hero, scroll
 reveals for each section's evidence, hover micro-interactions on what is
@@ -253,8 +253,8 @@ finished, fully visible page.
 - **Custom animation**: define `@keyframes` in your `<style>` block and
   attach them to classes — any easing, any choreography. Guard loops with
   `@media (prefers-reduced-motion: reduce)` in your CSS.
-- **Scroll reveals, custom** (stories run no JS — the platform observer does
-  the watching): stamp the element `data-reveal`, hide it under
+- **Scroll reveals, custom** (you don't write the watcher — the platform
+  observer does the watching): stamp the element `data-reveal`, hide it under
   `:root[data-mx-motion] .your-class:not([data-mx-seen])`, and give it a
   transition to its natural state. The live viewer stamps `data-mx-seen`
   when the reader reaches it; the `data-mx-motion` root flag exists ONLY in
@@ -339,12 +339,12 @@ references.
 A `theme` is a complete design system — fonts plus the full token palette
 (`--background`/`--foreground`/`--primary`/`--chart-1..5`/…) every kit
 component and Tailwind token class follows. Set it as the top-level `theme`
-field on a `markup`/`markdown` artifact; humans can switch it later in the
+field on a `markup` artifact; humans can switch it later in the
 editor without recompiling.
 
 Override the chosen theme with ordinary CSS in the markup's
-`<Helmet><style>` block. The theme is on the iframe document root, so the supported
-selector is simply `:root`:
+`<Helmet><style>` block. The theme is on the document's own root element, so
+the supported selector is simply `:root`:
 
 ```css
 :root {
