@@ -242,7 +242,7 @@ POST https://artifactbin.dev/api/artifacts
   "theme": "nocturne", "template": "editorial", "colorMode": "light" }
 ```
 
-   - Vocabulary: an ALLOWLIST of 104 HTML tags + 65 kit components (Card, Tabs, Badge,
+   - Vocabulary: an ALLOWLIST of 104 HTML tags + 70 kit components (Card, Tabs, Badge,
      SlideDeck/Slide, Grid/GridItem, …) + live data embeds (`<Question>`
      charts/tables, `<Number>`) over `<Query>`/`<Value>` declared in
      `<Helmet>` and bound with `data="$name"` — **read
@@ -263,8 +263,12 @@ POST https://artifactbin.dev/api/artifacts
    - `colorMode`: `light | dark`.
    - Data: declare `<Value>`/`<Query>` in `<Helmet>` (SQL over your
      datasets as `ref_<id>` tables) and bind by `$name` — `<Question
-     data="$q">`, `<DataTable data="$q">`, `<select value="$region"
-     options="$regions">`. Images/recipes stay `ref:<id>` (see data tiers).
+     data="$q">`, `<DataTable data="$q">`, and two-way READER CONTROLS:
+     `<Select value="$region" options="$regions">`, `<Segmented>`,
+     `<Slider>`, `<DatePicker>`, `<Switch>` (themed; native
+     `<select>`/`<input>` bind too). A control change re-runs every query
+     binding that value, live. Images/recipes stay `ref:<id>` (see data
+     tiers).
    - Humans edit the SAME document WYSIWYG at `https://artifactbin.dev/a/<id>` (an edit
      mode on the page itself) — you and your user are editing one artifact,
      versioned together.

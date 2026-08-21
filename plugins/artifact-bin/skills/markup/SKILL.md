@@ -125,7 +125,7 @@ Plain values in and out; no React.
   - `editorial` — Typeset document/report — one centered text column paced in pages by a repeated folio rule, with numbered figures as the only wide elements.
   - `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers.
   - `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks.
-  - `dashboard` — Operating view — a grid of draggable KPI and chart tiles with a one-line takeaway; almost no prose.
+  - `dashboard` — Operating view — a full-screen grid of live tiles obeying a shared control row; almost no prose, nothing bold.
 - `colorMode`: `light | dark`
 
 ## Data — declare in Helmet, bind by `$name`
@@ -187,9 +187,22 @@ embed that renders empty.
   artifact, `{"kind":"table"}` (the default when `viz` is absent) for a
   small themed table, and `{"kind":"single_value","yCols":["revenue"],
   "singleValueConfig":{"label":"Revenue","prefix":"$","format":",.0f"}}` for
-  a KPI TILE (the column is summed over the table's rows — so point it at a
-  one-row aggregate query; `format` is d3-format). `singleValueConfig`
+  a bare KPI TILE (the column is summed over the table's rows — so point it
+  at a one-row aggregate query; `format` is d3-format). `singleValueConfig`
   anywhere else is refused with this shape named.
+  `recipe` also takes a SHIPPED registry id — **`"minusx/trend@1"` is the
+  KPI tile to prefer**: big value, delta vs the previous period, and a
+  sparkline, from a time-series query (`select <period>, <measure> … group
+  by 1 order by 1` — ascending order is the contract):
+  `{"kind":"recipe","recipe":"minusx/trend@1","bindings":{"date":"period",
+  "value":["revenue"]},"columnFormats":{"revenue":{"format":"$,.0f",
+  "alias":"Revenue"}}}` (multiple `value` columns = one card each;
+  `params`: `compareMode: "last"|"previous"` — `previous` skips a
+  partial current period). A number with its trend beats a number alone —
+  reach for `single_value` only when there is no meaningful history (a
+  ratio, a snapshot count). Other shipped recipes: `minusx/funnel@1`,
+  `minusx/waterfall@1`, `minusx/radar@1`, `minusx/combo@1`; slots are
+  validated at publish exactly like `ref:` recipes.
 - `<Number data="$table" col="revenue" agg="sum" prefix="$" format=",.0f" />`
   — one live aggregated figure, inline. NEVER type a figure into prose that the data can compute — <Number> inline instead; typed figures go stale and are often simply wrong.
   So write "revenue reached <Number … agg="sum" />", never "revenue reached 19400".
@@ -200,13 +213,29 @@ embed that renders empty.
   (d3-format), align, bar: true (a proportional bar behind a number),
   colorScale: "sequential" | "diverging", width}`. Absent `columns` = every
   column of the table.
-- Native controls bind scalars two-way — no component needed:
-  `<select value="$region" options="$regions" />` (`options` = a table;
-  column 1 is the value, column 2 the label if present; a null-default scalar
-  gets an "All" entry), authored `<option>`s work too;
-  `<input type="range|number|text|date" value="$x" />`;
+- **Kit controls** — the themed way to bind scalars two-way; each renders a
+  micro-label plus polished chrome, and a change writes the bound Value
+  (typed by its declaration) so every query binding it re-runs:
+  - `<Select label="Region" value="$region" options="$regions" placeholder="All regions" />`
+    — a themed dropdown. `options` is a table (column 1 the value, column 2
+    the label if present) or an inline array (`["day","week"]` or
+    `[{"value":"EU","label":"Europe"}]`); a null-default scalar gets the
+    "all" choice automatically (writing `null`, which is what
+    `$region is null` means in SQL).
+  - `<Segmented label="Grain" value="$grain" options={["day","week","month"]} />`
+    — segmented buttons; prefer over Select when the options fit on one row.
+  - `<Slider label="Min revenue" value="$min_rev" min={0} max={5000} step={100} prefix="$" format=",.0f" />`
+    — a slider with a live formatted readout (`format` is d3-format).
+  - `<DatePicker label="Since" value="$since" min max />` — a date field
+    (bind a `type="date"` Value).
+  - `<Switch label="Compare" checked="$flag" />` — a toggle (boolean Value).
+  Dropdowns belong in a header/control row, not inside a `<GridItem>` —
+  grid tiles clip overflow.
+- Native controls bind the same way — bare browser chrome, style them
+  yourself: `<select value="$region" options="$regions" />` (authored
+  `<option>`s work too); `<input type="range|number|text|date" value="$x" />`;
   `<input type="checkbox" checked="$flag" />`; `<textarea value="$note" />`.
-  A change writes the value (typed by the declaration), every query that
+  A change writes the value, every query that
   binds `$x` re-runs, every embed over those queries re-renders. While a
   re-run is in flight the embed keeps its rows, dims, and shows an
   "updating…" chip (`aria-busy`); a query that fails shows the engine's
@@ -289,7 +318,7 @@ are rejected). No `use`/`image`/`foreignObject`/SMIL.
 
 Kit components:
 
-`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `SlideDeck` `Slide` `Video` `Icon` `DataTable`
+`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `Select` `Slider` `DatePicker` `Segmented` `Switch` `SlideDeck` `Slide` `Video` `Icon` `DataTable`
 
 Plus the embeds `Question` `Number` (`DataTable` is in the kit list), the Helmet declarations `Value` `Query`, and these HTML tags:
 
@@ -397,7 +426,7 @@ grammar — details about a genre you didn't pick are noise:
 - `editorial` — Typeset document/report — one centered text column paced in pages by a repeated folio rule, with numbered figures as the only wide elements. → https://artifactbin.dev/docs/templates/editorial
 - `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers. → https://artifactbin.dev/docs/templates/deck
 - `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks. → https://artifactbin.dev/docs/templates/scrolly
-- `dashboard` — Operating view — a grid of draggable KPI and chart tiles with a one-line takeaway; almost no prose. → https://artifactbin.dev/docs/templates/dashboard
+- `dashboard` — Operating view — a full-screen grid of live tiles obeying a shared control row; almost no prose, nothing bold. → https://artifactbin.dev/docs/templates/dashboard
 
 Read `https://artifactbin.dev/docs/markup` for the component vocabulary and
 `https://artifactbin.dev/docs/llm` for the publish API.
