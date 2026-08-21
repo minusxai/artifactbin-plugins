@@ -263,12 +263,19 @@ retired and refused by name.
 
 ## Video
 
-`<Video src="…" title="…" />` embeds a video player, 16:9 and full-width by
-default (size it with `className`). `src` takes the link you would share —
-a YouTube watch/short/embed URL, a Vimeo page, a Loom share — and is
-normalized to the canonical embed player. Only these hosts render; anything
-else shows an "unsupported source" notice. Raw `<iframe>` stays rejected —
-`<Video>` is the only way to a nested frame.
+`<Video src="…" title="…" poster="ref:<id>" />` renders a video CARD — a
+thumbnail with a play button that opens the video on its own page in a new
+tab. There is NO embedded player: the document's sandbox admits no
+third-party frames, so a player iframe could never run (and raw `<iframe>`
+stays rejected). 16:9 and full-width by default (size it with `className`).
+
+- `src` takes the link you would share — a YouTube watch/short/embed URL, a
+  Vimeo page, a Loom share. Only these hosts are accepted; anything else is
+  refused at publish.
+- `poster` (optional) is the thumbnail: publish an image artifact and
+  reference it as `ref:<id>`, exactly like an `<img src>`. External
+  thumbnail URLs are rejected — artifacts stay self-contained. Without a
+  poster the card shows a dark slab with the play badge.
 
 ## Motion (classes, your own CSS, and the platform observer)
 
