@@ -202,7 +202,10 @@ embed that renders empty.
   "value":["revenue"]},"columnFormats":{"revenue":{"format":"$,.0f",
   "alias":"Revenue"}}}` (multiple `value` columns = one card each;
   `params`: `compareMode: "last"|"previous"` — `previous` skips a
-  partial current period). A number with its trend beats a number alone —
+  partial current period; `trendColor`/`valueColor` recolor the series
+  and the big numeral — prefer the token form `"var(--foreground)"` /
+  `"var(--chart-2)"`, which follows theme and mode switches like every
+  token class; a raw hex/rgb color is a deliberate pin that does not). A number with its trend beats a number alone —
   reach for `single_value` only when there is no meaningful history (a
   ratio, a snapshot count). Other shipped recipes: `minusx/funnel@1`,
   `minusx/waterfall@1`, `minusx/radar@1`, `minusx/combo@1`; slots are
