@@ -239,7 +239,7 @@ Already have an `mx_` token? Skip the browser: pass it as a header instead
 ```
 POST https://artifactbin.dev/api/artifacts
 { "markup": "<div data-design=\"tw\" className=\"@container p-8\"><h1 className=\"text-4xl font-bold\">Q3</h1>...</div>",
-  "theme": "nocturne", "template": "editorial", "colorMode": "light" }
+  "theme": "modernist", "template": "editorial", "colorMode": "dark" }
 ```
 
    - Vocabulary: an ALLOWLIST of 104 HTML tags + 70 kit components (Card, Tabs, Badge,
@@ -254,7 +254,7 @@ POST https://artifactbin.dev/api/artifacts
      Custom CSS goes in the Helmet's one `<style>{`…`}</style>` block —
      override theme variables there under `:root` (for example
      `--background`, `--primary`, `--chart-1..5`, `--font-display`).
-   - `theme`: `modernist | classical | nocturne | organic | broadsheet | industry`
+   - `theme`: `modernist | organic | industry | terminal | manuscript | pop`
      — one-liners at https://artifactbin.dev/docs/themes; after picking, read
      https://artifactbin.dev/docs/themes/<name> for the chosen theme's full guidance.
    - `template`: `editorial | deck | scrolly | dashboard` — one-liners at

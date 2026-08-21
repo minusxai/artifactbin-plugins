@@ -12,8 +12,8 @@ data-driven charts.
 
 ```
 POST https://artifactbin.dev/api/artifacts
-{ "title": "Q3 Board Report", "theme": "nocturne", "template": "editorial",
-  "colorMode": "light", "markup": "<div data-design=\"tw\" className=\"@container p-8\">…</div>" }
+{ "title": "Q3 Board Report", "theme": "modernist", "template": "editorial",
+  "colorMode": "dark", "markup": "<div data-design=\"tw\" className=\"@container p-8\">…</div>" }
 ```
 
 Validation errors come back as `400 {"error":"invalid_jsx","details":[…]}`
@@ -107,12 +107,12 @@ Plain values in and out; no React.
 - `theme` — a complete design system (fonts + full token palette). Pick by
   the subject's mood, then read https://artifactbin.dev/docs/themes/<name> for the chosen
   theme's full authoring guidance:
-  - `modernist` — Stark Swiss editorial — white, near-black, one red accent; Archivo display over Inter, zero radius.
-  - `classical` — Old-print, bookish — cream paper, sepia ink, oxblood accent; Cormorant Garamond display over Lora.
-  - `nocturne` — Dark-first, technical — deep navy with violet accents; Inter throughout.
-  - `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones; Fraunces display over Figtree, extra-round corners.
-  - `broadsheet` — Newspaper/report — paper white, ink, steel blue; Source Serif 4.
-  - `industry` — Professional, square — slate and industrial blue; Barlow Condensed display over Barlow.
+  - `modernist` — Stark Swiss editorial — white and near-black with one red accent, inverted to ink-black in dark. Zero radius.
+  - `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones; deep moss in dark. Extra-round corners.
+  - `industry` — Professional, square — slate and industrial blue, safety-orange for the one exception; dark slate in dark.
+  - `terminal` — Terminal — mono type throughout, near-black with neon green by default; a paper terminal in light.
+  - `manuscript` — Serif editorial — cream paper, sepia ink, oxblood accent; warm ink with ochre in dark. Cormorant Garamond display over Noto Serif.
+  - `pop` — Playful and loud — candy magenta, cyan and amber over near-white, chunky radii, heavy Bricolage Grotesque headings; deep plum in dark.
 - `template` (genre hint) — the document's structural genre, a REFERENCE not
   a contract: read https://artifactbin.dev/docs/templates/<name> for the chosen genre's beats,
   and deviate (or omit `template` entirely) when the subject suggests a
@@ -126,7 +126,11 @@ Plain values in and out; no React.
   - `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers.
   - `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks.
   - `dashboard` — Operating view — a full-screen grid of live tiles obeying a shared control row; almost no prose, nothing bold.
-- `colorMode`: `light | dark`
+- `colorMode`: `light | dark` — the AUTHOR'S DEFAULT mode. Every theme
+  carries both a light and a dark palette; omit it to open in the theme's own
+  default (`terminal` opens dark, the rest light; unthemed opens light).
+  Readers can flip the rendered mode at view time regardless, so design with
+  theme tokens and both modes stay legible for free.
 
 ## Data — declare in Helmet, bind by `$name`
 
@@ -376,7 +380,9 @@ A `theme` is a complete design system — fonts plus the full token palette
 (`--background`/`--foreground`/`--primary`/`--chart-1..5`/…) every kit
 component and Tailwind token class follows. Set it as the top-level `theme`
 field on a `markup` artifact; humans can switch it later in the
-editor without recompiling.
+editor without recompiling. Every theme carries BOTH a light and a dark
+palette: `colorMode` sets the author's default, readers can flip the
+rendered mode at view time, and theme token classes stay legible in both.
 
 Override the chosen theme with ordinary CSS in the markup's
 `<Helmet><style>` block. The theme is on the document's own root element, so
@@ -397,12 +403,12 @@ retargets headings. It needs no theme-name selector and no `!important`.
 Pick ONE by the subject's mood, then read its page for the full authoring
 guidance — details about a theme you didn't pick are noise:
 
-- `modernist` — Stark Swiss editorial — white, near-black, one red accent; Archivo display over Inter, zero radius. → https://artifactbin.dev/docs/themes/modernist
-- `classical` — Old-print, bookish — cream paper, sepia ink, oxblood accent; Cormorant Garamond display over Lora. → https://artifactbin.dev/docs/themes/classical
-- `nocturne` — Dark-first, technical — deep navy with violet accents; Inter throughout. → https://artifactbin.dev/docs/themes/nocturne
-- `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones; Fraunces display over Figtree, extra-round corners. → https://artifactbin.dev/docs/themes/organic
-- `broadsheet` — Newspaper/report — paper white, ink, steel blue; Source Serif 4. → https://artifactbin.dev/docs/themes/broadsheet
-- `industry` — Professional, square — slate and industrial blue; Barlow Condensed display over Barlow. → https://artifactbin.dev/docs/themes/industry
+- `modernist` — Stark Swiss editorial — white and near-black with one red accent, inverted to ink-black in dark. Zero radius. → https://artifactbin.dev/docs/themes/modernist
+- `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones; deep moss in dark. Extra-round corners. → https://artifactbin.dev/docs/themes/organic
+- `industry` — Professional, square — slate and industrial blue, safety-orange for the one exception; dark slate in dark. → https://artifactbin.dev/docs/themes/industry
+- `terminal` — Terminal — mono type throughout, near-black with neon green by default; a paper terminal in light. → https://artifactbin.dev/docs/themes/terminal
+- `manuscript` — Serif editorial — cream paper, sepia ink, oxblood accent; warm ink with ochre in dark. Cormorant Garamond display over Noto Serif. → https://artifactbin.dev/docs/themes/manuscript
+- `pop` — Playful and loud — candy magenta, cyan and amber over near-white, chunky radii, heavy Bricolage Grotesque headings; deep plum in dark. → https://artifactbin.dev/docs/themes/pop
 
 Read `https://artifactbin.dev/docs/markup` for the component vocabulary and
 `https://artifactbin.dev/docs/llm` for the publish API.
