@@ -217,8 +217,8 @@ embed that renders empty.
   micro-label plus polished chrome, and a change writes the bound Value
   (typed by its declaration) so every query binding it re-runs:
   - `<Select label="Region" value="$region" options="$regions" placeholder="All regions" />`
-    — a themed dropdown. `options` is a table (column 1 the value, column 2
-    the label if present) or an inline array (`["day","week"]` or
+    — a themed searchable dropdown; type in it to filter the list. `options`
+    is a table (column 1 the value, column 2 the label if present) or an inline array (`["day","week"]` or
     `[{"value":"EU","label":"Europe"}]`); a null-default scalar gets the
     "all" choice automatically (writing `null`, which is what
     `$region is null` means in SQL).
