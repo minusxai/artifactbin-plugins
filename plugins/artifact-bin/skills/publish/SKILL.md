@@ -78,7 +78,10 @@ the link can read, and the artifact lists on the owner's public profile at
 `/@username`. `unlisted` = anyone with the link can read, but it is never
 listed anywhere. `private` = only the owner's logged-in account plus emails
 they invite on the share page. Defaults: **anonymous tokens publish
-`public`; account-owned tokens publish `private`** — so when your user
+`public`; account-owned tokens publish `private` — except images and
+datasets, which are born `unlisted`** (they are assets a shared document
+reaches at read time, and a born-private asset would 404 for its readers) —
+so when your user
 asks for a link to send to OTHER people and your token is account-owned, pass
 `"visibility": "public"` or `"unlisted"` (create or PUT) or tell them to
 flip it from the page's share menu. Asking for `private` on an anonymous
