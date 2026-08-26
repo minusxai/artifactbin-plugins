@@ -35,10 +35,11 @@ format at the door.)
 
 At most ONE per document, holding at most one each of `<title>`, `<style>`
 and `<script>`, plus `<meta name content />` pairs, plus the document's DATA
-declarations — any number of `<Value>` and `<Query>` (see "Data" below).
+declarations — any number of `<Value>`, `<Query>` and `<Mutation>` (see
+"Data" below).
 Write it anywhere; it is hoisted to the top when stored. This is the ONLY
 place a document may carry custom CSS or JS or declare data — a `<style>`,
-`<title>`, `<Value>` or `<Query>` in the body is refused and told to come
+`<title>`, `<Value>`, `<Query>` or `<Mutation>` in the body is refused and told to come
 here. (An `<svg>` keeps its OWN `<title>`: that is the graphic's
 accessibility label, a different element sharing the name, and as many as you
 have icons is fine.)
@@ -180,8 +181,30 @@ embed that renders empty.
   engine's own message with candidate names — read it and fix the query.
   Results are cut at 5,000 rows (`<DataTable>` reads the rest a window at a
   time); a query has 5 s.
+- `<Mutation name>{`insert into ref_<datasetId> (a) values ($a)`}</Mutation>`
+  — a `<Query>` that WRITES (preview: the dataset needs
+  `access: readwrite`, see the publish API). Exactly one statement, and
+  INSERT | UPDATE | DELETE only; it names exactly ONE dataset — the one it
+  writes — and that dataset must be one YOU own (reading a public dataset you
+  do not own is fine; writing one is not). `$name` binds a scalar
+  `<Value>`, bound and never interpolated. It runs on demand, never at
+  render: `<Button run="$name">` in the body, or `mx.mutate("name")` from
+  your `<script>`. Everything is dry-run at publish, so a button that could
+  not work is a `400` naming the fix.
+
+  Anyone who can read the document can run the mutations it declares — that
+  is the point: a poll, a sign-up sheet, a shared checklist. They supply
+  VALUES only; the SQL is the one you published. Every write is a dataset
+  version (revertable), and every open copy of every document reading that
+  dataset re-runs the affected queries within about a second — including the
+  writer's own, so the click that adds a row is the click that redraws the
+  chart. DuckDB's `uuid()` and `now()` give a row its own id and timestamp.
 
 **Bindings (body)**
+
+- `<Button run="$add">Add</Button>` — runs the named `<Mutation>` with the
+  document's current values. The only trigger position; it shows itself busy
+  while the write is in flight and reports a refusal beside itself.
 
 - `<Question data="$table" viz={…} height="430px" />` — a chart over a
   declared table. The `viz` prop REQUIRES a `kind` discriminator:
@@ -334,7 +357,7 @@ Kit components:
 
 `Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `Select` `Slider` `DatePicker` `Segmented` `Switch` `SlideDeck` `Slide` `Video` `Icon` `DataTable`
 
-Plus the embeds `Question` `Number` (`DataTable` is in the kit list), the Helmet declarations `Value` `Query`, and these HTML tags:
+Plus the embeds `Question` `Number` (`DataTable` is in the kit list), the Helmet declarations `Value` `Query` `Mutation`, and these HTML tags:
 
 `div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `video` `audio` `track` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary` `button` `input` `label` `select` `option` `optgroup` `textarea` `fieldset` `legend` `output` `meter` `progress` `datalist` `canvas` `dialog` `template` `svg` `g` `defs` `path` `line` `polyline` `polygon` `rect` `circle` `ellipse` `text` `tspan` `linearGradient` `radialGradient` `stop` `clipPath` `title` `desc`
 

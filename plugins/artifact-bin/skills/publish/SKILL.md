@@ -303,6 +303,51 @@ POST https://artifactbin.dev/api/artifacts
    Recipes and images bind as `ref:<id>`. `data="ref:<id>"` and the old
    Param control are retired (400 with the replacement named).
 
+   **WRITABLE datasets (preview).** A dataset carries a write ACL beside its
+   visibility: `"access": "read"` (the default — documents may only read it)
+   or `"access": "readwrite"`. Set it on create or PUT, or
+   `PATCH https://artifactbin.dev/api/my/artifacts/<id> { "access": "readwrite" }`.
+   It is in PREVIEW: add `?v=2` to the request that sets it (a browser opens
+   any app page with `?v=2` and the app carries it from there). Nothing else
+   needs the flag — a document that writes a writable dataset works for every
+   reader, and readers never carry it.
+
+   A writable dataset is written from a document by declaring a
+   `<Mutation>` in `<Helmet>` — a `<Query>` that writes:
+
+   ```jsx
+   <Helmet>
+     <Value name="choice" type="string" />
+     <Value name="who" type="string" default="anon" />
+     <Query name="tally">{`select choice, count(*) votes from ref_<datasetId> group by 1`}</Query>
+     <Mutation name="vote">{`insert into ref_<datasetId> (choice, who) values ($choice, $who)`}</Mutation>
+   </Helmet>
+   <Segmented value="$choice" options={["ramen","tacos","salad"]} />
+   <input value="$who" />
+   <Button run="$vote">Vote</Button>
+   <Question data="$tally" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{"x":{"field":"votes","type":"quantitative"},"y":{"field":"choice","type":"nominal"}}}}} />
+   ```
+
+   Rules: ONE statement, INSERT | UPDATE | DELETE only (a SELECT is a
+   `<Query>`); it names exactly one dataset, as `ref_<id>`; `$name`
+   binds a `<Value>` (bound, never interpolated); the target must be a
+   dataset YOU own with `access: readwrite` — reading a public dataset you
+   do not own is fine, writing one is not. `<Button run="$name">` runs it;
+   from a Helmet `<script>`, `mx.mutate("vote")` does (it also takes an
+   optional values object). Everything is checked when you publish, so a
+   button that would fail is a 400 naming the fix, never a dead click.
+
+   **A write is live.** Anyone who can read the document can run the
+   mutations it declares (with values only — the SQL is the one you stored),
+   every write is a new dataset VERSION you can revert, and every open copy of
+   every document reading that dataset re-runs its queries within about a
+   second. Capped at 10,000 rows
+   (`409 dataset_full`) and rate-limited per visitor.
+
+   An agent writes rows without a document through
+   `POST https://artifactbin.dev/api/artifacts/<id>/mutate { "sql": "insert into ref_<id> …", "values": {…} }`
+   — the same rules, and cheaper than re-PUTting a whole table.
+
    An `image` accepts two forms: a base64 `data:` URL in the JSON body
    (`{ "image": "data:image/png;base64,…" }`), OR — with no JSON envelope —
    the raw bytes as the request body under a `Content-Type: image/<type>`
