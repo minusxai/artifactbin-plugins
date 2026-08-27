@@ -393,7 +393,15 @@ Anything else is rejected by name with the allowed set echoed back.
 
 ## Do / Don't
 
-- DO cap body copy at `max-w-prose`; let charts break wider.
+- DO cap body copy at `max-w-prose`; let CHARTS break wider. Tables stay
+  in the column: every table is its own scroll box (it hugs its rows, never
+  pushes the page sideways, and scrolls inside the column on a phone), so
+  never widen one with negative margins and reach for `w-full` only when
+  the rows really want the whole measure.
+- A document with three or more `<h2>` sections gets a table of contents
+  beside it on wide screens, made from the headings — so write `<h2>`s as
+  short claims that read well in a list. Decks and `<Grid>` dashboards
+  get none (they have their own navigation, or need the width).
 - DO put every number a viewer might question behind a `<Query>` and a
   `<Number>`/`<Question>`/`<DataTable>` — never hand-type a figure.
 - DO spend motion deliberately: a hero entrance + section reveals, not

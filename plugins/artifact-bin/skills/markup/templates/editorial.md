@@ -8,6 +8,11 @@ Beats: Title block (masthead rule · title · standfirst · byline/date) → Sum
 
 ## Editorial — the typeset document / report
 
+THE OUTLINE: a document with three or more `<h2>` sections gets a table of contents
+beside its column on wide screens, built from those headings by the platform — so the
+headlines below are also the rows a reader navigates by. Keep them short enough to read
+in a list; nothing to author.
+
 Voice: a document, not a webpage. Section headlines are numbered CLAIMS in sentence case
 ("2. Retention paid for the price increase"), set quiet (`font-semibold tracking-tight`)
 — reading only the headlines delivers the whole argument. The body is measured prose:
@@ -24,9 +29,13 @@ THE COLUMN (the whole layout): everything lives in ONE centered text column —
 `<article className="mx-auto max-w-2xl">` inside the padded root — roughly six columns
 of a twelve-column page. No side rails, no asymmetric splits, no full-bleed bands, no
 inverted grounds, no alternating section backgrounds: the page is one sheet of paper.
-FIGURES are the single sanctioned exception — they may widen, always symmetrically
-(`@3xl:-mx-24`, up to `-mx-40` for a wide chart), so they stay centered on the column's
-own axis.
+CHARTS and diagrams are the single sanctioned exception — they may widen, always
+symmetrically (`@3xl:-mx-24`, up to `-mx-40` for a wide chart), so they stay centered on
+the column's own axis. A TABLE never widens: it sits in the column, hugs its rows (the
+platform makes every table its own scroll box — it scrolls inside the column on a phone
+and never pushes the page sideways), and takes `w-full` only when its rows want the whole
+measure. Widening a table spread three short columns across the gutters and, on a
+phone, cut the third one off mid-word.
 
 PAGE BREAKS (the pacing device — spend them generously; every new idea gets a fresh
 page): a numbered section opens with the SAME folio line every time, verbatim —
@@ -49,6 +58,8 @@ continuously across the document. Three kinds, all first-class:
   technical-report figure. Local `url(#id)` refs only.
 - Image: `<img src="ref:<imageId>" />` (publish the image artifact first; remote URLs
   are rejected).
+- Table: a plain `<table className="text-sm">` in the column — a figure like the others,
+  with its FIG caption, but never widened (see THE COLUMN).
 Caption grammar: `<figcaption className="mt-3 border-t border-border pt-2 text-xs
 text-muted-foreground"><span className="font-semibold text-foreground">FIG. 02</span>
 — one sentence stating what the figure proves, at the data's precision.</figcaption>`
