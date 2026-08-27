@@ -182,10 +182,10 @@ embed that renders empty.
   the table `ref_<datasetId>`; another query or table Value is a table by
   its bare name (order does not matter; cycles are refused); a scalar Value
   is the bound parameter `$name` — never interpolated. Every `ref_<id>`
-  must be a dataset YOUR token owns. The SQL is dry-run at publish against the
+  must be a dataset you own or any public/unlisted one. The SQL is dry-run at publish against the
   real columns: a bad column is a `400 {"error":"invalid_sql"}` carrying the
   engine's own message with candidate names — read it and fix the query.
-  Results are cut at 5,000 rows (`<DataTable>` reads the rest a window at a
+  Results are cut at 10,000 rows (`<DataTable>` reads the rest a window at a
   time); a query has 5 s.
 - `<Mutation name>{`insert into ref_<datasetId> (a) values ($a)`}</Mutation>`
   — a `<Query>` that WRITES (preview: the dataset needs
