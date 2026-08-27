@@ -96,9 +96,15 @@ Plain values in and out; no React.
   `--destructive`/`--destructive-foreground`, `--border`, `--input`,
   `--ring`, `--radius`, and `--chart-1..5`; type keys are
   `--font-body`, `--font-display`, and `--font-mono`.
-- **Self-contained subresources**: `src`/`srcSet`/`poster` must be a
-  `ref:<id>` or a `data:image/` URL — an external URL is rejected
+- **Self-contained subresources**: `<img src>` and `<Video poster>` accept
+  a `ref:<id>`, a `data:image/` URL, or an `https://` URL that is
+  imported at publish. Every OTHER subresource position (`srcSet`,
+  `background`, `ping`) still rejects an external URL
   (`400 invalid_jsx`). Links (`href`) may point anywhere.
+- **Web fonts**: `<meta name="font-display" content="Lobster" />` in
+  `<Helmet>` (also `font-body`, `font-mono`) names a Google family; it is
+  downloaded once and served from this origin, overriding just that slot of
+  the theme. An unknown family fails the publish.
 - **Theme tokens first**: colors like `text-muted-foreground`,
   `bg-muted`, `border-border`, `text-foreground`, `bg-background` follow the
   active theme; a page built on hardcoded palettes fights it. ONE bespoke
@@ -275,8 +281,12 @@ embed that renders empty.
   `size-*` class; it inherits `currentColor`.
 - `<img src="ref:<imageId>" />` — an uploaded image artifact (publish the
   image first: POST a base64 `data:` URL, or the raw bytes under a
-  `Content-Type: image/<type>` header — see `/docs/llm`). A remote
-  `https://` src is rejected; artifacts are self-contained.
+  `Content-Type: image/<type>` header — see `/docs/llm`).
+- `<img src="https://example.com/chart.png" />` — a web image, IMPORTED at
+  publish: fetched once server-side, stored as your own image artifact, and
+  your markup echoed back rewritten to `ref:<id>`. You never download it,
+  and the stored document stays self-contained. A URL that 404s (or is not an
+  image) fails the publish and names itself.
 
 `ref:<id>` survives ONLY for images and recipes. A dataset is read through a
 `<Query>` — `data="ref:<id>"`, inline `data={[…]}` and `<Param>` are

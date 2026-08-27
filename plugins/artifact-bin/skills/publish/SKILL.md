@@ -359,6 +359,14 @@ POST https://artifactbin.dev/api/artifacts
    Either way the bytes are stored once (content-addressed) and served from
    `https://artifactbin.dev/a/<id>`; bind it in markup as `<img src="ref:<id>" />` and the
    URL is resolved for you — you never write one.
+
+   **Already on the web? Just use the URL.** `{ "imageUrl": "https://…" }`
+   makes the artifact from a URL — artifact-bin fetches it server-side, so YOU
+   DO NOT NEED TO DOWNLOAD IT. And in markup you can simply write
+   `<img src="https://example.com/chart.png" />`: the publish IMPORTS it,
+   stores a copy, and echoes your markup rewritten to `ref:<id>`. The
+   document ends up self-contained either way — a reader never talks to the
+   original host, and the image cannot rot from under you.
    Max `5,000,000` bytes (png|jpeg|webp|gif|svg+xml).
 
    A `viz` recipe is the one shape the prose above can't give you: a
@@ -391,9 +399,15 @@ load.
 
 - ONE self-contained document. Custom CSS in `<Helmet><style>`, custom JS in
   `<Helmet><script>` — one of each, at most.
-- No CDN `<script src>`, no external stylesheets, no web fonts, no `fetch`/XHR
-  beyond the document's own query endpoint.
-- Images/media only as `data:` URIs or `ref:<id>` to an image artifact.
+- No CDN `<script src>`, no external stylesheets, no `fetch`/XHR beyond the
+  document's own query endpoint.
+- Images: a `data:` URI, a `ref:<id>`, or an `https://` URL, which is
+  IMPORTED at publish (fetched once, stored, rewritten to `ref:<id>`) — the
+  stored document is always self-contained.
+- Web fonts: name a Google family in `<Helmet>` —
+  `<meta name="font-display" content="Lobster" />` (also `font-body`,
+  `font-mono`). It is downloaded once and served from this origin; never
+  link `fonts.googleapis.com` yourself, it will not load.
 - Your `<script>` may not contain the sequence `</script` (it cannot be
   escaped in a served document) — split it: `"</scr" + "ipt>"`.
 - Max size: 2,000,000 bytes (~2 MB) including embedded data: URIs.
