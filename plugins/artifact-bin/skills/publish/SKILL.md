@@ -77,7 +77,9 @@ sending the `<p>` back will simply be rewritten again.
 the link can read, and the artifact lists on the owner's public profile at
 `/@username`. `unlisted` = anyone with the link can read, but it is never
 listed anywhere. `private` = only the owner's logged-in account plus emails
-they invite on the share page. Defaults: **anonymous tokens publish
+they invite on the share page. Separately from visibility, the owner may name
+people as **editors** there; a document shared with your user that way is
+reachable by every route below exactly as their own are. Defaults: **anonymous tokens publish
 `public`; account-owned tokens publish `private` — except images and
 datasets, which are born `unlisted`** (they are assets a shared document
 reaches at read time, and a born-private asset would 404 for its readers) —
