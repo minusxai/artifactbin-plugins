@@ -12,558 +12,117 @@ tiers, edit protocol, error meanings). Read the `markup` skill in this
 plugin before authoring markup, and the `design` skill for design
 fundamentals.
 
-# artifact-bin
+## Quick reference — everything a straightforward document needs
 
-Upload a self-contained document, get back a **public link** to share with your user.
+Publish with one call — the response carries the `id` and the `url` to hand over:
 
-A document is **static JSX**, not HTML: HTML tags are the prose vocabulary and a
-component kit sits beside them, but the JSX rules bind — every tag closes
-(`<br />`, `<img … />`), comments are `{/* … */}`, and there is no
-`<html>`/`<head>`/`<body>` wrapper (`<title>`, `<style>` and
-`<script>` go in `<Helmet>`). `className` and `class` both work.
+```bash
+curl -X POST https://artifactbin.dev/api/artifacts \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"title":"…","markup":"…","theme":"industry","template":"deck","colorMode":"dark"}'
+```
 
-**Publish** is one `POST` (**Endpoints** below); the deliverable is the `url` it
-returns. A document worth looking at also picks a design, with three optional
-top-level fields on create/PUT: `"theme"` (`modernist | organic | industry |
-terminal | manuscript | pop`), `"template"` (`editorial | deck | scrolly |
-dashboard`) and `"colorMode"` (`light | dark`). Read `https://artifactbin.dev/docs/markup`
-before authoring markup, plus `/docs/themes/<name>` and
-`/docs/templates/<name>` once you have picked (and `/docs/artifact-design`,
-unless you already have an `artifact-design` skill).
+200 answers `markup_changed`: false means the document stored exactly as you
+sent it, true means storing rewrote it (formatting, a hoisted `<Helmet>`, a
+`<p>` holding a block) and the canonical `markup` comes back — edit against
+that. A 400 names exactly what to fix, so correct it and POST again. The deliverable is
+`https://artifactbin.dev/a/<id>`. **`title` is what a browser tab and a shared link preview
+show** — always set it; the on-page heading is not it.
 
-**The rest of this document**, in order — grep the heading you need: *Auth* ·
-*Data in a document* · *Rules every document lives by* · *Endpoints* (create,
-update, `/edits`, read, annotations, versions, delete, export) · *Errors* ·
-*MCP server* · *Content tiers* (dataset, viz, image, writable data, the markup
-vocabulary in full) · *Auth in full*.
+**markup** is JSX treated as data: ordinary HTML tags for everything including
+prose (`h1 h2 p ul li blockquote table figure img`, inline `svg`) plus the
+component kit (`Card`, `Tabs`, `Badge`, `Grid`/`GridItem`,
+`SlideDeck`/`Slide`, `Icon`, and the data embeds `Question`,
+`DataTable`, `Number`), styled ONLY with Tailwind utilities via
+`className` — inline `style=` is rejected. There is no markdown.
 
-## Auth
-
-Every `/api/artifacts` call needs `Authorization: Bearer mx_...`. No token?
-`POST https://artifactbin.dev/api/tokens/anonymous` returns one, no account needed. If your
-user pasted a start link, `POST` that link once and it answers `{"token"}`.
-Full rules — saved config, claiming, scope, what a 401 means — are under
-**Auth in full** near the end.
-
-
-## Data in a document
-
-A document that charts or tables data needs three things — upload the rows,
-declare a `<Query>` over them, bind an embed by `$name`:
+**Guess rather than look up.** A tag or component outside the allowlist is
+refused with a 400 carrying the whole allowed set (`allowed_html_tags`), so a
+wrong guess costs one cheap round trip — where fetching the full component list
+costs far more, every turn, for the rest of the run. Custom CSS and JS live in at most one `<Helmet>`, which also holds
+the `<title>`:
 
 ```jsx
-<Helmet><Query name="sales">{`select region, sum(revenue) revenue from ref_<datasetId> group by 1`}</Query></Helmet>
-<Question data="$sales" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{"x":{"field":"region","type":"nominal"},"y":{"field":"revenue","type":"quantitative"}}}}} />
+<Helmet>
+  <title>What the tab shows</title>
+  <style>{`:root { --primary: #ff6a1f; }`}</style>
+</Helmet>
 ```
 
-The rows are their own artifact (`{"dataset":"month,revenue\n2026-01,120"}`),
-and its create response echoes a ready-to-paste Query+Question. Reader controls
-(`<Select value="$region" options="$regions" />`) write into a `<Value>` and
-re-run every query bound to it, live. The full grammar — SQL rules, types,
-writable datasets — is under **Content tiers** below and in
-https://artifactbin.dev/docs/markup.
-
-## Rules every document lives by
-
-Documents are served under a strict per-document Content-Security-Policy in a
-sandboxed context with an opaque origin: **no outbound network access except
-the document's own query endpoint**. Anything else external silently fails to
-load.
-
-- ONE self-contained document. Custom CSS in `<Helmet><style>`, custom JS in
-  `<Helmet><script>` — one of each, at most.
-- No CDN `<script src>`, no external stylesheets, no `fetch`/XHR beyond the
-  document's own query endpoint.
-- Images: a `data:` URI, a `ref:<id>`, or an `https://` URL, which is
-  IMPORTED at publish (fetched once, stored, rewritten to `ref:<id>`) — the
-  stored document is always self-contained.
-- Web fonts: name a Google family in `<Helmet>` —
-  `<meta name="font-display" content="Lobster" />` (also `font-body`,
-  `font-mono`). It is downloaded once and served from this origin; never
-  link `fonts.googleapis.com` yourself, it will not load.
-- Your `<script>` may not contain the sequence `</script` (it cannot be
-  escaped in a served document) — split it: `"</scr" + "ipt>"`.
-- Max size: 2,000,000 bytes (~2 MB) including embedded data: URIs.
-
-## Endpoints
-
-### Create an artifact
-
-```
-POST https://artifactbin.dev/api/artifacts
-{ "title": "Optional title", "description": "Optional", "markup": "<h1 className=\"text-4xl font-bold\">Hello</h1>" }
-→ 201 { "id": "<6-char id>", "url": "https://artifactbin.dev/a/<id>", "version": 1, "markup": "<canonical source>" }
-```
-
-`markup` is one of four content fields — `markup | dataset | viz | image`;
-every endpoint takes exactly ONE of them (see **Content tiers** below). Give
-`url` to your user — that's the deliverable. The response echoes the stored
-`markup`, which is CANONICAL: it may differ from what you sent (formatting is
-normalized, a `<Helmet>` is hoisted to the top, and a `<p>` holding block
-content — a `<div>`, a list, a table — becomes a `<div>`, because HTML's
-parser silently closes a paragraph at any block tag and the document would
-otherwise render as a different tree than you wrote). Edit against the echo:
-sending the `<p>` back will simply be rewritten again.
-
-The echo comes back ONLY when storing changed something: every write answers
-`markup_changed` (true/false), and carries `markup` when it is true. False
-means the stored document is byte-for-byte what you sent — you already have it,
-so it is not repeated. (`/edits` always returns the resulting `markup`: you
-sent a splice, not a document.)
-
-**Visibility (who can open that url):** every artifact carries
-`"visibility": "public" | "unlisted" | "private"`. `public` = anyone with
-the link can read, and the artifact lists on the owner's public profile at
-`/@username`. `unlisted` = anyone with the link can read, but it is never
-listed anywhere. `private` = only the owner's logged-in account plus emails
-they invite on the share page. Separately from visibility, the owner may name
-people as **editors** there; a document shared with your user that way is
-reachable by every route below exactly as their own are. Defaults: **anonymous tokens publish
-`public`; account-owned tokens publish `private` — except images and
-datasets, which are born `unlisted`** (they are assets a shared document
-reaches at read time, and a born-private asset would 404 for its readers) —
-so when your user
-asks for a link to send to OTHER people and your token is account-owned, pass
-`"visibility": "public"` or `"unlisted"` (create or PUT) or tell them to
-flip it from the page's share menu. Asking for `private` on an anonymous
-token is a `400 private_requires_account`, never a silent downgrade.
-
-Example:
-
-```bash
-jq -n --rawfile markup artifact.jsx '{"title":"My page","markup":$markup}' \
-  | curl -sS -X POST https://artifactbin.dev/api/artifacts \
-      -H "Authorization: Bearer $ARTIFACT_TOKEN" \
-      -H "Artifactbin-Agent: $ARTIFACTBIN_AGENT" -H 'Content-Type: application/json' \
-      --data-binary @-
-```
-
-### Update an artifact (the link never changes)
-
-```
-PUT https://artifactbin.dev/api/artifacts/<id>
-{ "markup": "<h1 className=\"text-4xl\">Replaced</h1>", "title": "optional new title" }
-→ 200 { "id", "url", "version": <bumped> }
-```
-
-Also the place to set metadata: `"folder": "2026/08/reports"` files the
-document in the owner's dashboard (organization only, the URL keeps working;
-segments `[a-zA-Z0-9_-]`, max 8 deep), and `"visibility"` is settable here too.
-
-Full replacement — send the complete new content, not a diff. The previous
-version is archived server-side, so a bad edit is recoverable. Omitted
-`title`/`description` keep their current values. Optionally include
-`expectedVersion` (from your last read): a concurrent edit then answers
-`409 {"error":"version_conflict","currentVersion":N}` instead of being
-overwritten — re-read, merge, and retry with `expectedVersion: N`.
-
-### Edit part of a document (preferred for `markup`)
-
-```
-POST https://artifactbin.dev/api/artifacts/<id>/edits
-{ "edit_id": "<from your last read>", "old_string": "exact text to replace", "new_string": "replacement" }
-→ 200 { "id", "version", "edit_id": "<new>", "markup", ... }
-```
-
-Like editing a file: `old_string` must appear EXACTLY ONCE in the version
-named by `edit_id`. Prefer this over PUT for targeted changes — it is
-smaller, and a HUMAN MAY BE EDITING THE SAME PAGE LIVE while you work.
-
-`edit_id` is an opaque random string returned by every create/read/edit.
-Never invent one: it is how the server knows which version you actually read.
-
-Concurrency is per NODE, not per document, so most edits just apply:
-
-| Result | Meaning | What to do |
-|---|---|---|
-| `200` | Applied — even if someone else edited a DIFFERENT part meanwhile | Use the returned `edit_id` for your next edit |
-| `409 doc_changed` | Someone changed the SAME part you were changing | The response carries the current `edit_id` + `source` — re-anchor on those and retry |
-| `409 stale_edit_id` | That `edit_id` is unknown (too old, or never read) | `GET` the artifact and start from its `edit_id` |
-| `400 bad_diff` | `old_string` matched zero times or more than once | Re-read and pick a longer, unique anchor |
-
-You may also set `title`, `theme`, or `colorMode` in the same request (with
-or without a text change). Those are document-level and never conflict.
-
-### Read one back (before editing)
-
-```
-GET https://artifactbin.dev/api/artifacts/<id>
-→ 200 { "id", "url", "title", "description", "format", "markup", "version",
-        "annotations": [ ... ], "open_annotations": <count>, ... }
-```
-
-### Annotations — human and agent feedback, pinned to the document
-
-Your user can select any node of a published document in their browser and
-attach a comment. The commented node carries a `data-annotation-anchor="<key>"`
-attribute in the markup — the value is only an opaque node key, never the
-comment text. **That attribute IS the anchor. Preserve it when you edit:
-keep it on the element it marks, move it with the content, and carry it
-through full rewrites.** Deleting the node (or dropping the attribute)
-orphans the comment; putting it back re-anchors it. Never add, change, or
-reuse `data-annotation-anchor` values yourself. Annotations arrive INLINE
-on the read above (open ones only):
-
-```
-"annotations": [ {
-  "id": "ann_…", "status": "open",
-  "snippet": "Revenue grew 40% in Q3",           ← the text they selected
-  "anchor": { "key": "a1a2b3c4", "path": "0.3", "spanStart": 812, "spanEnd": 964 },
-  "anchor_version": 7,                            ← the version it was made against
-  "orphaned": false,
-  "thread": [ { "body": "this number looks wrong — check the Q3 sheet",
-                "author": { "kind": "human", "label": "vivek", "transport": "browser" },
-                "created_at": "…" } ]
-} ]
-```
-
-Read them before editing; `snippet` + `anchor.key` tell you which node
-each one is about (find `data-annotation-anchor="a1a2b3c4"` in the markup). An
-`"orphaned": true` annotation's node is not in the current version — the
-snippet still says what it pointed at. When you have acted on one (or have a
-question), answer it — reply, resolve, or both in one call:
-
-```
-POST https://artifactbin.dev/api/artifacts/<id>/annotations/<annotation_id>
-{ "reply": "Recomputed from the Q3 sheet — it was 34%. Fixed.", "resolve": true }
-→ 200 { "id", "status": "resolved", "thread": [ ... ] }
-```
-
-`reply` alone keeps the thread open (say why, or ask back); `resolve` alone
-closes silently; `{ "reopen": true }` returns a resolved thread to the open list.
-Resolved annotations leave the inline list;
-`GET https://artifactbin.dev/api/artifacts/<id>/annotations?status=all` shows history.
-The threads themselves are server-held beside the document — your PUTs and
-edits can never delete or alter a comment; the ONLY annotation thing living
-in the markup is the `data-annotation-anchor` key, which is yours to
-preserve, never to author.
-
-### List your artifacts
-
-```
-GET https://artifactbin.dev/api/artifacts
-→ 200 { "artifacts": [ { "id", "url", "title", "version", "updated_at", ... } ] }
-```
-
-### Version history & revert (undo a bad edit)
-
-Every `PUT` archives the previous state. To roll back:
-
-```
-GET  https://artifactbin.dev/api/artifacts/<id>/versions   → 200 { "versions": [ { "version", "title", "created_at" } ] }
-POST https://artifactbin.dev/api/artifacts/<id>/revert     { "version": 1 } → 200 { "id", "url", "version": <new> }
-```
-
-A revert creates a NEW version (the pre-revert state is archived too), so
-reverts are themselves undoable and the link never changes.
-
-### Delete an artifact
-
-```
-DELETE https://artifactbin.dev/api/artifacts/<id>
-→ 200 { "ok": true }
-```
-
-Permanent: the public link dies and version history is erased. Confirm with
-your user before deleting anything they shared.
-
-### Screenshot / export as an image (curlable; readable = exportable)
-
-```
-GET https://artifactbin.dev/a/<id>/export             → image/png of the fully rendered page
-GET https://artifactbin.dev/a/<id>/export?format=jpg  → image/jpeg
-GET https://artifactbin.dev/a/<id>/export?mode=card   → 1600×840 top-viewport card (the og:image)
-GET https://artifactbin.dev/a/<id>/export?slide=2     → just slide 2 of a deck (1-based, one screen)
-```
-
-Reviewing a deck, ask for one slide at a time: the whole-document shot is every
-slide stacked, and each is too small to read. A slide past the end answers
-`404 slide_not_found` with the count, so one request tells you how many there
-are.
-
-Rendered on demand in a server-side headless browser — full page at 1200px
-wide, repeat fetches cached until the artifact changes. Fetch it to eyeball
-your own output ONLY IF YOU CAN VIEW IMAGES — otherwise read the stored markup
-back instead (a 200 write has already validated the document, and a harness
-that cannot take an image fails the whole run on one). Also use it to hand your
-user a static image:
-
-```bash
-curl -sS -o report.png "https://artifactbin.dev/a/<id>/export"
-```
-
-Share pages also carry `og:image` pointing at this URL, so links pasted into
-Slack and the like unfurl with a live preview. A `503 render_unavailable`
-means this deployment has no headless browser installed — the HTML link still
-works.
-
-## Errors
-
-| Status | Meaning | What to do |
-|---|---|---|
-| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `invalid_sql` / `unknown_theme` | Fix the request body — `details` names each problem with its span (`invalid_sql` carries the engine's message with candidate columns) |
-| 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public`, `unlisted`, or `private`; `private` needs an account-owned token |
-| 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
-| 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
-| 403 | `quota_exceeded` | This token is at its artifact cap — delete something or use another token |
-| 404 | `not_found` | No artifact with that id is reachable by your token (its own for anonymous tokens, the whole account for claimed ones) |
-| 409 | `version_conflict` | Your `expectedVersion` is stale — re-read, merge, retry with `currentVersion` |
-| 409 | `doc_changed` | Someone edited the SAME node — re-anchor on the returned `edit_id`/`source` and retry |
-| 409 | `stale_edit_id` | That `edit_id` is unknown — `GET` the artifact and use its `edit_id` |
-| 400 | `bad_diff` | `old_string` matched zero times or more than once — pick a unique anchor |
-| 400 | `invalid_annotation_action` | The annotation POST needs `reply` (non-empty string) and/or `resolve: true` |
-| 409 | `has_dependents` | Other documents reference this artifact — re-send DELETE with `?force=true` to break them knowingly |
-| 413 | `too_large` | Shrink the content (max 2,000,000 bytes) |
-| 429 | `rate_limited` | Back off and retry after a minute |
-
-## MCP server (same API, tool-shaped)
-
-`https://artifactbin.dev/mcp` — a Streamable HTTP MCP server speaking this exact API
-(`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`, `list_artifacts`,
-`list_versions`, `get_version`, `revert_artifact`, `delete_artifact`, `annotate`).
-It supports OAuth: add it with no credentials and the client pops a browser
-where your user logs in with their email (a one-time code — no password) and
-approves. Artifacts published through the connection belong to that account:
-
-```
-claude mcp add --transport http artifact-bin https://artifactbin.dev/mcp
-```
-
-Already have an `mx_` token? Skip the browser: pass it as a header instead
-(`--header "Authorization: Bearer mx_..."`) — the tokens are interchangeable.
-
-## Content tiers — pick ONE content field per request
-
-1. **`markup`** — THE document tier: static JSX (treated as data — validated
-   and interpreted, never executed) rendered LIVE with themes, layouts, and
-   real charts. Use it for anything worth designing (slide decks, dashboards, scrollytelling, reports, data stories, etc.):
-
-```
-POST https://artifactbin.dev/api/artifacts
-{ "markup": "<div data-design=\"tw\" className=\"@container p-8\"><h1 className=\"text-4xl font-bold\">Q3</h1>...</div>",
-  "theme": "modernist", "template": "editorial", "colorMode": "dark" }
-```
-
-   - Vocabulary: an ALLOWLIST of 104 HTML tags + 70 kit components (Card, Tabs, Badge,
-     SlideDeck/Slide, Grid/GridItem, …) + live data embeds (`<Question>`
-     charts, `<DataTable>`, `<Number>`) over `<Query>`/`<Value>` declared in
-     `<Helmet>` and bound with `data="$name"` — **read
-     https://artifactbin.dev/docs/markup for the full reference before authoring.** A refused
-     tag answers 400 with the whole allowed set in `allowed_html_tags`, so
-     guess and correct rather than asking for the list up front. `<title>`,
-     `<style>` and `<script>` are document-level: they live in `<Helmet>`.
-   - Style with Tailwind classes via `className`; inline `style=` is rejected.
-     Custom CSS goes in the Helmet's one `<style>{`…`}</style>` block —
-     override theme variables there under `:root` (for example
-     `--background`, `--primary`, `--chart-1..5`, `--font-display`).
-   - `theme` / `template` / `colorMode` are listed at the top of this doc;
-     one-liners for every value at https://artifactbin.dev/docs/themes and
-     https://artifactbin.dev/docs/templates, full guidance at `/docs/themes/<name>` and
-     `/docs/templates/<name>` once you have picked.
-   - Data: the `<Query>`→`data="$name"` path is under **Data in a document**
-     above; the embeds that take it are `<Question>` (charts), `<DataTable>`
-     (a sortable table) and `<Number>` (one figure inline). The bindable
-     READER CONTROLS are `<Select value="$region"
-     options="$regions">`, `<Segmented>`, `<Slider>`, `<DatePicker>`,
-     `<Switch>` (themed; native `<select>`/`<input>` bind too); a change
-     re-runs every query binding that value, live. Images and recipes are not
-     page data — they stay `ref:<id>`.
-   - Humans edit the SAME document WYSIWYG at `https://artifactbin.dev/a/<id>` (an edit
-     mode on the page itself) — you and your user are editing one artifact,
-     versioned together.
-
-2. **Prose and raw HTML live INSIDE markup**, not beside it:
-   - Write prose as ordinary tags — `<h1>`, `<p>`, `<ul>`, `<blockquote>`,
-     `<table>`, `<figure>`, inline SVG. There is no markdown here: one
-     authoring language, and every paragraph stays individually editable in the
-     WYSIWYG (a markdown blob would be one opaque node).
-   - Unclassed tags already read well (the platform typography floor styles
-     them); reach for `className` utilities when you want design.
-   - **`<Helmet>`** — at most ONE per document, holding at most one each of
-     `<title>`, `<style>{\`…\`}</style>`, `<script>{\`…\`}</script>`, plus
-     `<meta name content />` pairs. This is the only place a document may
-     carry custom CSS or JS. It may be written anywhere; it is hoisted to the
-     top of the document when stored. Your script runs in the SERVED document
-     after it hydrates, under the sandbox described in **Rules** above: no
-     cookies, no access to the surrounding page, no network.
-
-3. **Data tiers** — `dataset` (a JSON array of flat rows, + optional
-   `columns` type declarations), `viz` (a reusable chart recipe — shape
-   below), `image`. Create these first — creating a dataset echoes the
-   inferred columns AND a ready-to-paste Query+Question, so the read path
-   (**Data in a document**, above) arrives written for you. SQL is DuckDB
-   dialect, one SELECT. Recipes and images bind as `ref:<id>`;
-   `data="ref:<id>"` and the old Param control are retired (400 with the
-   replacement named).
-
-   **WRITABLE datasets (preview).** A dataset carries a write ACL beside its
-   visibility: `"access": "read"` (the default — documents may only read it)
-   or `"access": "readwrite"`. Set it on create or PUT, or
-   `PATCH https://artifactbin.dev/api/my/artifacts/<id> { "access": "readwrite" }`.
-   It is in PREVIEW: add `?v=2` to the request that sets it (a browser opens
-   any app page with `?v=2` and the app carries it from there). Nothing else
-   needs the flag — a document that writes a writable dataset works for every
-   reader, and readers never carry it.
-
-   A writable dataset is written from a document by declaring a
-   `<Mutation>` in `<Helmet>` — a `<Query>` that writes:
-
-   ```jsx
-   <Helmet>
-     <Value name="choice" type="string" />
-     <Value name="who" type="string" default="anon" />
-     <Query name="tally">{`select choice, count(*) votes from ref_<datasetId> group by 1`}</Query>
-     <Mutation name="vote">{`insert into ref_<datasetId> (choice, who) values ($choice, $who)`}</Mutation>
-   </Helmet>
-   <Segmented value="$choice" options={["ramen","tacos","salad"]} />
-   <input value="$who" />
-   <Button run="$vote">Vote</Button>
-   <Question data="$tally" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{"x":{"field":"votes","type":"quantitative"},"y":{"field":"choice","type":"nominal"}}}}} />
-   ```
-
-   Rules: ONE statement, INSERT | UPDATE | DELETE only (a SELECT is a
-   `<Query>`); it names exactly one dataset, as `ref_<id>`; `$name`
-   binds a `<Value>` (bound, never interpolated); the target must be a
-   dataset YOU own with `access: readwrite` — reading a public dataset you
-   do not own is fine, writing one is not. `<Button run="$name">` runs it;
-   from a Helmet `<script>`, `mx.mutate("vote")` does (it also takes an
-   optional values object). Everything is checked when you publish, so a
-   button that would fail is a 400 naming the fix, never a dead click.
-
-   **A write is live.** Anyone who can read the document can run the
-   mutations it declares (with values only — the SQL is the one you stored),
-   every write is a new dataset VERSION you can revert, and every open copy of
-   every document reading that dataset re-runs its queries within about a
-   second. Capped at 10,000 rows
-   (`409 dataset_full`) and rate-limited per visitor.
-
-   An agent writes rows without a document through
-   `POST https://artifactbin.dev/api/artifacts/<id>/mutate { "sql": "insert into ref_<id> …", "values": {…} }`
-   — the same rules, and cheaper than re-PUTting a whole table.
-
-   An `image` accepts two forms: a base64 `data:` URL in the JSON body
-   (`{ "image": "data:image/png;base64,…" }`), OR — with no JSON envelope —
-   the raw bytes as the request body under a `Content-Type: image/<type>`
-   header, which skips base64 entirely:
-   ```bash
-   curl -X POST https://artifactbin.dev/api/artifacts -H "Authorization: Bearer $TOKEN" \
-     -H "Artifactbin-Agent: $ARTIFACTBIN_AGENT" \
-     -H "Content-Type: image/png" --data-binary @chart.png
-   ```
-   Either way the bytes are stored once (content-addressed) and served from
-   `https://artifactbin.dev/a/<id>`; bind it in markup as `<img src="ref:<id>" />` and the
-   URL is resolved for you — you never write one.
-
-   **Already on the web? Just use the URL.** `{ "imageUrl": "https://…" }`
-   makes the artifact from a URL — artifact-bin fetches it server-side, so YOU
-   DO NOT NEED TO DOWNLOAD IT. And in markup you can simply write
-   `<img src="https://example.com/chart.png" />`: the publish IMPORTS it,
-   stores a copy, and echoes your markup rewritten to `ref:<id>`. The
-   document ends up self-contained either way — a reader never talks to the
-   original host, and the image cannot rot from under you.
-   Max `5,000,000` bytes (png|jpeg|webp|gif|svg+xml).
-
-   A `viz` recipe is the one shape the prose above can't give you: a
-   vega/vega-lite `template` whose `{{token}}`s are filled from declared
-   `bindings` (every token must name a declared slot, else
-   `400 invalid_viz`; `accepts` is `nominal | quantitative | temporal`).
-   Only worth creating for a chart you'll REUSE — for a one-off, put the
-   spec inline in `<Question viz={{"kind":"vega-lite","spec":{…}}} />`:
-
-```json
-{ "title": "Bar by category",
-  "viz": { "description": "Bar chart of a category against a measure",
-           "engine": "vega-lite",
-           "bindings": [ { "name": "x", "label": "Category", "accepts": ["nominal", "temporal"] },
-                         { "name": "y", "label": "Measure", "accepts": ["quantitative"] } ],
-           "template": { "mark": "bar",
-                         "encoding": { "x": { "field": "{{x}}", "type": "nominal" },
-                                       "y": { "field": "{{y}}", "type": "quantitative" } } } } }
-```
-
-`PUT` replaces content wholesale; `GET` returns the `markup` source plus
-`theme` for round-trip editing.
-
-## Auth in full
-
-Every `/api/artifacts` call needs a bearer token:
-
-```
-Authorization: Bearer mx_...
-```
-
-If you call the REST API over raw HTTP, identify your agent harness too:
-
-```
-Artifactbin-Agent: codex
-```
-
-Use your real supported value: `codex`, `claude-code`, `chatgpt`, `claude`,
-`cursor`, `vscode`, `cline`, `windsurf`, or `zed`. This is display-only
-attribution, never authentication. A recognized declaration is remembered on the token,
-so later stateless calls still carry your name. MCP clients do not need
-this header: MCP `initialize.clientInfo` supplies the identity, and the server
-records the transport separately on each annotation comment.
-
-0. **Your user pasted a start link** (`https://artifactbin.dev/a/<id>/start?k=...`) — GET it
-   for that document's instructions, then `POST` the same `/start?k=` URL
-   once: it answers `{ "token": "mx_..." }`. The link is single-use and
-   expires in minutes; the token it yields is yours for every later call.
-1. **Saved config** — check `~/.config/artifact-bin/config.json` for
-   `{ "url", "token" }`. If it exists, use it.
-2. **Your user gave you one** (or it's in your MCP/agent config) — use it.
-3. **No token? Mint an anonymous one** — zero setup:
-
-```
-POST https://artifactbin.dev/api/tokens/anonymous
-→ 201 { "id", "token": "mx_..." }
-```
-
-Then **write it to `~/.config/artifact-bin/config.json`** as
-`{ "url": "https://artifactbin.dev", "token": "mx_..." }` so future sessions (yours and other
-agents') reuse the same token instead of scattering artifacts across fresh
-ones. Anonymous artifacts work fully but belong to nobody — **tell your
-user**: *"to keep these under your account, log in at https://artifactbin.dev and claim token `mx_...`"* (they paste it in the Claim box on the dashboard). Claiming attaches everything the token already
-published, past and future.
-
-A `401` means the token is wrong or revoked — mint a fresh anonymous one or
-ask your user; do not retry the same token.
-
-**Scope**: a token claimed by an account reaches the WHOLE account — you can
-read and edit any artifact your user owns, whichever agent or token created
-it. An anonymous token reaches only what it itself created.
-
-Docs:
-
-- `https://artifactbin.dev/docs/llm` — this document
-- `https://artifactbin.dev/docs/markup` — the markup (story JSX) reference (READ before authoring markup)
-- `https://artifactbin.dev/docs/artifact-design` — design fundamentals (read if you have no artifact-design skill)
-- `https://artifactbin.dev/docs/themes` — the six design themes, one line each (full guidance at `/docs/themes/<name>`)
-- `https://artifactbin.dev/docs/templates` — the four document templates, one line each (full guidance at `/docs/templates/<name>`)
-- `https://artifactbin.dev/docs/human` — the human-readable tour (send your user here)
-
-API:
-
-- `POST https://artifactbin.dev/api/tokens/anonymous` — mint a token (no auth)
-- `https://artifactbin.dev/mcp` — MCP server (same token, same operations)
-- `POST https://artifactbin.dev/api/artifacts` — create (`markup` | `dataset` | `viz` | `image`)
-- `GET https://artifactbin.dev/api/artifacts` — list yours
-- `GET https://artifactbin.dev/api/artifacts/<id>` — read one back (source + theme + open `annotations`)
-- `POST https://artifactbin.dev/api/artifacts/<id>/annotations/<annotation_id>` — `{ reply?, resolve?, reopen? }` a comment thread
-- `PUT https://artifactbin.dev/api/artifacts/<id>` — replace content, bump version, same link
-- `DELETE https://artifactbin.dev/api/artifacts/<id>` — permanent delete (confirm with your user)
-- `GET https://artifactbin.dev/api/artifacts/<id>/versions` — version history
-- `POST https://artifactbin.dev/api/artifacts/<id>/revert` — roll back to a version
-- `https://artifactbin.dev/a/<id>` — the share page (the deliverable). Owned docs redirect
-  to a pretty URL (`/@username/<folder>/<id>-<title>`); BOTH forms always
-  work — anything carrying the id resolves and self-corrects, so hand out
-  whichever you have.
-- `https://artifactbin.dev/a/<id>/export` — the page as a PNG (`?format=jpg` too; curlable, no auth)
-
----
-
-**End of the page.** If you arrived here by tailing it, what a document cannot
-be written without is at the TOP of this page, not down here: what a document
-is, the publish call, the data path (`<Query>` → `data="$name"`), the rules
-every document lives by, and a map naming every section. `head -c 6000` of
-this URL is the whole briefing.
+**A document is a CONTAINER, and a reader may be on a phone (390px).** Use
+container prefixes — `@2xl:`, `@3xl:` — never the viewport ones
+(`sm:`/`md:`/`lg:`), which do not apply here. Multi-column layouts start at
+one column and widen: `grid-cols-1 @2xl:grid-cols-3`, and so does display
+type — `text-4xl @2xl:text-6xl`, never a bare `text-6xl` (60px type and one
+long proper noun is wider than a phone). Never a fixed pixel width.
+
+Rules a document lives by: one self-contained document; no CDN scripts, external
+stylesheets or network calls (it is served sandboxed and they silently fail);
+images are a `data:` URI or an `https://` URL (imported and stored at publish);
+web fonts by naming a Google family — `<meta name="font-display" content="Lobster" />`.
+
+**theme** (the whole palette and fonts — author with token classes like
+`bg-background`, `text-muted-foreground`, `bg-primary`, `border-border`
+and it follows):
+
+- `modernist` — Stark Swiss editorial — white and near-black with one red accent, inverted to ink-black in dark
+- `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones
+- `industry` — Professional, square — slate and industrial blue, safety-orange for the one exception
+- `terminal` — Terminal — mono type throughout, near-black with neon green by default
+- `manuscript` — Serif editorial — cream paper, sepia ink, oxblood accent
+- `pop` — Playful and loud — candy magenta, cyan and amber over near-white, chunky radii, heavy Bricolage Grotesque headings
+
+`colorMode`: `light` | `dark`.
+
+**template** — the structural genre. Pick by the ask (slides → deck, operating
+view → dashboard, report/long-read → editorial); when it is not obvious,
+`scrolly` is the strongest default. Deviating deliberately is first-class.
+
+- `deck` — `<SlideDeck>` wrapping one `<Slide title="…">` per slide (each
+  fills the viewport as a flex column; never vh units, never fixed/sticky).
+  Every content slide repeats ONE chrome: kicker
+  `<p className="text-xs uppercase tracking-widest font-semibold text-primary">01 · ACT</p>`,
+  `<hr className="mt-3 mb-10"/>`, a spoken-sentence `<h2>` claim, two lines of
+  copy or ≤3 bullets, then `<div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground">`.
+  At least ONE full-bleed accent divider slide (`className="justify-center bg-primary text-primary-foreground"`,
+  a giant tone-on-tone numeral, no band or footer) — everything else stays quiet paper.
+  ~40% empty, one idea per slide.
+- `editorial` — ONE centered column, `<article className="mx-auto max-w-2xl">`.
+  Numbered section claims as `<h2>`s (3+ get an automatic table of contents),
+  measured prose, a repeated folio rule opening each section. Charts may widen
+  symmetrically (`@3xl:-mx-24`); tables never do.
+- `dashboard` — `<Grid>`/`<GridItem>` tiles wall to wall, almost no prose: a
+  quiet one-line verdict (`text-base font-medium`, never a display headline),
+  a control row, KPI numbers as the only big type, tile labels ≤3 words.
+- `scrolly` — a conceit the whole page commits to (a console, a case file),
+  mono uppercase tracked labels (`font-mono text-xs uppercase tracking-widest`),
+  huge two-tone claims, chapter bands, `reveal-up` on evidence as it arrives.
+
+Checking your work: a 200 has already validated the document. `GET https://artifactbin.dev/a/<id>/export`
+renders it as a PNG (add `?slide=2` for one slide of a deck, 1-based — the whole-deck
+shot is every slide stacked and too small to read) — fetch it only if you can actually
+view images; otherwise read the stored markup back instead.
+
+**Does the document read DATA?** A dashboard, a chart over a dataset, anything
+with a `<Query>` or a `<Question>` — that vocabulary is NOT above, and
+guessing it wastes far more than reading does. Read https://artifactbin.dev/docs/llm BEFORE you
+write — the data path is at the TOP of that page, in the first screenful, so a
+partial read is enough; do not skim past it. It is also the only API
+description there is (no OpenAPI or Swagger endpoint to find).
+
+**For a document of prose, slides or sections, do not fetch anything** —
+everything above is what it needs, and reading the full docs costs more tokens
+than the document itself. Go there for what is genuinely not covered here: data
+and `<Query>`, live reader controls, `<Mutation>` writes, image and chart
+artifacts, versions and partial edits — https://artifactbin.dev/docs/llm (the API),
+https://artifactbin.dev/docs/markup (every component).
+
+
+## The rest of the protocol
+
+Everything above covers a straightforward document. For the parts it does not
+— datasets and `<Query>` in full, the `/edits` splice protocol, annotations,
+versions and revert, visibility and sharing, the error table — fetch
+`https://artifactbin.dev/docs/llm`; the essentials are at the top of that page and it names
+every section. `https://artifactbin.dev/docs/markup` is the authoring vocabulary, and the
+`markup` skill beside this one carries it with every theme and template.
