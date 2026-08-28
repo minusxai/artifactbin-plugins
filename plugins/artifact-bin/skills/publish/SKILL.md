@@ -85,6 +85,12 @@ parser silently closes a paragraph at any block tag and the document would
 otherwise render as a different tree than you wrote). Edit against the echo:
 sending the `<p>` back will simply be rewritten again.
 
+The echo comes back ONLY when storing changed something: every write answers
+`markup_changed` (true/false), and carries `markup` when it is true. False
+means the stored document is byte-for-byte what you sent — you already have it,
+so it is not repeated. (`/edits` always returns the resulting `markup`: you
+sent a splice, not a document.)
+
 **Visibility (who can open that url):** every artifact carries
 `"visibility": "public" | "unlisted" | "private"`. `public` = anyone with
 the link can read, and the artifact lists on the owner's public profile at
@@ -247,11 +253,20 @@ your user before deleting anything they shared.
 GET https://artifactbin.dev/a/<id>/export             → image/png of the fully rendered page
 GET https://artifactbin.dev/a/<id>/export?format=jpg  → image/jpeg
 GET https://artifactbin.dev/a/<id>/export?mode=card   → 1600×840 top-viewport card (the og:image)
+GET https://artifactbin.dev/a/<id>/export?slide=2     → just slide 2 of a deck (1-based, one screen)
 ```
 
+Reviewing a deck, ask for one slide at a time: the whole-document shot is every
+slide stacked, and each is too small to read. A slide past the end answers
+`404 slide_not_found` with the count, so one request tells you how many there
+are.
+
 Rendered on demand in a server-side headless browser — full page at 1200px
-wide, repeat fetches cached until the artifact changes. Use it to eyeball
-your own output or hand your user a static image:
+wide, repeat fetches cached until the artifact changes. Fetch it to eyeball
+your own output ONLY IF YOU CAN VIEW IMAGES — otherwise read the stored markup
+back instead (a 200 write has already validated the document, and a harness
+that cannot take an image fails the whole run on one). Also use it to hand your
+user a static image:
 
 ```bash
 curl -sS -o report.png "https://artifactbin.dev/a/<id>/export"
