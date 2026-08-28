@@ -24,6 +24,19 @@ Every `/api/artifacts` call needs a bearer token:
 Authorization: Bearer mx_...
 ```
 
+If you call the REST API over raw HTTP, identify your agent harness too:
+
+```
+Artifactbin-Agent: codex
+```
+
+Use your real supported value: `codex`, `claude-code`, `chatgpt`, `claude`,
+`cursor`, `vscode`, `cline`, `windsurf`, or `zed`. This is display-only
+attribution, never authentication. A recognized declaration is remembered on the token,
+so later stateless calls still carry your name. MCP clients do not need
+this header: MCP `initialize.clientInfo` supplies the identity, and the server
+records the transport separately on each annotation comment.
+
 0. **Your user pasted a start link** (`https://artifactbin.dev/a/<id>/start?k=...`) — GET it
    for that document's instructions, then `POST` the same `/start?k=` URL
    once: it answers `{ "token": "mx_..." }`. The link is single-use and
@@ -98,7 +111,8 @@ Example:
 ```bash
 jq -n --rawfile markup artifact.jsx '{"title":"My page","markup":$markup}' \
   | curl -sS -X POST https://artifactbin.dev/api/artifacts \
-      -H "Authorization: Bearer $ARTIFACT_TOKEN" -H 'Content-Type: application/json' \
+      -H "Authorization: Bearer $ARTIFACT_TOKEN" \
+      -H "Artifactbin-Agent: $ARTIFACTBIN_AGENT" -H 'Content-Type: application/json' \
       --data-binary @-
 ```
 
@@ -148,8 +162,55 @@ or without a text change). Those are document-level and never conflict.
 
 ```
 GET https://artifactbin.dev/api/artifacts/<id>
-→ 200 { "id", "url", "title", "description", "format", "markup", "version", ... }
+→ 200 { "id", "url", "title", "description", "format", "markup", "version",
+        "annotations": [ ... ], "open_annotations": <count>, ... }
 ```
+
+### Annotations — human and agent feedback, pinned to the document
+
+Your user can select any node of a published document in their browser and
+attach a comment. The commented node carries a `data-annotation-anchor="<key>"`
+attribute in the markup — the value is only an opaque node key, never the
+comment text. **That attribute IS the anchor. Preserve it when you edit:
+keep it on the element it marks, move it with the content, and carry it
+through full rewrites.** Deleting the node (or dropping the attribute)
+orphans the comment; putting it back re-anchors it. Never add, change, or
+reuse `data-annotation-anchor` values yourself. Annotations arrive INLINE
+on the read above (open ones only):
+
+```
+"annotations": [ {
+  "id": "ann_…", "status": "open",
+  "snippet": "Revenue grew 40% in Q3",           ← the text they selected
+  "anchor": { "key": "a1a2b3c4", "path": "0.3", "spanStart": 812, "spanEnd": 964 },
+  "anchor_version": 7,                            ← the version it was made against
+  "orphaned": false,
+  "thread": [ { "body": "this number looks wrong — check the Q3 sheet",
+                "author": { "kind": "human", "label": "vivek", "transport": "browser" },
+                "created_at": "…" } ]
+} ]
+```
+
+Read them before editing; `snippet` + `anchor.key` tell you which node
+each one is about (find `data-annotation-anchor="a1a2b3c4"` in the markup). An
+`"orphaned": true` annotation's node is not in the current version — the
+snippet still says what it pointed at. When you have acted on one (or have a
+question), answer it — reply, resolve, or both in one call:
+
+```
+POST https://artifactbin.dev/api/artifacts/<id>/annotations/<annotation_id>
+{ "reply": "Recomputed from the Q3 sheet — it was 34%. Fixed.", "resolve": true }
+→ 200 { "id", "status": "resolved", "thread": [ ... ] }
+```
+
+`reply` alone keeps the thread open (say why, or ask back); `resolve` alone
+closes silently; `{ "reopen": true }` returns a resolved thread to the open list.
+Resolved annotations leave the inline list;
+`GET https://artifactbin.dev/api/artifacts/<id>/annotations?status=all` shows history.
+The threads themselves are server-held beside the document — your PUTs and
+edits can never delete or alter a comment; the ONLY annotation thing living
+in the markup is the `data-annotation-anchor` key, which is yours to
+preserve, never to author.
 
 ### List your artifacts
 
@@ -215,6 +276,7 @@ works.
 | 409 | `doc_changed` | Someone edited the SAME node — re-anchor on the returned `edit_id`/`source` and retry |
 | 409 | `stale_edit_id` | That `edit_id` is unknown — `GET` the artifact and use its `edit_id` |
 | 400 | `bad_diff` | `old_string` matched zero times or more than once — pick a unique anchor |
+| 400 | `invalid_annotation_action` | The annotation POST needs `reply` (non-empty string) and/or `resolve: true` |
 | 409 | `has_dependents` | Other documents reference this artifact — re-send DELETE with `?force=true` to break them knowingly |
 | 413 | `too_large` | Shrink the content (max 2,000,000 bytes) |
 | 429 | `rate_limited` | Back off and retry after a minute |
@@ -223,7 +285,7 @@ works.
 
 `https://artifactbin.dev/mcp` — a Streamable HTTP MCP server speaking this exact API
 (`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`, `list_artifacts`,
-`list_versions`, `get_version`, `revert_artifact`, `delete_artifact`).
+`list_versions`, `get_version`, `revert_artifact`, `delete_artifact`, `annotate`).
 It supports OAuth: add it with no credentials and the client pops a browser
 where your user logs in with their email (a one-time code — no password) and
 approves. Artifacts published through the connection belong to that account:
@@ -356,6 +418,7 @@ POST https://artifactbin.dev/api/artifacts
    header, which skips base64 entirely:
    ```bash
    curl -X POST https://artifactbin.dev/api/artifacts -H "Authorization: Bearer $TOKEN" \
+     -H "Artifactbin-Agent: $ARTIFACTBIN_AGENT" \
      -H "Content-Type: image/png" --data-binary @chart.png
    ```
    Either way the bytes are stored once (content-addressed) and served from
@@ -440,7 +503,8 @@ API:
 - `https://artifactbin.dev/mcp` — MCP server (same token, same operations)
 - `POST https://artifactbin.dev/api/artifacts` — create (`markup` | `dataset` | `viz` | `image`)
 - `GET https://artifactbin.dev/api/artifacts` — list yours
-- `GET https://artifactbin.dev/api/artifacts/<id>` — read one back (source + theme)
+- `GET https://artifactbin.dev/api/artifacts/<id>` — read one back (source + theme + open `annotations`)
+- `POST https://artifactbin.dev/api/artifacts/<id>/annotations/<annotation_id>` — `{ reply?, resolve?, reopen? }` a comment thread
 - `PUT https://artifactbin.dev/api/artifacts/<id>` — replace content, bump version, same link
 - `DELETE https://artifactbin.dev/api/artifacts/<id>` — permanent delete (confirm with your user)
 - `GET https://artifactbin.dev/api/artifacts/<id>/versions` — version history
