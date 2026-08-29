@@ -11,6 +11,26 @@ deliberate choices about palette, type, and layout, pitched at the treatment
 the task actually calls for — never templated. The kit gives you components;
 this page is about using FEWER of them, better.
 
+## What the theme does not do for you
+
+The theme carries the fonts, the palette and both color modes; what your own
+Helmet CSS adds, you carry yourself:
+
+- **A family the theme lacks is a Helmet meta, never CSS**:
+  `<meta name="font-display" content="Lobster" />` (also `font-body`,
+  `font-mono`) names a Google family, served from this origin; an unknown one
+  fails the publish. CSS `url()`/`@import` is stripped at save, so a font CDN
+  link never paints.
+- **Color mode is a root class the reader flips**, not a media query: every
+  theme ships light AND dark and `colorMode` picks your default. Author in
+  theme tokens and both follow; hand-written colors must define both and paint
+  the background explicitly — a transparent body borrows the viewer's ground.
+- Choose your neutrals: a grey with a slight hue bias toward the accent reads
+  as chosen; a pure mid-grey reads as unconsidered.
+- Watch selector specificity (don't let two classes fight over section
+  spacing), close every element, give keyboard focus a visible state, respect
+  `prefers-reduced-motion`.
+
 ## Calibrate the treatment
 
 - A doc deserves the same craft as a landing page — what changes is the
@@ -84,10 +104,6 @@ Typography carries the page even when the page isn't about typography.
   never letterspace lowercase body copy. Aligned digits get `tabular-nums`.
 - Weight is hierarchy's cheapest lever — `font-semibold` headings over bold
   paragraphs; if everything is bold, nothing is.
-- No webfont URLs: authored `<style>` blocks strip every external `url()` /
-  `@import` at save (exfiltration + self-contained-capture guards), so a
-  Google Fonts link is silently inert. A `data:` URI `@font-face` passes,
-  but the platform way is the theme's bundled pairing.
 
 Every template names how these roles are spent (its "Type register") — the
 genre changes the register, never the roles.
@@ -137,7 +153,9 @@ genre changes the register, never the roles.
 - The title states the takeaway; axes and units do the explaining.
 - Direct labels beat legends; gridlines stay barely-there; no gradients,
   shadows, or 3D — data-ink only.
-- Every number a viewer might question binds to a real `ref:` dataset.
+- Every number a viewer might question comes from data: a
+  `<Query name="sales">` in `<Helmet>` over the dataset's `ref_<datasetId>`
+  table, bound with `data="$sales"`.
 
 ## Copy is design material
 
@@ -178,21 +196,4 @@ from habit.
 - Pick the theme for the mood and let it work — do not re-style what it
   already styles.
 
-## What the theme does not do for you
-
-The above is mostly free in `markup` (the theme carries fonts, palette, and
-color modes). What your own Helmet CSS adds, you carry yourself:
-
-- The CSP blocks font CDNs — a linked webfont silently falls back. Inline an
-  `@font-face` data URI or design on a system stack.
-- Handle both color schemes via `prefers-color-scheme`, or commit to one and
-  paint the background and every color explicitly — a transparent body
-  borrows whatever ground the viewer's browser paints.
-- Choose your neutrals: a grey with a slight hue bias toward the accent reads
-  as chosen; a pure mid-grey reads as unconsidered.
-- Watch selector specificity (don't let two classes fight over section
-  spacing), close every element, give keyboard focus a visible state, respect
-  `prefers-reduced-motion`.
-
-Then author with the vocabulary: https://artifactbin.dev/docs/markup (components),
-https://artifactbin.dev/docs/themes (design systems), https://artifactbin.dev/docs/templates (genres).
+Then author with the component vocabulary: https://artifactbin.dev/docs/markup.

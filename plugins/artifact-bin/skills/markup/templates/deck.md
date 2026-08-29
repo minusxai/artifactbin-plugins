@@ -12,6 +12,33 @@ Voice: a keynote. Every slide headline is a spoken sentence ("Retention pays for
 increase"), never a label ("Retention"). One idea per slide. A good slide is ~40% empty —
 put the air BELOW the content, not around it.
 
+Skeleton (cover → divider → chart slide; extend the pattern per act):
+
+  <Helmet><Query name="q">{`select month, sum(revenue) revenue from ref_<datasetId> group by 1 order by 1`}</Query></Helmet>
+  <div data-design="tw" className="@container px-6 @2xl:px-12">
+    <SlideDeck>
+      <Slide title="Cover" className="border-b border-border py-14">
+        <p className="text-xs uppercase tracking-widest font-semibold text-primary">Company · Quarter</p>
+        <hr className="mt-3" />
+        <h1 className="animate-fade-up mt-auto text-6xl @2xl:text-8xl font-bold tracking-tight max-w-4xl">The title states the one finding</h1>
+        <p className="animate-fade-up [animation-delay:200ms] mt-6 text-lg text-muted-foreground max-w-xl">A standfirst no longer than the breath it takes to say it.</p>
+        <div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Author</span><span>Date</span></div>
+      </Slide>
+      <Slide title="Act one" className="justify-center bg-primary text-primary-foreground -mx-6 @2xl:-mx-12 px-6 @2xl:px-12">
+        <span className="text-9xl font-bold text-primary-foreground/25">01</span>
+        <h2 className="mt-2 text-4xl @2xl:text-5xl font-semibold">Act title, mirrored in the contents</h2>
+      </Slide>
+      <Slide title="The takeaway, spoken" className="border-b border-border py-14">
+        <p className="text-xs uppercase tracking-widest font-semibold text-primary">01 · ACT NAME</p>
+        <hr className="mt-3 mb-10" />
+        <h2 className="text-3xl @2xl:text-5xl font-semibold max-w-3xl">The headline is the takeaway, spoken aloud</h2>
+        <div className="mt-10 max-w-5xl"><Question data="$q" viz={{"kind":"vega-lite","spec":{}}} height="440px" /></div>
+        <p className="mt-4 text-sm text-muted-foreground max-w-prose">One line under the chart: what to remember when the slide is gone.</p>
+        <div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Deck title — date</span><span className="font-semibold">07</span></div>
+      </Slide>
+    </SlideDeck>
+  </div>
+
 Type register (the theme's pairing, spent the keynote way): display does the speaking —
 huge spoken headlines, few words; the utility face runs the chrome — kickers, footer
 meta, slide numbers, contents rows; body appears only in standfirsts and captions,
@@ -26,9 +53,10 @@ fixed/sticky are banned — a slide is a tall section):
   powers the reader's slide overview and present-mode paging.
 - Give EVERY slide a short spoken `title` (it names the slide in the overview rail and the
   present controls; untitled slides fall back to their first heading).
-- HEADER BAND on every content slide: kicker `<p className="text-xs uppercase tracking-widest font-semibold text-primary">01 · ACT NAME</p>`
-  + hairline `<hr className="mt-3 mb-10">`; then the slide h2. Same gutters, same band, every slide — the repetition IS the design.
-- FOOTER META closes every content slide: `<div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Deck title — date</span><span className="font-semibold">07</span></div>`.
+- HEADER BAND on every content slide: kicker + hairline, then the slide h2 — the
+  skeleton's exact classes. Same band, every slide; the repetition IS the design.
+- FOOTER META closes every content slide, the same row every time: deck title and date
+  left, the slide number right.
 
 ACTS AND COLOR RHYTHM (the interleaving that makes it feel designed):
 - EVERY deck ships at least one full-bleed solid-accent divider slide, however short it is.
@@ -47,9 +75,8 @@ ACTS AND COLOR RHYTHM (the interleaving that makes it feel designed):
   `tabular-nums`) whose titles mirror the dividers EXACTLY.
 
 SLIDE TYPES (pick per beat; each stays one idea):
-- Act divider (MANDATORY, at least one per deck): the full-bleed accent slide above — act
-  numeral + act title on `bg-primary`, no band, no footer, no body copy. Pick this FIRST,
-  before filling any content slot, then mirror its title in the contents slide.
+- Act divider (MANDATORY, at least one per deck — the skeleton's middle slide): pick it
+  FIRST, before any content slot, then mirror its title in the contents slide.
 - Statement: at most 3 one-line bullets with square accent markers
   (`<span className="inline-block size-2 bg-primary mr-3">`), then air. No paragraphs.
 - Columns (2 or 3): equal cells on one gutter, and EACH COLUMN OPENS UNDER A RULE
@@ -71,32 +98,6 @@ SLIDE TYPES (pick per beat; each stays one idea):
 - Cover and Close share one grammar: kicker + hairline, huge flush-left title
   (`text-6xl @2xl:text-8xl tracking-tight`), one-line muted standfirst, byline/date at the foot.
   The close restates the lead number and the next step, then contact.
-
-Skeleton (cover → divider → chart slide; extend the pattern per act):
-
-<div data-design="tw" className="@container px-6 @2xl:px-12">
-  <SlideDeck>
-    <Slide title="Cover" className="border-b border-border py-14">
-      <p className="text-xs uppercase tracking-widest font-semibold text-primary">Company · Quarter</p>
-      <hr className="mt-3" />
-      <h1 className="animate-fade-up mt-auto text-6xl @2xl:text-8xl font-bold tracking-tight max-w-4xl">The title states the one finding</h1>
-      <p className="animate-fade-up [animation-delay:200ms] mt-6 text-lg text-muted-foreground max-w-xl">A standfirst no longer than the breath it takes to say it.</p>
-      <div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Author</span><span>Date</span></div>
-    </Slide>
-    <Slide title="Act one" className="justify-center bg-primary text-primary-foreground -mx-6 @2xl:-mx-12 px-6 @2xl:px-12">
-      <span className="text-9xl font-bold text-primary-foreground/25">01</span>
-      <h2 className="mt-2 text-4xl @2xl:text-5xl font-semibold">Act title, mirrored in the contents</h2>
-    </Slide>
-    <Slide title="The takeaway, spoken" className="border-b border-border py-14">
-      <p className="text-xs uppercase tracking-widest font-semibold text-primary">01 · ACT NAME</p>
-      <hr className="mt-3 mb-10" />
-      <h2 className="text-3xl @2xl:text-5xl font-semibold max-w-3xl">The headline is the takeaway, spoken aloud</h2>
-      <div className="mt-10 max-w-5xl"><Question id={N} height="440px" /></div>
-      <p className="mt-4 text-sm text-muted-foreground max-w-prose">One line under the chart: what to remember when the slide is gone.</p>
-      <div className="mt-auto pt-10 flex justify-between text-xs text-muted-foreground"><span>Deck title — date</span><span className="font-semibold">07</span></div>
-    </Slide>
-  </SlideDeck>
-</div>
 
 Do
 - Ship at least one solid-accent divider slide — a five-slide deck still gets one.

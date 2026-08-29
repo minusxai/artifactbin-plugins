@@ -49,11 +49,15 @@ component kit (`Card`, `Tabs`, `Badge`, `Grid`/`GridItem`,
 `DataTable`, `Number`), styled ONLY with Tailwind utilities via
 `className` — inline `style=` is rejected. There is no markdown.
 
-**Guess rather than look up.** A tag or component outside the allowlist is
-refused with a 400 carrying the whole allowed set (`allowed_html_tags`), so a
-wrong guess costs one cheap round trip — where fetching the full component list
-costs far more, every turn, for the rest of the run. Custom CSS and JS live in at most one `<Helmet>`, which also holds
-the `<title>`:
+**Guess rather than look up.** An unknown HTML tag is refused with a 400 carrying
+the whole allowed set (`allowed_html_tags`), an unknown component with the
+registry, so a wrong guess costs one cheap round trip — far less than the full
+component list, which is replayed in every later turn. One exception:
+`script, iframe, object, embed, base, meta, link, form, frame,
+frameset, applet, noscript` are refused outright with NO list, so never guess
+them — `<form>` for a control row, `<iframe>` for an embed and `<meta>` for SEO
+are the common mistakes. Custom CSS and JS live in at most one `<Helmet>`, which
+also holds the `<title>`:
 
 ```jsx
 <Helmet>
@@ -69,10 +73,25 @@ one column and widen: `grid-cols-1 @2xl:grid-cols-3`, and so does display
 type — `text-4xl @2xl:text-6xl`, never a bare `text-6xl` (60px type and one
 long proper noun is wider than a phone). Never a fixed pixel width.
 
-Rules a document lives by: one self-contained document; no CDN scripts, external
-stylesheets or network calls (it is served sandboxed and they silently fail);
-images are a `data:` URI or an `https://` URL (imported and stored at publish);
-web fonts by naming a Google family — `<meta name="font-display" content="Lobster" />`.
+Rules a document lives by: one self-contained document — a CDN `<script src>`
+and an external stylesheet are hard 400s at publish, while a runtime `fetch()`
+to another origin is not refused but the sandbox blocks it; images are a
+`data:` URI or an `https://` URL (imported and stored at publish); web fonts
+by naming a Google family — `<meta name="font-display" content="Lobster" />`.
+
+**Data in a document** — three moves: upload the rows, declare a `<Query>` over
+them inside the `<Helmet>`, bind an embed by `$name`. The rows are their own
+artifact (`{"dataset":"month,revenue\n2026-01,120"}`) and its create response
+echoes a ready-to-paste Query+Question.
+
+```jsx
+<Helmet><Query name="sales">{`select region, sum(revenue) revenue from ref_<datasetId> group by 1`}</Query></Helmet>
+<Question data="$sales" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{"x":{"field":"region","type":"nominal"},"y":{"field":"revenue","type":"quantitative"}}}}} />
+```
+
+`<DataTable data="$sales" />` tables the same rows. A reader control
+(`<Select value="$region" options="$regions" />`) writes into a `<Value>` and
+re-runs every query bound to it, live. Full data grammar: https://artifactbin.dev/docs/markup.
 
 **theme** (the whole palette and fonts — author with token classes like
 `bg-background`, `text-muted-foreground`, `bg-primary`, `border-border`
@@ -92,7 +111,7 @@ view → dashboard, report/long-read → editorial); when it is not obvious,
 `scrolly` is the strongest default. Deviating deliberately is first-class.
 
 - `deck` — `<SlideDeck>` wrapping one `<Slide title="…">` per slide (each
-  fills the viewport as a flex column; never vh units, never fixed/sticky).
+  fills the viewport as a flex column; never fixed/sticky).
   Every content slide repeats ONE chrome: kicker
   `<p className="text-xs uppercase tracking-widest font-semibold text-primary">01 · ACT</p>`,
   `<hr className="mt-3 mb-10"/>`, a spoken-sentence `<h2>` claim, two lines of
@@ -116,23 +135,15 @@ renders it as a PNG (add `?slide=2` for one slide of a deck, 1-based — the who
 shot is every slide stacked and too small to read) — fetch it only if you can actually
 view images; otherwise read the stored markup back instead.
 
-**Does the document read DATA?** A dashboard, a chart over a dataset, anything
-with a `<Query>` or a `<Question>` — that vocabulary is NOT above, and
-guessing it wastes far more than reading does. Read https://artifactbin.dev/docs/llm BEFORE you
-write — the data path is at the TOP of that page, in the first screenful, so a
-partial read is enough; do not skim past it. It is also the only API
-description there is (no OpenAPI or Swagger endpoint to find).
+**Prose, slides, sections and a document charting one dataset are fully covered
+above** — writing straight from this sheet is the normal path and usually the
+whole job.
 
-**A document of prose, slides or sections is fully covered above** — it costs
-more tokens to read the full docs than to write one, so writing straight from
-this sheet is the normal path and usually the whole job.
-
-When you DO need more, the answer is one fetch away and you should take it —
-https://artifactbin.dev/docs/llm (the whole API) and https://artifactbin.dev/docs/markup (every component).
-That covers data and `<Query>`, live reader controls, `<Mutation>` writes,
-image and chart artifacts, versions and partial edits. Fetching one known page
-is always cheaper than guessing at endpoints: there is no OpenAPI, no Swagger
-and no `/api/docs` to find, so a guess is a 404 and the page is not.
+When you DO need more, it is one fetch away: https://artifactbin.dev/docs/llm for the whole
+API (versions, annotations, sharing), https://artifactbin.dev/docs/markup for every component
+and the data grammar in full (writable datasets, `<Mutation>`, chart recipes).
+There is no OpenAPI, no Swagger and no `/api/docs` — a guess is a 404, a
+known page is not.
 
 
 ## The rest of the protocol

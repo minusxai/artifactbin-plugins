@@ -8,16 +8,57 @@ Beats: Title block (masthead rule · title · standfirst · byline/date) → Sum
 
 ## Editorial — the typeset document / report
 
-THE OUTLINE: a document with three or more `<h2>` sections gets a table of contents
-beside its column on wide screens, built from those headings by the platform — so the
-headlines below are also the rows a reader navigates by. Keep them short enough to read
-in a list; nothing to author.
-
 Voice: a document, not a webpage. Section headlines are numbered CLAIMS in sentence case
 ("2. Retention paid for the price increase"), set quiet (`font-semibold tracking-tight`)
 — reading only the headlines delivers the whole argument. The body is measured prose:
 short paragraphs, no dangling one-line sections (the orphan/widow rule, applied to
 structure).
+
+Skeleton (title block → summary → one paged section with a figure → method footer):
+
+  <Helmet><Query name="q">{`select month, sum(revenue) revenue from ref_<datasetId> group by 1 order by 1`}</Query></Helmet>
+  <div data-design="tw" className="@container bg-background px-6 py-12 text-foreground @2xl:py-16">
+    <article className="mx-auto max-w-2xl">
+      <header>
+        <div className="flex items-baseline justify-between border-b-2 border-foreground pb-2 text-xs uppercase tracking-widest">
+          <span className="font-bold">Org · Report No. 12</span>
+          <span className="text-muted-foreground">13 Aug 2026</span>
+        </div>
+        <h1 className="animate-fade-up mt-14 text-4xl @2xl:text-5xl font-semibold tracking-tight leading-tight">The title states the finding, with its number</h1>
+        <p className="animate-fade-up [animation-delay:150ms] mt-5 text-lg leading-relaxed text-muted-foreground">The standfirst says why this matters and to whom, in one sentence.</p>
+        <p className="animate-fade-up [animation-delay:300ms] mt-8 text-xs uppercase tracking-widest text-muted-foreground">Author · window covered · one line</p>
+      </header>
+      <section className="mt-14 border-y border-border py-6">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Summary</p>
+        <ul className="mt-4 space-y-2 leading-relaxed">
+          <li><strong>Two-word lead:</strong> the finding in one sentence, with its number.</li>
+          <li><strong>The caveat:</strong> a report that names its own risk is more credible, not less.</li>
+        </ul>
+      </section>
+      <div className="mt-24 flex items-baseline justify-between border-t border-foreground pt-2 text-[11px] uppercase tracking-widest text-muted-foreground @2xl:mt-32">
+        <span>Doc title</span><span>§ 1</span>
+      </div>
+      <section className="mt-14">
+        <h2 className="text-2xl font-semibold tracking-tight">1. The section headline is a claim, never a topic</h2>
+        <p className="mt-5 leading-relaxed">Two to four sentences set up the figure: what to look at, and what it will prove.</p>
+        <figure className="my-10 @3xl:-mx-24">
+          <Question data="$q" viz={{"kind":"vega-lite","spec":{}}} height="400px" />
+          <figcaption className="mt-3 border-t border-border pt-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">FIG. 01</span> — what the chart proves, at the data's precision.</figcaption>
+        </figure>
+        <p className="leading-relaxed text-muted-foreground">The paragraph after the figure says what follows from it — never repeats it.</p>
+        <p className="mt-8 border-t border-border pt-3 leading-relaxed"><strong>Takeaway:</strong> the section's one sentence to keep, with its number.</p>
+      </section>
+      <footer className="mt-24 border-t border-border pt-4 text-xs text-muted-foreground @2xl:mt-32">
+        <p className="uppercase tracking-widest">Method & sources</p>
+        <p className="mt-2 leading-relaxed">Window, exclusions, and where the data lives — one or two honest lines.</p>
+      </footer>
+    </article>
+  </div>
+
+THE OUTLINE: a document with three or more `<h2>` sections gets a table of contents
+beside its column on wide screens, built from those headings by the platform — so the
+headlines are also the rows a reader navigates by. Keep them short enough to read in a
+list; nothing to author.
 
 Type register (the theme's pairing, spent the document way): display carries the title
 and the numbered claims, quiet and tight; body carries the measured prose at
@@ -56,8 +97,8 @@ continuously across the document. Three kinds, all first-class:
   labels over legends. Evidence 380-440px; a lone number 170-220px.
 - Diagram: an inline `<svg>` drawn in `currentColor` strokes at hairline weights — the
   technical-report figure. Local `url(#id)` refs only.
-- Image: `<img src="ref:<imageId>" />` (publish the image artifact first; remote URLs
-  are rejected).
+- Image: `<img src="ref:<imageId>" />`, or an `https://` URL — a remote image is
+  IMPORTED at publish (fetched once, stored) and rewritten to `ref:<id>` for you.
 - Table: a plain `<table className="text-sm">` in the column — a figure like the others,
   with its FIG caption, but never widened (see THE COLUMN).
 Caption grammar: `<figcaption className="mt-3 border-t border-border pt-2 text-xs
@@ -73,62 +114,17 @@ the reader must never hunt for "so what". Two placements, both minimal:
   bold-lead bullets, each with its number. State conclusions before arguing them.
 No boxes, no background fills, no rail: the takeaway is a typeset line, not a widget.
 
-Front and end matter
-- Title block: a masthead rule (`flex items-baseline justify-between border-b-2
-  border-foreground pb-2`, small-caps org/doc-number left, date right), then the title
-  (`text-4xl @2xl:text-5xl font-semibold tracking-tight`), a muted standfirst, and a
-  small-caps byline/window line. This is the cover; it earns the only motion in the
-  document (`animate-fade-up`, staggered once).
-- Summary: directly under the title block, hairline-bounded (`border-y border-border
-  py-6`) — small-caps SUMMARY label, then 2-4 bold-lead findings, each with its number.
-  A report states its conclusions before it argues them.
-- Method footer: the last element — a hairline, small-caps "Method & sources", one or
-  two muted lines (window, exclusions, where the data lives).
+Front and end matter (the skeleton carries the classes; these are the rules)
+- Title block: masthead rule, title, muted standfirst, small-caps byline. This is the
+  cover, and it earns the only motion in the document (`animate-fade-up`, staggered once).
+- Summary: 2-4 bold-lead findings, each with its number — a report states its
+  conclusions before it argues them.
+- Method footer: window, exclusions, where the data lives, in two honest lines.
 
 Minimal, concretely: the color budget is foreground + muted + hairlines; the accent
 appears only INSIDE figures. Tables are compact hairline sets (uppercase tracked `<th>`,
 `tabular-nums`, row rules). No cards, no shadows, no rounded boxes. Motion stops at the
 title block — paper does not animate.
-
-Skeleton (title block → summary → one paged section with a figure → method footer):
-
-<div data-design="tw" className="@container bg-background px-6 py-12 text-foreground @2xl:py-16">
-  <article className="mx-auto max-w-2xl">
-    <header>
-      <div className="flex items-baseline justify-between border-b-2 border-foreground pb-2 text-xs uppercase tracking-widest">
-        <span className="font-bold">Org · Report No. 12</span>
-        <span className="text-muted-foreground">13 Aug 2026</span>
-      </div>
-      <h1 className="animate-fade-up mt-14 text-4xl @2xl:text-5xl font-semibold tracking-tight leading-tight">The title states the finding, with its number</h1>
-      <p className="animate-fade-up [animation-delay:150ms] mt-5 text-lg leading-relaxed text-muted-foreground">The standfirst says why this matters and to whom, in one sentence.</p>
-      <p className="animate-fade-up [animation-delay:300ms] mt-8 text-xs uppercase tracking-widest text-muted-foreground">Author · window covered · one line</p>
-    </header>
-    <section className="mt-14 border-y border-border py-6">
-      <p className="text-xs uppercase tracking-widest text-muted-foreground">Summary</p>
-      <ul className="mt-4 space-y-2 leading-relaxed">
-        <li><strong>Two-word lead:</strong> the finding in one sentence, with its number.</li>
-        <li><strong>The caveat:</strong> a report that names its own risk is more credible, not less.</li>
-      </ul>
-    </section>
-    <div className="mt-24 flex items-baseline justify-between border-t border-foreground pt-2 text-[11px] uppercase tracking-widest text-muted-foreground @2xl:mt-32">
-      <span>Doc title</span><span>§ 1</span>
-    </div>
-    <section className="mt-14">
-      <h2 className="text-2xl font-semibold tracking-tight">1. The section headline is a claim, never a topic</h2>
-      <p className="mt-5 leading-relaxed">Two to four sentences set up the figure: what to look at, and what it will prove.</p>
-      <figure className="my-10 @3xl:-mx-24">
-        <Question data="$q" viz={{"kind":"vega-lite","spec":{}}} height="400px" />
-        <figcaption className="mt-3 border-t border-border pt-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">FIG. 01</span> — what the chart proves, at the data's precision.</figcaption>
-      </figure>
-      <p className="leading-relaxed text-muted-foreground">The paragraph after the figure says what follows from it — never repeats it.</p>
-      <p className="mt-8 border-t border-border pt-3 leading-relaxed"><strong>Takeaway:</strong> the section's one sentence to keep, with its number.</p>
-    </section>
-    <footer className="mt-24 border-t border-border pt-4 text-xs text-muted-foreground @2xl:mt-32">
-      <p className="uppercase tracking-widest">Method & sources</p>
-      <p className="mt-2 leading-relaxed">Window, exclusions, and where the data lives — one or two honest lines.</p>
-    </footer>
-  </article>
-</div>
 
 Do
 - One centered column; the SAME folio line opening every section, verbatim; sections and
