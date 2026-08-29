@@ -123,12 +123,16 @@ write — the data path is at the TOP of that page, in the first screenful, so a
 partial read is enough; do not skim past it. It is also the only API
 description there is (no OpenAPI or Swagger endpoint to find).
 
-**For a document of prose, slides or sections, do not fetch anything** —
-everything above is what it needs, and reading the full docs costs more tokens
-than the document itself. Go there for what is genuinely not covered here: data
-and `<Query>`, live reader controls, `<Mutation>` writes, image and chart
-artifacts, versions and partial edits — https://artifactbin.dev/docs/llm (the API),
-https://artifactbin.dev/docs/markup (every component).
+**A document of prose, slides or sections is fully covered above** — it costs
+more tokens to read the full docs than to write one, so writing straight from
+this sheet is the normal path and usually the whole job.
+
+When you DO need more, the answer is one fetch away and you should take it —
+https://artifactbin.dev/docs/llm (the whole API) and https://artifactbin.dev/docs/markup (every component).
+That covers data and `<Query>`, live reader controls, `<Mutation>` writes,
+image and chart artifacts, versions and partial edits. Fetching one known page
+is always cheaper than guessing at endpoints: there is no OpenAPI, no Swagger
+and no `/api/docs` to find, so a guess is a 404 and the page is not.
 
 
 ## The rest of the protocol
