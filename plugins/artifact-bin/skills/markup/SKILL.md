@@ -72,13 +72,14 @@ place for custom CSS, JS or data — any of those in the body is refused.
 ```
 
 Your script runs sandboxed with an opaque origin: no cookies, no access to
-the surrounding page, no network beyond the four paths its CSP admits.
-`</script` cannot appear in the text (split it: `'</scr' + 'ipt'`). It DOES
-get the document's data — `window.mx` is defined before it runs:
-`mx.params.get('region')` / `.set('region', 'EU')` (dependent queries re-run,
-bound embeds re-render) / `.subscribe(values => …)`; `mx.data.get('sales')`
-(`{rows, columns}`) / `.pending()` / `.subscribe(…)`; `mx.mutate(name)`;
-`mx.refresh()`. Plain values; no React.
+the surrounding page, and no network beyond its CSP's four paths.
+`</script` cannot appear in the text (split it: `'</scr' + 'ipt'`).
+`window.mx` is defined before it runs: `mx.params.get/set/subscribe` (a set
+re-runs dependent queries and re-renders bound embeds);
+`mx.data.get('sales')` (`{rows, columns}`) `/.pending()/.subscribe()`;
+`mx.mutate(name)`; `mx.refresh()`. **Rows arrive AFTER your script runs** (the
+document paints first, then fetches): read them in `mx.data.subscribe(fn)`,
+never on line one.
 
 - **Custom CSS lives in that `<style>` block, never inline** (`style=` is rejected).
   Scope rules to your own class names (bare element selectors leak into chart
