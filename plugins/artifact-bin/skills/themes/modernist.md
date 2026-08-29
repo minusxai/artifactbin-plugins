@@ -1,9 +1,16 @@
-# theme: modernist — Modernist
+---
+name: "themes-modernist"
+description: "The modernist theme's chart and structural rules, Do/Don't. Optional: the brief's token classes are enough for a plain document; read this only to spend the palette deliberately."
+---
+## Read first
 
 Stark Swiss editorial — white and near-black with one red accent, inverted to ink-black in dark. Zero radius.
 Fonts: display Inter, body Inter, mono JetBrains Mono.
 Default mode: light (set `colorMode` to pin the other; readers can flip at view time).
 
+Tokens: "accent" in this guidance means the `primary` token — `text-primary`, `bg-primary`,
+`border-primary`; the alert/exception colour is `destructive` (`text-destructive`, `bg-destructive`).
+The CSS token `--accent` is a quiet neutral surface tint in every theme — never the accent.
 Modernist — Swiss editorial discipline. In light the red `--primary` is the ONLY hue on the
 page and it always means the subject; everything else is ink on paper. Dark is the same page
 inverted — ink-black ground, white type, the one red lifted to stay lit — never a new hue
@@ -20,4 +27,4 @@ tinted or decorative imagery.
 
 Author with token classes (`text-muted-foreground`, `bg-muted`, …) and the
 theme does the rest — hardcoded palettes fight it. Components:
-`https://artifactbin.dev/docs/markup`.
+[../markup/SKILL.md](../markup/SKILL.md).

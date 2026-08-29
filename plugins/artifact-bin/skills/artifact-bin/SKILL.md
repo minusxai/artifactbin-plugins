@@ -1,18 +1,8 @@
 ---
-name: "publish"
-description: "Publish self-contained HTML artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link. Use when the user wants to publish, share, or host a page, report, dashboard, deck, dataset, chart, or image, or mentions artifact-bin."
+name: artifact-bin
+description: "Publish documents to artifact-bin over HTTP and share the link. Read first, always: everything a straightforward document needs. Use when asked to publish, share or host a page, report, dashboard, deck, dataset, chart or image."
 ---
-
-With this plugin installed, prefer the artifact-bin MCP tools
-(`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`,
-`list_artifacts`, `list_versions`, `get_version`, `revert_artifact`,
-`delete_artifact`) — they speak the exact protocol below over the same
-tokens, so the HTTP reference doubles as the tools' semantics (content
-tiers, edit protocol, error meanings). Read the `markup` skill in this
-plugin before authoring markup, and the `design` skill for design
-fundamentals.
-
-## Quick reference — everything a straightforward document needs
+## Read first — everything a straightforward document needs
 
 Publish with one call — the response carries the `id` and the `url` to hand over:
 
@@ -29,6 +19,8 @@ that. A 400 names exactly what to fix, so correct it and POST again. The deliver
 `https://artifactbin.dev/a/<id>`. **`title` is what a browser tab and a shared link preview
 show** — always set it; the on-page heading is not it.
 
+**Every `/api` call, `GET` included, sends `Authorization: Bearer <token>`.**
+
 **Editing a document you already published** — send the CHANGE, not the whole
 file. `GET https://artifactbin.dev/api/artifacts/<id>` returns the current `markup` and an
 `edit_id`; pass that `edit_id` back with the exact text to swap:
@@ -40,7 +32,7 @@ curl -X POST https://artifactbin.dev/api/artifacts/<id>/edits \
 ```
 
 `old_string` must appear EXACTLY ONCE. Prefer this over re-PUTting the whole
-document: it is smaller, and a human may be editing the same page live.
+document: smaller, and a human may be editing the same page live.
 
 **markup** is JSX treated as data: ordinary HTML tags for everything including
 prose (`h1 h2 p ul li blockquote table figure img`, inline `svg`) plus the
@@ -53,8 +45,7 @@ component kit (`Card`, `Tabs`, `Badge`, `Grid`/`GridItem`,
 the whole allowed set (`allowed_html_tags`), an unknown component with the
 registry, so a wrong guess costs one cheap round trip — far less than the full
 component list, which is replayed in every later turn. One exception:
-`script, iframe, object, embed, base, meta, link, form, frame,
-frameset, applet, noscript` are refused outright with NO list, so never guess
+`script, iframe, object, embed, base, meta, link, form, frame, frameset, applet, noscript` are refused outright with NO list, so never guess
 them — `<form>` for a control row, `<iframe>` for an embed and `<meta>` for SEO
 are the common mistakes. Custom CSS and JS live in at most one `<Helmet>`, which
 also holds the `<title>`:
@@ -73,11 +64,11 @@ one column and widen: `grid-cols-1 @2xl:grid-cols-3`, and so does display
 type — `text-4xl @2xl:text-6xl`, never a bare `text-6xl` (60px type and one
 long proper noun is wider than a phone). Never a fixed pixel width.
 
-Rules a document lives by: one self-contained document — a CDN `<script src>`
-and an external stylesheet are hard 400s at publish, while a runtime `fetch()`
-to another origin is not refused but the sandbox blocks it; images are a
-`data:` URI or an `https://` URL (imported and stored at publish); web fonts
-by naming a Google family — `<meta name="font-display" content="Lobster" />`.
+Rules a document lives by: one self-contained document — no CDN `<script src>`,
+no external stylesheet (hard 400s at publish); a runtime `fetch()` to another
+origin is not refused but the sandbox blocks it; images are a `data:` URI or
+an `https://` URL (imported at publish); web fonts by naming a Google family —
+`<meta name="font-display" content="Lobster" />`.
 
 **Data in a document** — three moves: upload the rows, declare a `<Query>` over
 them inside the `<Helmet>`, bind an embed by `$name`. The rows are their own
@@ -91,7 +82,7 @@ echoes a ready-to-paste Query+Question.
 
 `<DataTable data="$sales" />` tables the same rows. A reader control
 (`<Select value="$region" options="$regions" />`) writes into a `<Value>` and
-re-runs every query bound to it, live. Full data grammar: https://artifactbin.dev/docs/markup.
+re-runs every query bound to it, live. Full data grammar: `markup/data.md`.
 
 **theme** (the whole palette and fonts — author with token classes like
 `bg-background`, `text-muted-foreground`, `bg-primary`, `border-border`
@@ -110,8 +101,9 @@ and it follows):
 view → dashboard, report/long-read → editorial); when it is not obvious,
 `scrolly` is the strongest default. Deviating deliberately is first-class.
 
-- `deck` — `<SlideDeck>` wrapping one `<Slide title="…">` per slide (each
-  fills the viewport as a flex column; never fixed/sticky).
+- `deck` — the frame is `<Helmet>…</Helmet><div data-design="tw" className="@container px-6 @2xl:px-12"><SlideDeck>`
+  (`<Helmet>` first, top level, never inside `<SlideDeck>`; the wrapper is the ONLY side padding),
+  one `<Slide title="…" className="py-14">` per slide (fills the viewport as a flex column; never fixed/sticky).
   Every content slide repeats ONE chrome: kicker
   `<p className="text-xs uppercase tracking-widest font-semibold text-primary">01 · ACT</p>`,
   `<hr className="mt-3 mb-10"/>`, a spoken-sentence `<h2>` claim, two lines of
@@ -131,26 +123,18 @@ view → dashboard, report/long-read → editorial); when it is not obvious,
   huge two-tone claims, chapter bands, `reveal-up` on evidence as it arrives.
 
 Checking your work: a 200 has already validated the document. `GET https://artifactbin.dev/a/<id>/export`
-renders it as a PNG (add `?slide=2` for one slide of a deck, 1-based — the whole-deck
-shot is every slide stacked and too small to read) — fetch it only if you can actually
-view images; otherwise read the stored markup back instead.
+renders it as a PNG (`?slide=2` for one slide of a deck, 1-based — the whole-deck
+shot is too small to read) — fetch it only if you can actually view images;
+otherwise read the stored markup back instead.
 
 **Prose, slides, sections and a document charting one dataset are fully covered
-above** — writing straight from this sheet is the normal path and usually the
-whole job.
+above** — writing straight from this sheet is usually the whole job.
 
-When you DO need more, it is one fetch away: https://artifactbin.dev/docs/llm for the whole
-API (versions, annotations, sharing), https://artifactbin.dev/docs/markup for every component
-and the data grammar in full (writable datasets, `<Mutation>`, chart recipes).
-There is no OpenAPI, no Swagger and no `/api/docs` — a guess is a 404, a
-known page is not.
-
-
-## The rest of the protocol
-
-Everything above covers a straightforward document. For the parts it does not
-— datasets and `<Query>` in full, the `/edits` splice protocol, annotations,
-versions and revert, visibility and sharing, the error table — fetch
-`https://artifactbin.dev/docs/llm`; the essentials are at the top of that page and it names
-every section. `https://artifactbin.dev/docs/markup` is the authoring vocabulary, and the
-`markup` skill beside this one carries it with every theme and template.
+When you DO need more, the docs are small files listed with a one-line "when
+to read" each at `https://artifactbin.dev/docs`: `publishing/SKILL.md` (the whole API —
+versions, annotations, sharing, datasets), `markup/SKILL.md` (every component)
+and `markup/data.md` (the data grammar in full — writable datasets,
+`<Mutation>`, chart recipes), `templates/<name>.md`, `themes/<name>.md`,
+`design/SKILL.md`. Fetch ONE, e.g. `https://artifactbin.dev/docs/markup/data.md`, or take
+the tree as a folder — `curl -s "https://artifactbin.dev/docs?download=true" | tar xz` —
+and `grep -rl` it. No OpenAPI, no Swagger, no `/api/docs`: a guess is a 404.

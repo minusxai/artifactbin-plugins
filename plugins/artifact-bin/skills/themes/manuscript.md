@@ -1,9 +1,16 @@
-# theme: manuscript — Manuscript
+---
+name: "themes-manuscript"
+description: "The manuscript theme's chart and structural rules, Do/Don't. Optional: the brief's token classes are enough for a plain document; read this only to spend the palette deliberately."
+---
+## Read first
 
 Serif editorial — cream paper, sepia ink, oxblood accent; warm ink with ochre in dark. Cormorant Garamond display over Noto Serif.
 Fonts: display Cormorant Garamond, body Noto Serif.
 Default mode: light (set `colorMode` to pin the other; readers can flip at view time).
 
+Tokens: "accent" in this guidance means the `primary` token — `text-primary`, `bg-primary`,
+`border-primary`; the alert/exception colour is `destructive` (`text-destructive`, `bg-destructive`).
+The CSS token `--accent` is a quiet neutral surface tint in every theme — never the accent.
 Manuscript — the serif slot: bookish print with a newsroom's discipline. Serif air, generous
 leading, hairline rules; the oxblood accent is an illuminator's ink — initials, rules, the
 focal series — never large fills. Drop caps and small-caps kickers are welcome; figures may
@@ -20,4 +27,4 @@ dense borderless tables.
 
 Author with token classes (`text-muted-foreground`, `bg-muted`, …) and the
 theme does the rest — hardcoded palettes fight it. Components:
-`https://artifactbin.dev/docs/markup`.
+[../markup/SKILL.md](../markup/SKILL.md).

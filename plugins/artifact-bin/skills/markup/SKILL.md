@@ -1,36 +1,27 @@
 ---
-name: "markup"
-description: "artifact-bin markup (story JSX) authoring reference: component vocabulary, themes, and templates. Read BEFORE writing or editing any markup or markdown artifact for artifact-bin."
+name: markup
+description: "The vocabulary beyond the brief: the full component list, <Helmet> CSS/script/theme overrides, web fonts, layout. Read only for what the brief does not show, or a 400 the message does not settle."
 ---
+## Read first
 
-# artifact-bin markup reference
-
-`markup` is THE document tier: **static JSX treated as data** — parsed,
-validated, and interpreted over a fixed component registry; never executed.
-
-```
-POST https://artifactbin.dev/api/artifacts
-{ "title": "Q3 Board Report", "theme": "modernist", "template": "editorial",
-  "colorMode": "dark", "markup": "<div data-design=\"tw\" className=\"@container p-8\">…</div>" }
-```
-
-Validation errors come back as `400 {"error":"invalid_jsx","details":[…]}`
-with exact spans — fix and retry.
-
-## Ground rules
+`markup` is **static JSX treated as data** — parsed, validated, interpreted
+over a fixed component registry, never executed. A fault is a
+`400 {"error":"invalid_jsx","details":[…]}` with exact spans: guess and correct.
 
 - **Static JSX only**: literal props (strings, numbers, booleans, arrays,
-  `{{…}}` objects). No expressions, no spreads, no `<iframe>`, and no inline
-  event handlers (`onClick=` is rejected) — the markup is data, never code.
-- **But the document DOES run your JavaScript.** One `<script>` lives in the
-  `<Helmet>` (below) and runs in the served document after it hydrates, so
-  hand-written interactivity is ported, not rewritten: attach behaviour with
-  `addEventListener` instead of inline handlers, and query your own ids and
-  classes as usual.
-- **Style with Tailwind classes via `className`** — utilities carry layout,
-  type, and spacing. Start the document with a
-  `<div data-design="tw" className="@container …">` wrapper; use `@2xl:`
+  `{{…}}` objects); no expressions, spreads or inline handlers (`onClick=` is
+  rejected). **But the document DOES run your JavaScript**: one `<script>` in
+  `<Helmet>` runs after hydration — `addEventListener` on your own ids.
+- **Style with Tailwind classes via `className`**, starting from a
+  `<div data-design="tw" className="@container …">` wrapper with `@2xl:`
   container variants for responsive layout.
+- Data (`<Query>`, `<Value>`, `<Mutation>`, embeds, controls): [data.md](data.md).
+  [motion.md](motion.md) · [video.md](video.md) · [svg.md](svg.md) ·
+  [../templates/SKILL.md](../templates/SKILL.md) · [../themes/SKILL.md](../themes/SKILL.md).
+
+## Contents
+
+Skeleton · Vocabulary · `<Helmet>` · Images · Layout · Do / Don't.
 
 ## Skeleton (editorial)
 
@@ -44,7 +35,6 @@ with exact spans — fix and retry.
   </header>
   <section className="py-16">
     <h2 className="reveal-up text-2xl font-semibold tracking-tight">01 · A claim, never a topic</h2>
-    <p className="mt-4 max-w-prose text-muted-foreground">Set up the chart — what to look at and why.</p>
     <div className="reveal-up mt-6"><Question title="Revenue by month" data="$monthly" viz={{"kind":"vega-lite","spec":{"mark":"line","encoding":{"x":{"field":"month","type":"temporal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" /></div>
   </section>
 </div>
@@ -52,420 +42,93 @@ with exact spans — fix and retry.
 
 ## Component vocabulary (the complete allowlist)
 
-Kit components:
+Kit components (70):
+`Card CardHeader CardTitle CardDescription CardContent CardFooter CardAction Badge Button Alert AlertTitle AlertDescription Table TableHeader TableBody TableFooter TableRow TableHead TableCell TableCaption Separator Skeleton Progress Breadcrumb BreadcrumbList BreadcrumbItem BreadcrumbLink BreadcrumbPage BreadcrumbSeparator BreadcrumbEllipsis Avatar AvatarImage AvatarFallback AvatarBadge AvatarGroup AvatarGroupCount Tabs TabsList TabsTrigger TabsContent Accordion AccordionItem AccordionTrigger AccordionContent Collapsible CollapsibleTrigger CollapsibleContent Tooltip TooltipTrigger TooltipContent TooltipProvider Popover PopoverTrigger PopoverContent PopoverAnchor PopoverHeader PopoverTitle PopoverDescription Grid GridItem Select Slider DatePicker Segmented Switch SlideDeck Slide Video Icon DataTable`
 
-`Card` `CardHeader` `CardTitle` `CardDescription` `CardContent` `CardFooter` `CardAction` `Badge` `Button` `Alert` `AlertTitle` `AlertDescription` `Table` `TableHeader` `TableBody` `TableFooter` `TableRow` `TableHead` `TableCell` `TableCaption` `Separator` `Skeleton` `Progress` `Breadcrumb` `BreadcrumbList` `BreadcrumbItem` `BreadcrumbLink` `BreadcrumbPage` `BreadcrumbSeparator` `BreadcrumbEllipsis` `Avatar` `AvatarImage` `AvatarFallback` `AvatarBadge` `AvatarGroup` `AvatarGroupCount` `Tabs` `TabsList` `TabsTrigger` `TabsContent` `Accordion` `AccordionItem` `AccordionTrigger` `AccordionContent` `Collapsible` `CollapsibleTrigger` `CollapsibleContent` `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` `Popover` `PopoverTrigger` `PopoverContent` `PopoverAnchor` `PopoverHeader` `PopoverTitle` `PopoverDescription` `Grid` `GridItem` `Select` `Slider` `DatePicker` `Segmented` `Switch` `SlideDeck` `Slide` `Video` `Icon` `DataTable`
+Plus the embeds `Question` `Number` and the Helmet declarations `Value`
+`Query` `Mutation`; a name outside that list is rejected with the registry
+echoed back. Component props are NOT validated; an unknown prop is ignored silently.
 
-Plus the embeds `Question` `Number` (`DataTable` is in the kit list), the Helmet declarations `Value` `Query` `Mutation`, and these HTML tags:
-
-`div` `span` `p` `h1` `h2` `h3` `h4` `h5` `h6` `ul` `ol` `li` `dl` `dt` `dd` `table` `thead` `tbody` `tfoot` `tr` `th` `td` `caption` `colgroup` `col` `a` `strong` `em` `b` `i` `u` `s` `code` `pre` `kbd` `samp` `var` `blockquote` `cite` `q` `abbr` `mark` `small` `sub` `sup` `del` `ins` `img` `figure` `figcaption` `picture` `source` `video` `audio` `track` `section` `article` `aside` `header` `footer` `main` `nav` `address` `hr` `br` `wbr` `time` `data` `details` `summary` `button` `input` `label` `select` `option` `optgroup` `textarea` `fieldset` `legend` `output` `meter` `progress` `datalist` `canvas` `dialog` `template` `svg` `g` `defs` `path` `line` `polyline` `polygon` `rect` `circle` `ellipse` `text` `tspan` `linearGradient` `radialGradient` `stop` `clipPath` `title` `desc`
-
-Anything else is rejected by name with the allowed set echoed back. The TAGS
-are checked; component props are NOT validated at publish — an unknown prop is
-ignored silently, so a clean publish is never confirmation that a prop exists.
+**HTML tags: write the ordinary tag you mean** — 104 are allowed
+(prose, headings, lists, tables, links, media, the bare controls `input`
+`select` `textarea` `button`, inline SVG): an unlisted tag answers `400`
+carrying the whole set in `allowed_html_tags`. Only these are refused
+outright, with no list: `script` `iframe` `object` `embed` `base` `meta` `link` `form` `frame` `frameset` `applet` `noscript` .
 
 ## `<Helmet>` — the document's own head
 
 At most ONE per document, holding at most one each of `<title>`, `<style>`
-and `<script>`, plus `<meta name content />` pairs, plus the document's DATA
-declarations — any number of `<Value>`, `<Query>` and `<Mutation>` (see
-"Data" below).
-Write it anywhere; it is hoisted to the top when stored. This is the ONLY
-place a document may carry custom CSS or JS or declare data — a `<style>`,
-`<title>`, `<Value>`, `<Query>` or `<Mutation>` in the body is refused and told to come
-here. (An `<svg>` keeps its OWN `<title>`: that is the graphic's
-accessibility label, a different element sharing the name, and as many as you
-have icons is fine.)
+and `<script>`, plus `<meta name content />` pairs, plus any number of the
+DATA declarations `<Value>`, `<Query>`, `<Mutation>` ([data.md](data.md)).
+Write it anywhere; it is hoisted to the top when stored. It is the ONLY
+place for custom CSS, JS or data — any of those in the body is refused.
 
 ```jsx
 <Helmet>
   <title>Quarterly review</title>
   <style>{`.rise { animation: rise .9s both } @keyframes rise { from { opacity: 0 } }`}</style>
-  <script>{`
-    document.getElementById('tab-2').addEventListener('click', function () {
-      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = true; });
-      document.getElementById('panel-2').hidden = false;
-    });
-  `}</script>
+  <script>{`document.getElementById('tab-2').addEventListener('click', function () { document.getElementById('panel-2').hidden = false; });`}</script>
 </Helmet>
 ```
 
-Your script runs in a sandboxed context with an opaque origin: no cookies,
-no access to the surrounding page, and no network beyond the four paths its
-CSP admits — `/a/<id>/query`, `/a/<id>/events`, `/a/<id>/mutate` and the
-`/geojson/` map boundaries (`mx` uses them). `</script` cannot appear in
-the text (split it: `'</scr' + 'ipt'`). It DOES get the document's data:
-`window.mx` is defined before it runs — `mx.params.get('region')`,
-`mx.params.set('region', 'EU')` (every dependent query re-runs and every
-bound embed re-renders), `mx.params.subscribe(values => …)`,
-`mx.data.get('sales')` (`{rows, columns}`), `mx.data.pending()` (the
-queries a re-run has in flight — their previous rows stay in `get`
-meanwhile), `mx.data.subscribe((state, pending) => …)`, `mx.refresh()`.
-Plain values in and out; no React.
-- **Custom CSS lives in the Helmet's `<style>` block, never inline**: for
-  anything Tailwind cannot express (custom `@keyframes`, compound selectors,
-  textures) put it in that one block, with the CSS wrapped in a template
-  literal so its braces read as data — `<style>{`.rise { … }`}</style>` — and
-  reference it by class. Inline `style=` attributes are rejected. Scope rules
-  to your own class names (bare element selectors leak into chart/embed
-  chrome), and take colors from theme tokens (`var(--primary)`,
-  `var(--muted-foreground)`) so themes keep working. The cascade contract:
-  **utilities compile `!important`** — a Tailwind class always beats your
-  CSS, so never fight a utility from a style block. At save,
-  `position: fixed/sticky` and external `url()`/`@import` are stripped, and
-  `100vh` is rewritten to the reader-viewport variable.
-- **Override a theme in CSS**: the selected theme is stamped on the document's
-  own root element, and built-in colors, charts, radius, and fonts are variables.
-  Put overrides in the Helmet's style block under `:root` — no theme-name
-  selector, specificity trick, or `!important`:
-  `<style>{`:root { --background: #0c0d0e; --primary: #ff6a1f; --chart-1: #ec6100; --font-display: Georgia, serif; }`}</style>`.
-  Available palette keys are `--background`, `--foreground`,
-  `--card`/`--card-foreground`, `--popover`/`--popover-foreground`,
-  `--primary`/`--primary-foreground`, `--secondary`/`--secondary-foreground`,
-  `--muted`/`--muted-foreground`, `--accent`/`--accent-foreground`,
-  `--destructive`/`--destructive-foreground`, `--border`, `--input`,
-  `--ring`, `--radius`, and `--chart-1..5`; type keys are
-  `--font-body`, `--font-display`, and `--font-mono`.
-- **Self-contained subresources**: `<img src>` and `<Video poster>` accept
-  a `ref:<id>`, a `data:image/` URL, or an `https://` URL that is
-  imported at publish. Every OTHER subresource position (`srcSet`,
-  `background`, `ping`) still rejects an external URL
-  (`400 invalid_jsx`). Links (`href`) may point anywhere.
-- **Web fonts**: `<meta name="font-display" content="Lobster" />` in
-  `<Helmet>` (also `font-body`, `font-mono`) names a Google family; it is
-  downloaded once and served from this origin, overriding just that slot of
-  the theme. An unknown family fails the publish.
-- **Theme tokens first**: colors like `text-muted-foreground`,
-  `bg-muted`, `border-border`, `text-foreground`, `bg-background` follow the
-  active theme; a page built on hardcoded palettes fights it. ONE bespoke
-  accent via arbitrary values (`text-[#e2483d]`) is legitimate when the
-  subject demands a hue no theme carries — spend it on the one bold moment,
-  and know it will not follow a human's later theme switch.
-- `theme` — a complete design system (fonts + full token palette). Pick by
-  the subject's mood from the one-line catalog at https://artifactbin.dev/docs/themes
-  (`modernist | organic | industry | terminal | manuscript | pop`), then read
-  https://artifactbin.dev/docs/themes/<name> for the chosen theme's full authoring guidance.
-- `template` (genre hint) — the document's structural genre, a REFERENCE not
-  a contract: read https://artifactbin.dev/docs/templates/<name> for the chosen genre's beats,
-  and deviate (or omit `template` entirely) when the subject suggests a
-  better structure of its own. When the ask names a genre, pick it; when it
-  doesn't, **default to `scrolly`** — the designed, motif-led treatment is
-  the better unspecified-case bet than a sober report; when two readings are
-  equally good, ask the user which. The one-line catalog
-  (`editorial | deck | scrolly | dashboard`) is at https://artifactbin.dev/docs/templates.
-- `colorMode`: `light | dark` — the AUTHOR'S DEFAULT mode. Every theme
-  carries both palettes; omit it for the theme's own default (`terminal`
-  opens dark, the rest light). Readers flip the rendered mode at view time
-  regardless, so design with theme tokens and both modes stay legible.
+Your script runs sandboxed with an opaque origin: no cookies, no access to
+the surrounding page, no network beyond the four paths its CSP admits.
+`</script` cannot appear in the text (split it: `'</scr' + 'ipt'`). It DOES
+get the document's data — `window.mx` is defined before it runs:
+`mx.params.get('region')` / `.set('region', 'EU')` (dependent queries re-run,
+bound embeds re-render) / `.subscribe(values => …)`; `mx.data.get('sales')`
+(`{rows, columns}`) / `.pending()` / `.subscribe(…)`; `mx.mutate(name)`;
+`mx.refresh()`. Plain values; no React.
 
-## Data — declare in Helmet, bind by `$name`
+- **Custom CSS lives in that `<style>` block, never inline** (`style=` is rejected).
+  Scope rules to your own class names (bare element selectors leak into chart
+  chrome); colors from theme tokens (`var(--primary)`).
+  **Utilities compile `!important`** — never fight a Tailwind class from a
+  style block. At save, `position: fixed/sticky` and external
+  `url()`/`@import` are stripped; `100vh` becomes the reader-viewport variable.
+- **Override a theme** in that block under `:root` — no theme-name selector
+  or `!important`: `:root { --background: #0c0d0e; --primary: #ff6a1f; --chart-1: #ec6100; --font-display: Georgia, serif; }`.
+  Keys: `--background --foreground --card --popover --primary --secondary
+  --muted --accent --destructive` (each with `-foreground`), `--border
+  --input --ring --radius --chart-1..5`, `--font-body --font-display --font-mono`.
+- **Subresources**: `<img src>` and `<Video poster>` take a `ref:<id>`, a
+  `data:image/` URL, or an `https://` URL imported at publish; any other
+  subresource position (`srcSet`, `background`) rejects an external URL.
+  Links (`href`) may point anywhere.
+- **Web fonts**: `<meta name="font-display" content="Lobster" />` (also
+  `font-body`, `font-mono`) names a Google family, served from this origin;
+  an unknown family fails the publish.
+- **Theme tokens first**: `text-muted-foreground`, `bg-muted`, `border-border`,
+  `bg-background` follow the active theme; hardcoded palettes fight it. ONE
+  bespoke accent (`text-[#e2483d]`) is legitimate for the one bold moment —
+  it will not follow a later theme switch.
+- `theme`, `template` and `colorMode` are top-level fields of the publish
+  call, not Helmet content. A template is a reference, not a contract (no
+  genre named → **default to `scrolly`**; torn → ask the user). `colorMode`
+  (`light | dark`) is the AUTHOR'S DEFAULT — readers flip it, so design in theme tokens.
 
-A document DECLARES its data in `<Helmet>` and refers to it everywhere else
-by name. One namespace; a name is either a TABLE (a `<Query>` or a table
-`<Value>`) or a SCALAR (a `<Value>`), and every reference is checked
-against that at publish — a typo is a `400` naming the token, never an
-embed that renders empty.
+## Images and icons
 
-```jsx
-<Helmet>
-  <Value name="region" type="string" />
-  <Value name="min_rev" type="number" default={1000} />
-  <Value name="tiny" type="table" value={[{"name":"John","age":34},{"name":"Mary","age":60}]} />
-  <Query name="regions">{`select distinct region from ref_<datasetId> order by 1`}</Query>
-  <Query name="sales">{`
-    select region, sum(revenue) as revenue
-    from ref_<datasetId>
-    where ($region is null or region = $region) and revenue >= $min_rev
-    group by 1 order by 2 desc
-  `}</Query>
-</Helmet>
-
-<select value="$region" options="$regions" />
-<input type="range" min={0} max={5000} value="$min_rev" />
-<Question title="Revenue by region" data="$sales" viz={{"kind":"vega-lite","spec":{"mark":"bar","encoding":{"x":{"field":"region","type":"nominal"},"y":{"field":"revenue","type":"quantitative"}}}}} height="430px" />
-<p>Total <Number data="$sales" col="revenue" agg="sum" prefix="$" format=",.0f" /></p>
-<DataTable data="$sales" height="420px" columns={[{"col":"region","title":"Region"},{"col":"revenue","title":"Revenue","fmt":"$,.0f","bar":true}]} />
-```
-
-**Declarations (Helmet only)**
-
-- `<Value name type default />` — a scalar the reader can change.
-  `type`: `string | number | boolean | date` (default `string`);
-  `default` must match it (dates are `YYYY-MM-DD`); no default = `null`,
-  which is how "$region is null" in SQL means "all".
-- `<Value name type="table" value={[{…}, …]} />` — an inline table (flat
-  objects, non-empty; `columns={[{name,type}]}` optional). Read it in SQL by
-  its bare name (`from tiny`) or bind it directly (`data="$tiny"`).
-- `<Query name>{`select …`}</Query>` — SQL (DuckDB dialect) as a
-  template-literal child, exactly one SELECT statement. A dataset artifact is
-  the table `ref_<datasetId>`; another query or table Value is a table by
-  its bare name (order does not matter; cycles are refused); a scalar Value
-  is the bound parameter `$name` — never interpolated. Every `ref_<id>`
-  must be a dataset you own or any public/unlisted one. The SQL is dry-run at publish against the
-  real columns: a bad column is a `400 {"error":"invalid_sql"}` carrying the
-  engine's own message with candidate names — read it and fix the query.
-  Results are cut at 10,000 rows (`<DataTable>` reads the rest a window at a
-  time); a query has 5 s.
-- `<Mutation name>{`insert into ref_<datasetId> (a) values ($a)`}</Mutation>`
-  — a `<Query>` that WRITES (preview: the dataset needs
-  `access: readwrite`, see the publish API). Exactly one statement, and
-  INSERT | UPDATE | DELETE only; it names exactly ONE dataset — the one it
-  writes — and that dataset must be one YOU own (reading a public dataset you
-  do not own is fine; writing one is not). `$name` binds a scalar
-  `<Value>`, bound and never interpolated. It runs on demand, never at
-  render: `<Button run="$name">` in the body, or `mx.mutate("name")` from
-  your `<script>`. Everything is dry-run at publish, so a button that could
-  not work is a `400` naming the fix.
-
-  Anyone who can read the document can run the mutations it declares — that
-  is the point: a poll, a sign-up sheet, a shared checklist. They supply
-  VALUES only; the SQL is the one you published. Every write is a dataset
-  version (revertable), and every open copy of every document reading that
-  dataset re-runs the affected queries within about a second, the writer's own
-  copy included. DuckDB's `uuid()` and `now()` give a row its own id and timestamp.
-
-**Bindings (body)**
-
-- `<Button run="$add">Add</Button>` — runs the named `<Mutation>` with the
-  document's current values. The only trigger position; it shows itself busy
-  while the write is in flight and reports a refusal beside itself.
-
-- `<Question data="$table" viz={…} height="430px" />` — a chart over a
-  declared table. The `viz` prop REQUIRES a `kind` discriminator:
-  `{"kind":"vega-lite","spec":{…}}` for an inline spec (encoding fields are
-  checked against the query's RESULT columns at publish),
-  `{"kind":"recipe","recipe":"ref:<vizId>","bindings":{…}}` for a recipe
-  artifact, `{"kind":"table"}` (the default when `viz` is absent) for a
-  small themed table, and `{"kind":"single_value","yCols":["revenue"],
-  "singleValueConfig":{"label":"Revenue","prefix":"$","format":",.0f"}}` for
-  a bare KPI TILE (the column is SUMMED, so point it at a one-row aggregate);
-  `singleValueConfig` anywhere else is refused with this shape named.
-  `recipe` also takes a SHIPPED registry id — **`"minusx/trend@1"` is the
-  KPI tile to prefer**: big value, delta vs the previous period, and a
-  sparkline, from a time-series query (`select <period>, <measure> … group
-  by 1 order by 1` — ascending order is the contract):
-  `{"kind":"recipe","recipe":"minusx/trend@1","bindings":{"date":"period",
-  "value":["revenue"]},"columnFormats":{"revenue":{"format":"$,.0f",
-  "alias":"Revenue"}}}` (multiple `value` columns = one card each;
-  `params`: `compareMode: "last"|"previous"` — `previous` skips a
-  partial current period; `trendColor`/`valueColor` recolor the series and
-  the numeral — prefer the token form (`"var(--chart-2)"`), which follows
-  theme and mode switches; a raw hex is a pin that does not). A number with
-  its trend beats a number alone — reach for `single_value` only when there
-  is no meaningful history (a ratio, a snapshot count).
-  All EIGHT shipped ids, slots validated at publish exactly like `ref:`
-  recipes: `minusx/trend@1` (above), `minusx/funnel@1` (`stage`,
-  `value`), `minusx/waterfall@1` (`category`, `value`),
-  `minusx/radar@1` (`metric`, `value` multi, optional `series`),
-  `minusx/combo@1` (`x`, `bar`, `line`, optional `series`),
-  `minusx/single-value@1` (`value` — the FIRST row's cell as a big
-  number; `params`: `label`, `caption`, `align`, `valueColor`),
-  `minusx/choropleth@1` (`region`, `value` — region names must match the
-  boundary set, `params.mapName`:
-  `us-states`|`us-counties`|`world`|`india-states`), and
-  `minusx/point-map@1` (`lat`, `lng`, optional `size`/`color`; bind
-  `lat2`/`lng2` too and each row draws an origin→destination flow).
-- `<Number data="$table" col="revenue" agg="sum" prefix="$" suffix=" M" format=",.0f" />`
-  — one live aggregated figure, inline. `agg` defaults to `first` (the
-  first row's cell, not a total), so a total needs `agg="sum"` written out;
-  `avg`, `min`, `max` and `count` are the rest. NEVER type a figure into prose that the data can compute — <Number> inline instead; typed figures go stale and are often simply wrong.
-  So write "revenue reached <Number … agg="sum" />", never "revenue reached 19400".
-- `<DataTable data="$table" columns={[…]} sort={{"col":…,"dir":"desc"}} height="420px" />`
-  — THE way to show many rows: virtualised, sortable by header, and honest
-  about a cut result ("5,000 of 80,000", read more on scroll, sorted by the
-  engine). `columns` picks and orders what shows: `{col, title, fmt
-  (d3-format), align, bar: true (a proportional bar behind a number),
-  colorScale: "sequential" | "diverging", width}`. Absent `columns` = every
-  column of the table.
-- **Kit controls** — the themed way to bind scalars two-way; each renders a
-  micro-label plus polished chrome, and a change writes the bound Value
-  (typed by its declaration) so every query binding it re-runs:
-  - `<Select label="Region" value="$region" options="$regions" placeholder="All regions" />`
-    — a themed searchable dropdown; type in it to filter the list. `options`
-    is a table (column 1 the value, column 2 the label if present) or an inline array (`["day","week"]` or
-    `[{"value":"EU","label":"Europe"}]`); a null-default scalar gets the
-    "all" choice automatically (writing `null`, which is what
-    `$region is null` means in SQL).
-  - `<Segmented label="Grain" value="$grain" options={["day","week","month"]} />`
-    — segmented buttons; prefer over Select when the options fit on one row.
-  - `<Slider label="Min revenue" value="$min_rev" min={0} max={5000} step={100} prefix="$" format=",.0f" />`
-    — a slider with a live formatted readout (`format` is d3-format).
-  - `<DatePicker label="Since" value="$since" min max />` — a date field
-    (bind a `type="date"` Value).
-  - `<Switch label="Compare" checked="$flag" />` — a toggle (boolean Value).
-  Dropdowns belong in a header/control row, not inside a `<GridItem>` —
-  grid tiles clip overflow.
-- Native controls bind the same way — bare browser chrome, style them
-  yourself: `<select value="$region" options="$regions" />` (authored
-  `<option>`s work too); `<input type="range|number|text|date" value="$x" />`;
-  `<input type="checkbox" checked="$flag" />`; `<textarea value="$note" />`.
-  While a re-run is in flight the embed keeps its rows, dims, and shows an
-  "updating…" chip (`aria-busy`); a query that fails shows the engine's
-  message in place of the embed.
+- `<img src="ref:<imageId>" />` — an uploaded image artifact (the publishing
+  skill's `datasets.md`). `<img src="https://…/chart.png" />` — a web image,
+  IMPORTED at publish and echoed back as `ref:<id>`; a dead URL fails the
+  publish and names itself.
 - `<Icon name="chart-bar" />` — a lucide icon, inline (kebab-case names from
-  lucide.dev; unknown names render a question mark). Size it with a Tailwind
-  `size-*` class; it inherits `currentColor`.
-- `<img src="ref:<imageId>" />` — an uploaded image artifact (publish the
-  image first: POST a base64 `data:` URL, or the raw bytes under a
-  `Content-Type: image/<type>` header — see `/docs/llm`).
-- `<img src="https://example.com/chart.png" />` — a web image, IMPORTED at
-  publish: fetched server-side, stored as your own image artifact, and your
-  markup echoed back rewritten to `ref:<id>`. A URL that 404s (or is not an
-  image) fails the publish and names itself.
-
-`ref:<id>` survives ONLY for images and recipes. A dataset is read through a
-`<Query>` — `data="ref:<id>"`, inline `data={[…]}` and `<Param>` are
-retired and refused by name.
+  lucide.dev). Size it with a `size-*` class; it inherits `currentColor`.
 
 ## Layout components
 
-- `<SlideDeck><Slide title="…">…</Slide>…</SlideDeck>` — a presentation; each
-  slide fills the viewport (the `deck` template). Hand-rolled sections work
-  too: `h-screen` / `min-h-screen` resolve against the reader's viewport.
+- `<SlideDeck><Slide title="…">…</Slide>…</SlideDeck>` — a presentation, each
+  slide filling the viewport (the `deck` template).
 - `<Grid><GridItem x={0} y={0} w={6} h={3}>…</GridItem>…</Grid>` — the
-  12-column dashboard canvas (the `dashboard` template); humans can drag
-  tiles in the editor.
-
-## Video
-
-`<Video src="…" title="…" poster="ref:<id>" />` renders a video CARD — a
-thumbnail with a play button that opens the video on its own page in a new
-tab. There is NO embedded player: the document's sandbox admits no
-third-party frames, so a player iframe could never run (and a raw
-`<iframe>` stays rejected). 16:9 and full-width by default (size it with `className`).
-
-- `src` takes the link you would share — a YouTube watch/short/embed URL, a
-  Vimeo page, a Loom share. Only these hosts are accepted; anything else is
-  refused at publish.
-- `poster` (optional) is the thumbnail, and takes exactly what an
-  `<img src>` takes: a `ref:<id>` image artifact, or a web URL, which is
-  IMPORTED at publish and echoed back rewritten to `ref:<id>`. Without a
-  poster the card shows a dark slab with the play badge.
-
-## Motion (classes, your own CSS, and the platform observer)
-
-Think in moments, not effects: a page-load sequence for the hero, scroll
-reveals for each section's evidence, hover micro-interactions on what is
-interactive, at most one ambient loop for atmosphere. One orchestrated
-moment lands harder than scattered effects. Everything fails open —
-captures, exports, edit mode, and reduced-motion viewers always see the
-finished, fully visible page.
-
-- **Custom animation**: define `@keyframes` in your `<style>` block and
-  attach them to classes — any easing, any choreography. Guard loops with
-  `@media (prefers-reduced-motion: reduce)` in your CSS.
-- **Scroll reveals, custom** (you don't write the watcher — the platform
-  observer does the watching): stamp the element `data-reveal`, hide it under
-  `:root[data-mx-motion] .your-class:not([data-mx-seen])`, and give it a
-  transition to its natural state. The live viewer stamps `data-mx-seen`
-  when the reader reaches it; the `data-mx-motion` root flag exists ONLY in
-  the live view, which is what keeps captures and edit mode fully visible.
-- **Kit shortcuts** (one class, no CSS needed):
-  - `animate-marquee` — a real ticker: `overflow-hidden` band around
-    `<div className="flex w-max animate-marquee">` whose content appears
-    TWICE (two identical spans); speed via `[animation-duration:20s]`.
-  - `reveal` `reveal-up` `reveal-left` `reveal-right` `reveal-scale` —
-    prebuilt scroll reveals; stagger siblings with
-    `[transition-delay:120ms]`, `[transition-delay:240ms]`.
-  - `animate-fade-up` `animate-fade-in` `animate-scale-in` — hero load
-    entrances, staggered with `[animation-delay:200ms]`.
-  - `animate-float` (one ambient bob), `animate-caret-blink` (terminal caret).
-- **Hover micro-interactions**: plain Tailwind — `transition
-  hover:-translate-y-1`, `hover:bg-muted` — on cards and links.
-
-## Inline SVG (subject motifs)
-
-A minimal drawing subset renders inline for motifs and small diagrams — a
-frame ruler, a route map, a sparkline decoration:
-
-`<svg viewBox="0 0 640 48" className="w-full">` with
-`g path line polyline polygon rect circle ellipse text tspan defs
-linearGradient radialGradient stop clipPath title desc` (canonical camelCase
-for `clipPath`/`linearGradient`/`radialGradient`). Use `currentColor` and
-token-driven classes so the drawing follows the theme; gradients and clips
-must reference LOCAL ids only (`fill="url(#g)"` — external `url(…)` targets
-are rejected). No `use`/`image`/`foreignObject`/SMIL.
+  12-column dashboard canvas (`dashboard`).
 
 ## Do / Don't
 
-- DO cap body copy at `max-w-prose`; let CHARTS break wider. Tables stay
-  in the column: every table is its own scroll box (it hugs its rows, never
-  pushes the page sideways, and scrolls inside the column on a phone), so
-  never widen one with negative margins and reach for `w-full` only when
-  the rows really want the whole measure.
-- A document with three or more `<h2>` sections gets a table of contents
-  beside it on wide screens, made from the headings — so write `<h2>`s as
-  short claims that read well in a list. Decks and `<Grid>` dashboards
-  get none (they have their own navigation, or need the width).
+- DO cap body copy at `max-w-prose`; let CHARTS break wider. Every table is
+  already its own scroll box — never widen one with negative margins.
+- Three or more `<h2>` sections get a table of contents made from the
+  headings — write `<h2>`s as short claims. Decks and `<Grid>` dashboards get none.
 - DO put every number a viewer might question behind a `<Query>` and a
-  `<Number>`/`<Question>`/`<DataTable>` — never hand-type a figure.
-- DON'T reach for `html` because a component is missing — ask for the tag;
-  most of HTML is already allowed.
-- DON'T author in markdown: there is no markdown tier, and read-back is JSX and
-  that is the round-trip format.
-
-Read `https://artifactbin.dev/docs/llm` for auth, endpoints, versioning, and the MCP server;
-`https://artifactbin.dev/docs/themes` and `https://artifactbin.dev/docs/templates` for the design and genre
-references.
-
-
-# artifact-bin themes
-
-Pick ONE by the subject's mood, then read its page for the full authoring
-guidance — details about a theme you didn't pick are noise:
-
-- `modernist` — Stark Swiss editorial — white and near-black with one red accent, inverted to ink-black in dark. Zero radius. → https://artifactbin.dev/docs/themes/modernist
-- `organic` — Warm, soft, playful — sage green, terracotta, leafy chart tones; deep moss in dark. Extra-round corners. → https://artifactbin.dev/docs/themes/organic
-- `industry` — Professional, square — slate and industrial blue, safety-orange for the one exception; dark slate in dark. → https://artifactbin.dev/docs/themes/industry
-- `terminal` — Terminal — mono type throughout, near-black with neon green by default; a paper terminal in light. → https://artifactbin.dev/docs/themes/terminal
-- `manuscript` — Serif editorial — cream paper, sepia ink, oxblood accent; warm ink with ochre in dark. Cormorant Garamond display over Noto Serif. → https://artifactbin.dev/docs/themes/manuscript
-- `pop` — Playful and loud — candy magenta, cyan and amber over near-white, chunky radii, heavy Bricolage Grotesque headings; deep plum in dark. → https://artifactbin.dev/docs/themes/pop
-
-A `theme` is a complete design system — fonts plus the full token palette
-(`--background`/`--foreground`/`--primary`/`--chart-1..5`/…) every kit
-component and Tailwind token class follows. Set it as the top-level `theme`
-field on a `markup` artifact; humans can switch it later in the
-editor without recompiling. Every theme carries BOTH a light and a dark
-palette: `colorMode` sets the author's default, readers can flip the
-rendered mode at view time, and theme token classes stay legible in both.
-
-Overriding a theme's tokens with ordinary `:root` CSS in the Helmet style
-block — and the full list of palette and type keys — is documented once, in
-the `<Helmet>` section of `https://artifactbin.dev/docs/markup`.
-
-Read `https://artifactbin.dev/docs/markup` for the component vocabulary and
-`https://artifactbin.dev/docs/llm` for the publish API.
-
-Full per-theme guidance ships with this skill: `themes/<name>.md` next to
-this file — read the one you picked.
-
-# artifact-bin templates
-
-Pick ONE by the content's shape, then read its page for the beats and layout
-grammar — details about a genre you didn't pick are noise:
-
-- `editorial` — Typeset document/report — one centered text column paced in pages by a repeated folio rule, with numbered figures as the only wide elements. → https://artifactbin.dev/docs/templates/editorial
-- `deck` — Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers. → https://artifactbin.dev/docs/templates/deck
-- `scrolly` — Playful scrollytelling — a pudding.cool-style data story with a conceit, ticker bands, and chapter breaks. → https://artifactbin.dev/docs/templates/scrolly
-- `dashboard` — Operating view — a full-screen grid of live tiles obeying a shared control row; almost no prose, nothing bold. → https://artifactbin.dev/docs/templates/dashboard
-
-A `template` is the document's structural GENRE — its beat structure and
-layout grammar — orthogonal to the design `theme`, which is purely a token
-set. It is a REFERENCE, not a contract: each page documents a genre's beats
-as a proven starting point, and a structure derived from the subject itself
-beats any of them. Deviate deliberately, or omit the `template` field and go
-bespoke — that is a first-class choice, not a fallback.
-
-Choosing: when the ask clearly names a genre (slides → `deck`, operating
-view → `dashboard`, board report / long-read → `editorial`), pick it. When
-it is NOT obvious from the user's instructions, **default to `scrolly`** —
-its conceit-led, designed treatment (at whatever register the subject can
-carry, deadpan included) is the strongest default for an unspecified ask.
-If you are genuinely torn between readings, clarify with the user and offer
-the candidate genres as options rather than guessing.
-
-Read `https://artifactbin.dev/docs/markup` for the component vocabulary and
-`https://artifactbin.dev/docs/llm` for the publish API.
-
-Full per-template guidance ships with this skill: `templates/<name>.md` next
-to this file — read the one you picked.
+  `<Number>`/`<Question>`/`<DataTable>` — never a typed-in figure.
+- DON'T author in markdown: there is no markdown tier; JSX is the round-trip format.

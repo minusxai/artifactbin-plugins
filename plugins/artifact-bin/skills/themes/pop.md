@@ -1,9 +1,16 @@
-# theme: pop — Pop
+---
+name: "themes-pop"
+description: "The pop theme's chart and structural rules, Do/Don't. Optional: the brief's token classes are enough for a plain document; read this only to spend the palette deliberately."
+---
+## Read first
 
 Playful and loud — candy magenta, cyan and amber over near-white, chunky radii, heavy Bricolage Grotesque headings; deep plum in dark.
 Fonts: display Bricolage Grotesque, body Inter.
 Default mode: light (set `colorMode` to pin the other; readers can flip at view time).
 
+Tokens: "accent" in this guidance means the `primary` token — `text-primary`, `bg-primary`,
+`border-primary`; the alert/exception colour is `destructive` (`text-destructive`, `bg-destructive`).
+The CSS token `--accent` is a quiet neutral surface tint in every theme — never the accent.
 Pop — chunky, saturated, loud. Candy magenta is the star, cyan and amber the supporting
 cast; radii are big (`rounded-3xl` feels native), headings are heavy (the theme sets 800),
 and blocks of tinted background are welcome. The energy comes from scale contrast — one
@@ -20,4 +27,4 @@ view, small timid headings, sharp corners.
 
 Author with token classes (`text-muted-foreground`, `bg-muted`, …) and the
 theme does the rest — hardcoded palettes fight it. Components:
-`https://artifactbin.dev/docs/markup`.
+[../markup/SKILL.md](../markup/SKILL.md).

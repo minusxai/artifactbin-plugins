@@ -1,17 +1,13 @@
 ---
-name: "design"
-description: "Design fundamentals for artifact-bin documents (hierarchy, spacing, color, typography). Read before authoring an artifact-bin markup artifact when no more specific design skill applies."
+name: design
+description: "Design craft: treatment, motif, hierarchy, type, space, color, charts, the default-AI looks to avoid. Read only for a document a human will judge by eye and only if no design skill is already held."
 ---
+## Read first
 
-# artifact-bin design guide
-
-Read this before authoring anything a human judges with their eyes. Approach
-every artifact as the design lead at a small studio known for versatility:
-deliberate choices about palette, type, and layout, pitched at the treatment
-the task actually calls for — never templated. The kit gives you components;
-this page is about using FEWER of them, better.
-
-## What the theme does not do for you
+Approach every artifact as the design lead at a small studio known for
+versatility: deliberate choices about palette, type, and layout, pitched at
+the treatment the task actually calls for — never templated. The kit gives
+you components; this page is about using FEWER of them, better.
 
 The theme carries the fonts, the palette and both color modes; what your own
 Helmet CSS adds, you carry yourself:
@@ -25,21 +21,27 @@ Helmet CSS adds, you carry yourself:
   theme ships light AND dark and `colorMode` picks your default. Author in
   theme tokens and both follow; hand-written colors must define both and paint
   the background explicitly — a transparent body borrows the viewer's ground.
+- **Every number a viewer might question comes from data** — a `<Query>` in
+  `<Helmet>`, bound with `data="$name"` — never a typed-in figure.
 - Choose your neutrals: a grey with a slight hue bias toward the accent reads
-  as chosen; a pure mid-grey reads as unconsidered.
-- Watch selector specificity (don't let two classes fight over section
-  spacing), close every element, give keyboard focus a visible state, respect
-  `prefers-reduced-motion`.
+  as chosen; a pure mid-grey reads as unconsidered. Watch selector
+  specificity (don't let two classes fight over section spacing) and give
+  keyboard focus a visible state.
+
+## Contents
+
+Calibrate the treatment · Ground it in the subject · Plan before you build ·
+The subject motif · Hierarchy · Typography · Space · Color · Motion · Charts ·
+Copy · Structure · When it is a UI · Avoid the default AI look · Restraint.
 
 ## Calibrate the treatment
 
 - A doc deserves the same craft as a landing page — what changes is the
-  treatment. A plan, memo, or working report wants a UTILITARIAN treatment:
-  real hierarchy, considered spacing, a proper palette, no giant hero,
-  flourishes tasteful and few.
-- Something the user will keep, present, or share — a launch page, a deck for
-  an audience, a flagship report — wants an EDITORIAL treatment: opinionated
-  calls, one real aesthetic risk where it serves the work.
+  treatment. A plan, memo or working report wants a UTILITARIAN treatment:
+  real hierarchy, considered spacing, a proper palette, no giant hero.
+  Something the user will keep, present or share — a launch page, a deck, a
+  flagship report — wants an EDITORIAL treatment: opinionated calls, one real
+  aesthetic risk where it serves the work.
 - When unsure: a well-composed page is never the wrong answer; an
   over-designed one sometimes is.
 
@@ -52,27 +54,23 @@ Helmet CSS adds, you carry yourself:
 
 ## Plan before you build
 
-Sketch a compact plan first: which theme and WHY (https://artifactbin.dev/docs/themes), the
-layout concept in a sentence, where the one bold moment goes, and what the
-subject's MOTIF is (below). Templates (https://artifactbin.dev/docs/templates) are genre
-references, not contracts — pick one when the content is genuinely that
-genre, deviate where the subject knows better, and omit the template
-entirely when the subject suggests its own structure. If any part of the
-plan reads like the generic default you would produce for any similar page,
-revise that part. Then build to the plan.
+Sketch a compact plan first: which theme and WHY ([../themes/SKILL.md](../themes/SKILL.md)),
+the layout concept in a sentence, where the one bold moment goes, and the
+subject's MOTIF (below). Templates ([../templates/SKILL.md](../templates/SKILL.md))
+are references, not contracts — deviate where the subject knows better, omit
+one when the subject suggests its own structure. If any part of the plan
+reads like the generic default for any similar page, revise it. Then build.
 
 ## The subject motif
 
 The strongest pages carry ONE device drawn from the subject's own world and
 commit every label to it: a video explainer whose chapters are frame ranges
 under a drawn frame-ruler; an incident report typeset as a flight recorder
-log; shipping data wearing a harbor-master's console. This is the scrolly
-template's "conceit" — but it works at ANY register, deadpan as well as
-theatrical, and it does not need the scrolly costume: a sober technical
-explainer with mono chapter stamps and an inline-SVG motif reads as designed
-without a single joke. Invent the motif from the subject, express it in the
-chapter labels, the figure numbering, and one small drawn SVG element — then
-stop; one motif, total commitment, no second conceit.
+log. This is the scrolly template's "conceit" — but it works at ANY register,
+deadpan as well as theatrical: a sober technical explainer with mono chapter
+stamps and an inline-SVG motif reads as designed without a single joke.
+Express it in the chapter labels, the figure numbering, and one small drawn
+SVG element — then stop; one motif, total commitment, no second conceit.
 
 ## Hierarchy
 
@@ -85,46 +83,34 @@ stop; one motif, total commitment, no second conceit.
 
 ## Typography
 
-Typography carries the page even when the page isn't about typography.
-
-- The PAIRING comes with the theme: a display face on headings, a body face on
-  everything else, and (in most themes) a mono utility face — chosen as a set.
-  Pick the theme whose pairing matches the document's voice (`/docs/themes`)
-  and never fight it with a second family; the one sanctioned accent is a
-  color, not a font.
-- Spend the pairing in three ROLES. DISPLAY carries the argument: few, large,
+- The PAIRING comes with the theme — display, body and (mostly) a mono
+  utility face, chosen as a set. Never fight it with a second family; the one
+  sanctioned accent is a color, not a font.
+- Spend it in three ROLES. DISPLAY carries the argument: few, large,
   `tracking-tight`, `text-balance`, sentence case. BODY carries reading:
-  `leading-relaxed`, capped at `max-w-prose`. UTILITY (`font-mono` where the
-  theme bundles one) carries the apparatus — eyebrows, folios, figure numbers,
-  axis and table digits, captions.
-- Set a SCALE and stay on it: 3-4 sizes per document with a real jump between
-  roles (`text-xs` apparatus · `text-base`/`text-lg` body · `text-4xl`+
-  display). Two adjacent sizes doing different jobs reads as a mistake.
+  `leading-relaxed`, capped at `max-w-prose`. UTILITY (`font-mono`) carries
+  the apparatus — eyebrows, folios, figure numbers, table digits, captions.
+  Every template's "Type register" says how the genre spends them.
+- Set a SCALE and stay on it: 3-4 sizes with a real jump between roles
+  (`text-xs` apparatus · `text-base`/`text-lg` body · `text-4xl`+ display).
 - Uppercase belongs to the apparatus only, always tracked (`tracking-widest`);
   never letterspace lowercase body copy. Aligned digits get `tabular-nums`.
 - Weight is hierarchy's cheapest lever — `font-semibold` headings over bold
   paragraphs; if everything is bold, nothing is.
 
-Every template names how these roles are spent (its "Type register") — the
-genre changes the register, never the roles.
-
 ## Space
 
-- Whitespace is structure, not waste. Pad sections generously (`py-16`) and
-  let the gap between sections exceed the gap within one.
-- Space sibling groups with flex/grid `gap-*`, not per-element margins that
-  collapse or double.
+- Whitespace is structure, not waste. Pad sections generously (`py-16`); the
+  gap between sections exceeds the gap within one. Space sibling groups with
+  flex/grid `gap-*`, not per-element margins.
 - Align to the grid; when in doubt, flush left. Centered body copy is almost
-  always wrong.
-- Wide content (tables, code) gets its own `overflow-x-auto` container — the
-  page never scrolls sideways.
+  always wrong. Wide content (tables, code) gets its own `overflow-x-auto`
+  container — the page never scrolls sideways.
 
 ## Color
 
-- In `markup`, theme tokens are the default (`text-muted-foreground`,
-  `bg-muted`, `border-border`, `--chart-1..5`) — the theme owns hue, and a
-  page built on hex fights it. ONE bespoke accent (`text-[#e2483d]`) is the
-  sanctioned exception when the subject demands a hue no theme carries.
+- The theme owns hue: author in its tokens, and spend the one sanctioned
+  bespoke accent only where the subject demands a hue no theme carries.
 - ONE accent, meaning one thing (the subject, the exception). Context sits in
   grays. If everything is highlighted, nothing is.
 - Semantic state color (good / warning / critical) is separate from the
@@ -132,38 +118,25 @@ genre changes the register, never the roles.
 
 ## Motion
 
-- Leverage motion deliberately. Think about where and if animation can
-  serve the subject: a page-load sequence, a scroll-triggered reveal,
-  hover micro-interactions, ambient atmosphere. An orchestrated moment
-  usually lands harder than scattered effects; choose what the direction
-  calls for. Sometimes less is more — extra animation contributes to the
-  feeling that a design is AI-generated.
-- You have real CSS *and* real JavaScript: custom `@keyframes` in the
-  Helmet's `<style>` block attached to classes, a `<Helmet><script>` that
-  runs in the served document (attach handlers with `addEventListener`), the kit's one-class shortcuts, and the scroll-reveal
-  observer contract (`data-reveal` + `data-mx-seen`) for
-  animate-when-visible without JS — see https://artifactbin.dev/docs/markup "Motion".
-  Utilities compile `!important` and always beat authored CSS: design
-  the two layers, don't fight them.
-- Everything fails open where it must: captures, exports, edit mode, and
-  reduced-motion viewers see the finished page.
+- Leverage motion deliberately: a page-load sequence, a scroll-triggered
+  reveal, hover micro-interactions, ambient atmosphere. One orchestrated
+  moment lands harder than scattered effects; extra animation reads as
+  AI-generated. The vocabulary — keyframes, the kit's one-class shortcuts, the
+  scroll-reveal observer — is the markup skill's `motion.md`
+  ([../markup/SKILL.md](../markup/SKILL.md)); the judgment is yours.
 
 ## Charts
 
 - The title states the takeaway; axes and units do the explaining.
 - Direct labels beat legends; gridlines stay barely-there; no gradients,
   shadows, or 3D — data-ink only.
-- Every number a viewer might question comes from data: a
-  `<Query name="sales">` in `<Helmet>` over the dataset's `ref_<datasetId>`
-  table, bound with `data="$sales"`.
 
 ## Copy is design material
 
 - Write from the reader's side of the screen: name things by what people
   recognize, not how the system is built.
 - Active voice; a control says exactly what happens. Errors say what went
-  wrong and how to fix it — no apologies, no vagueness.
-- Specific beats clever.
+  wrong and how to fix it — no apologies, no vagueness. Specific beats clever.
 
 ## Structure is information
 
@@ -193,7 +166,4 @@ from habit.
 - Prefer plain typography over one more Card. Decoration that carries no
   information comes out.
 - Spend your boldness in ONE place; keep everything around it quiet.
-- Pick the theme for the mood and let it work — do not re-style what it
-  already styles.
-
-Then author with the component vocabulary: https://artifactbin.dev/docs/markup.
+- Pick the theme for the mood and let it work.

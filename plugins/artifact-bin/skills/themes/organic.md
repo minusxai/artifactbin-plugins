@@ -1,9 +1,16 @@
-# theme: organic — Organic
+---
+name: "themes-organic"
+description: "The organic theme's chart and structural rules, Do/Don't. Optional: the brief's token classes are enough for a plain document; read this only to spend the palette deliberately."
+---
+## Read first
 
 Warm, soft, playful — sage green, terracotta, leafy chart tones; deep moss in dark. Extra-round corners.
 Fonts: display Noto Serif, body Inter.
 Default mode: light (set `colorMode` to pin the other; readers can flip at view time).
 
+Tokens: "accent" in this guidance means the `primary` token — `text-primary`, `bg-primary`,
+`border-primary`; the alert/exception colour is `destructive` (`text-destructive`, `bg-destructive`).
+The CSS token `--accent` is a quiet neutral surface tint in every theme — never the accent.
 Organic — warm, rounded, human. `rounded-2xl` and up, soft shadows, terracotta focal with
 olive support; the voice is friendly and the shapes agree with it. Whitespace is soft, not
 architectural — sections breathe into each other. In dark the ground is deep moss with cream
@@ -17,4 +24,4 @@ tables, neon accents.
 
 Author with token classes (`text-muted-foreground`, `bg-muted`, …) and the
 theme does the rest — hardcoded palettes fight it. Components:
-`https://artifactbin.dev/docs/markup`.
+[../markup/SKILL.md](../markup/SKILL.md).

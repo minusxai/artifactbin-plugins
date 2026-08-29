@@ -1,12 +1,14 @@
-# template: deck — Deck
+---
+name: "templates-deck"
+description: "The deck genre in full: beats, layout grammar, a copyable skeleton, Do/Don't. Read only for a long or intricate deck — the brief's sketch is enough for a short, plain one."
+---
+## Read first
 
 Presentation deck — full-viewport slides in acts; quiet paper slides between full-bleed accent dividers.
 
 A boardroom keynote rendered as a scroll: one idea per full-viewport slide, headlines you could speak aloud to the room, generous emptiness as the luxury. The deck moves in ACTS — quiet paper slides punctuated by full-bleed solid-accent dividers — and its structure is announced (contents, numbered acts), never discovered.
 
 Beats: Cover → Contents (mirrors the act titles) → Act divider (solid accent — at least one per deck, one per act) → Content slides (statement / columns / chart / table / big number) → Quote or image slide (a breather per act) → Timeline / roadmap → Close
-
-## Deck — a presentation that scrolls
 
 Voice: a keynote. Every slide headline is a spoken sentence ("Retention pays for the price
 increase"), never a label ("Retention"). One idea per slide. A good slide is ~40% empty —
@@ -39,22 +41,25 @@ Skeleton (cover → divider → chart slide; extend the pattern per act):
     </SlideDeck>
   </div>
 
+## Rules
+
 Type register (the theme's pairing, spent the keynote way): display does the speaking —
 huge spoken headlines, few words; the utility face runs the chrome — kickers, footer
 meta, slide numbers, contents rows; body appears only in standfirsts and captions,
 never in paragraphs.
 
+`<Helmet>` (title, styles) is the FIRST top-level node, BEFORE `<SlideDeck>` — never inside it.
+
 THE SLIDE (every CONTENT slide — accent dividers are the one exemption, see below;
 fixed/sticky are banned — a slide is a tall section):
-- The deck is `<SlideDeck>` wrapping one `<Slide>` per slide. `<Slide>` already fills the
-  reader's real viewport (`--mx-vh`, platform-provided, with a headless fallback) as a flex
-  column — add the dressing per slide: `<Slide title="…" className="border-b border-border py-14">`.
+- `<Slide>` already fills the reader's real viewport (`--mx-vh`, platform-provided, with
+  a headless fallback) as a flex column — add the dressing per slide.
   Never vh units (broken in this surface); never a raw `<section>` for a slide — Slide is what
   powers the reader's slide overview and present-mode paging.
 - Give EVERY slide a short spoken `title` (it names the slide in the overview rail and the
-  present controls; untitled slides fall back to their first heading).
+  present controls).
 - HEADER BAND on every content slide: kicker + hairline, then the slide h2 — the
-  skeleton's exact classes. Same band, every slide; the repetition IS the design.
+  skeleton's exact classes, the same band on every slide.
 - FOOTER META closes every content slide, the same row every time: deck title and date
   left, the slide number right.
 
@@ -65,10 +70,9 @@ ACTS AND COLOR RHYTHM (the interleaving that makes it feel designed):
   read as a deck. Asked for N slides, the divider is one of the N; spend it, don't skip it.
 - Group slides into 2-4 numbered acts, and each act OPENS with a divider. Under 6 slides,
   run ONE act: cover → divider → content → content → close. Above that, one divider per act.
-- The divider is a `<Slide>` like every other, minus the header band and footer meta:
-  `<Slide title="Act one" className="justify-center bg-primary text-primary-foreground -mx-6 @2xl:-mx-12 px-6 @2xl:px-12">`
-  carrying a giant TONE-ON-TONE act numeral (same hue, darker: `<span className="text-9xl font-bold text-primary-foreground/25">02</span>`
-  — or a darker literal of the accent) and the act title below it. Nothing else on the slide.
+- The divider is a `<Slide>` like every other (the skeleton's second), minus the header
+  band and footer meta: a giant TONE-ON-TONE act numeral (same hue, darker — or a darker
+  literal of the accent) over the act title. Nothing else on the slide.
 - Dividers are the ONLY saturated slides; everything between is quiet paper. That alternation
   (paper… paper… ACCENT… paper) is the pulse of the deck — never color a content slide's ground.
 - The contents slide lists the acts as numbered rows (accent numerals, hairline row rules,
@@ -95,9 +99,8 @@ SLIDE TYPES (pick per beat; each stays one idea):
   hanging quote mark, `— attribution` line. A breather between dense slides.
 - Timeline: a horizontal rail — uppercase tracked date labels over square nodes over bold
   labels + muted notes, one left edge per milestone; the CURRENT step is the one accent square.
-- Cover and Close share one grammar: kicker + hairline, huge flush-left title
-  (`text-6xl @2xl:text-8xl tracking-tight`), one-line muted standfirst, byline/date at the foot.
-  The close restates the lead number and the next step, then contact.
+- Cover and Close share one grammar — the skeleton's cover. The close restates the lead
+  number and the next step, then contact.
 
 Do
 - Ship at least one solid-accent divider slide — a five-slide deck still gets one.
@@ -111,4 +114,4 @@ Don't
 - Two charts on a slide; paragraphs (three lines max).
 - Scroll-snap/parallax tricks; cramming a slide to avoid adding one — add the slide.
 
-Components: `https://artifactbin.dev/docs/markup`; publish API: `https://artifactbin.dev/docs/llm`.
+Components: [../markup/SKILL.md](../markup/SKILL.md); publish API: [../publishing/SKILL.md](../publishing/SKILL.md).
