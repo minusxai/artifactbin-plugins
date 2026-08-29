@@ -29,6 +29,19 @@ that. A 400 names exactly what to fix, so correct it and POST again. The deliver
 `https://artifactbin.dev/a/<id>`. **`title` is what a browser tab and a shared link preview
 show** — always set it; the on-page heading is not it.
 
+**Editing a document you already published** — send the CHANGE, not the whole
+file. `GET https://artifactbin.dev/api/artifacts/<id>` returns the current `markup` and an
+`edit_id`; pass that `edit_id` back with the exact text to swap:
+
+```bash
+curl -X POST https://artifactbin.dev/api/artifacts/<id>/edits \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"edit_id":"…","old_string":"exact text once in the document","new_string":"replacement"}'
+```
+
+`old_string` must appear EXACTLY ONCE. Prefer this over re-PUTting the whole
+document: it is smaller, and a human may be editing the same page live.
+
 **markup** is JSX treated as data: ordinary HTML tags for everything including
 prose (`h1 h2 p ul li blockquote table figure img`, inline `svg`) plus the
 component kit (`Card`, `Tabs`, `Badge`, `Grid`/`GridItem`,
