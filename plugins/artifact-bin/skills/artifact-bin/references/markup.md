@@ -110,8 +110,8 @@ never on line one.
 
 ## Images and icons
 
-- `<img src="ref:<imageId>" />` — an uploaded image artifact (the publishing
-  skill's `datasets.md`). `<img src="https://…/chart.png" />` — a web image,
+- `<img src="ref:<imageId>" />` — an uploaded image artifact
+  ([publishing-datasets.md](publishing-datasets.md)). `<img src="https://…/chart.png" />` — a web image,
   IMPORTED at publish and echoed back as `ref:<id>`; a dead URL fails the
   publish and names itself.
 - `<Icon name="chart-bar" />` — a lucide icon, inline (kebab-case names from

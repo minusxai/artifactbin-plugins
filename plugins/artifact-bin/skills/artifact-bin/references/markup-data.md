@@ -32,7 +32,7 @@ against that at publish — a typo is a `400` naming the token.
 
 `ref:<id>` survives ONLY for images and recipes; `data="ref:<id>"`, inline
 `data={[…]}` and the old Param control are retired and refused by name.
-Uploading rows: the publishing skill's `datasets.md` ([publishing.md](publishing.md)).
+Uploading rows: [publishing-datasets.md](publishing-datasets.md).
 
 ## Contents
 
@@ -58,7 +58,7 @@ Declarations · Bindings: embeds · Bindings: controls.
   window at a time); a query has 5 s.
 - `<Mutation name>{`insert into ref_<datasetId> (a) values ($a)`}</Mutation>`
   — a `<Query>` that WRITES (preview: the dataset needs `access: readwrite`,
-  the publishing skill's `datasets.md`). Exactly one INSERT | UPDATE | DELETE
+  [publishing-datasets.md](publishing-datasets.md)). Exactly one INSERT | UPDATE | DELETE
   naming exactly ONE dataset, which must be YOUR OWN (reading a public one
   you do not own is fine; writing it is not); `$name` binds a scalar
   `<Value>`, never interpolated. It runs on demand, never at render:

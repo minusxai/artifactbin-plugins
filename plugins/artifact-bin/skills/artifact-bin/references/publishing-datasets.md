@@ -71,8 +71,7 @@ a writable dataset works for every reader, and readers never carry it.
 A document writes it by declaring a `<Mutation>` in `<Helmet>` — a `<Query>`
 that writes — and running it with `<Button run="$name">` or
 `mx.mutate(name)`; the grammar (one INSERT/UPDATE/DELETE, one `ref_<id>`,
-`$name` bound never interpolated) is in [markup.md](markup.md)'s
-`data.md`. The target must be a dataset YOU own with `access: readwrite` —
+`$name` bound never interpolated) is in [markup-data.md](markup-data.md). The target must be a dataset YOU own with `access: readwrite` —
 reading a public dataset you do not own is fine, writing one is not.
 Everything is checked at publish, so a button that would fail is a 400
 naming the fix.

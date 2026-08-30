@@ -22,21 +22,20 @@ Upload a self-contained document, get back a **link** to share with your user.
 
 ## Contents
 
-Rules every document lives by · Endpoints (create, update, edit, read, list) ·
-Errors.
+Rules every document lives by · Endpoints (create, update, edit, read, list) · Errors.
 
 ## Rules every document lives by
 
 A document is served sandboxed with an opaque origin under a strict
-per-document Content-Security-Policy: **no outbound network except the four
-same-origin endpoints its own CSP names** — `/a/<id>/query` (its data),
-`/a/<id>/events` (its live stream), `/a/<id>/mutate` (its declared writes)
-and the `/geojson/` boundaries the map charts read. So: ONE self-contained
-document — no CDN `<script src>`, no external stylesheet, no `fetch`/XHR
-beyond those four (a 400 at publish; a runtime `fetch()` elsewhere is
-blocked silently); CSS and JS in `<Helmet>` only; an image is a `data:` URI,
-a `ref:<id>`, or an `https://` URL IMPORTED at publish; a web font names a
-Google family in a `<Helmet>` `<meta>`. Max 2,000,000 bytes.
+per-document Content-Security-Policy: **no outbound network except the
+same-origin endpoints it names** — `/a/<id>/query` (data), `/a/<id>/events`
+and `/a/<id>/events/frame` (live stream), `/a/<id>/mutate` (declared writes),
+`/geojson/` (map boundaries). So: ONE self-contained document — no CDN
+`<script src>`, no external stylesheet, no `fetch`/XHR beyond those (a 400 at
+publish; a runtime `fetch()` elsewhere is blocked silently); CSS and JS in
+`<Helmet>` only; an image is a `data:` URI, a `ref:<id>`, or an `https://` URL
+IMPORTED at publish; a web font names a Google family in a `<Helmet>`
+`<meta>`. Max 2,000,000 bytes.
 
 ## Endpoints
 
@@ -130,18 +129,17 @@ there is no separate datasets endpoint.
 
 | Status | Meaning | What to do |
 |---|---|---|
-| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `invalid_sql` / `unknown_theme` / `retired_theme` | Fix the body — `details` names each problem with its span; `retired_theme`'s hint names the successor |
+| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `invalid_sql` / `invalid_dataset` / `invalid_image` / `unknown_theme` / `retired_theme` | Fix the body — `details` names each problem with its span; `retired_theme`'s hint names the successor |
 | 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public`, `unlisted` or `private`; `private` needs an account-owned token |
 | 400 | `public_not_enabled` | This deployment does not offer `public`; use `unlisted` (already anyone-with-the-link) |
 | 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
 | 401 | `unauthorized` | Token wrong/revoked — ask your user, don't retry |
 | 403 | `quota_exceeded` | This token is at its artifact cap — delete something, or use another token |
 | 404 | `not_found` | No artifact with that id is reachable by your token |
-| 409 | `version_conflict` | Your `expectedVersion` is stale — re-read, merge, retry with `currentVersion` |
-| 409 | `doc_changed` | Someone edited the SAME node — re-anchor on the returned `edit_id`/`source`, retry |
-| 409 | `stale_edit_id` | That `edit_id` is unknown — `GET` the artifact, use its `edit_id` |
-| 400 | `bad_diff` / `not_editable` | `old_string` matched zero or several times — pick a unique anchor; `not_editable`: not markup, PUT it whole |
-| 400 | `invalid_annotation_action` | The annotation POST needs `reply`, `resolve: true` or `reopen: true` |
+| 409 | `version_conflict` | Your `expectedVersion` is stale — re-read, merge, retry with `currentVersion` (`400 invalid_expected_version`: it must be a number) |
+| 409 / 400 | `doc_changed` / `stale_edit_id` / `bad_diff` | See the edit table above |
+| 400 | `not_editable` | Not markup — PUT it whole |
+| 400 | `invalid_annotation_action` / `invalid_status` | The annotation POST needs `reply`, `resolve: true` or `reopen: true`; a list `status` is `open`, `resolved` or `all` |
 | 400 | `image_fetch_failed` | An `https://` image could not be imported (unreachable, not an image, private address, over the cap) — `details` names it |
 | 403 | `dataset_read_only` | The `<Mutation>` target must be your own dataset with `"access": "readwrite"` |
 | 409 | `has_dependents` | Other documents reference this artifact — re-send DELETE with `?force=true` |

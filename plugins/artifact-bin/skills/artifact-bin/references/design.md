@@ -122,8 +122,8 @@ SVG element — then stop; one motif, total commitment, no second conceit.
   reveal, hover micro-interactions, ambient atmosphere. One orchestrated
   moment lands harder than scattered effects; extra animation reads as
   AI-generated. The vocabulary — keyframes, the kit's one-class shortcuts, the
-  scroll-reveal observer — is the markup skill's `motion.md`
-  ([markup.md](markup.md)); the judgment is yours.
+  scroll-reveal observer — is [markup-motion.md](markup-motion.md); the
+  judgment is yours.
 
 ## Charts
 
