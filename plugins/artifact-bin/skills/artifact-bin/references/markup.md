@@ -1,5 +1,5 @@
 ---
-name: markup
+name: "markup"
 description: "The vocabulary beyond the brief: the full component list, <Helmet> CSS/script/theme overrides, web fonts, layout. Read only for what the brief does not show, or a 400 the message does not settle."
 ---
 ## Read first
@@ -15,9 +15,9 @@ over a fixed component registry, never executed. A fault is a
 - **Style with Tailwind classes via `className`**, starting from a
   `<div data-design="tw" className="@container …">` wrapper with `@2xl:`
   container variants for responsive layout.
-- Data (`<Query>`, `<Value>`, `<Mutation>`, embeds, controls): [data.md](data.md).
-  [motion.md](motion.md) · [video.md](video.md) · [svg.md](svg.md) ·
-  [../templates/SKILL.md](../templates/SKILL.md) · [../themes/SKILL.md](../themes/SKILL.md).
+- Data (`<Query>`, `<Value>`, `<Mutation>`, embeds, controls): [data](markup-data.md).
+  [motion](markup-motion.md) · [video](markup-video.md) · [svg](markup-svg.md) ·
+  [templates.md](templates.md) · [themes.md](themes.md).
 
 ## Contents
 
@@ -59,7 +59,7 @@ outright, with no list: `script` `iframe` `object` `embed` `base` `meta` `link` 
 
 At most ONE per document, holding at most one each of `<title>`, `<style>`
 and `<script>`, plus `<meta name content />` pairs, plus any number of the
-DATA declarations `<Value>`, `<Query>`, `<Mutation>` ([data.md](data.md)).
+DATA declarations `<Value>`, `<Query>`, `<Mutation>` ([data](markup-data.md)).
 Write it anywhere; it is hoisted to the top when stored. It is the ONLY
 place for custom CSS, JS or data — any of those in the body is refused.
 

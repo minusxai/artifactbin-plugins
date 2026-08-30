@@ -114,4 +114,4 @@ Don't
 - Two charts on a slide; paragraphs (three lines max).
 - Scroll-snap/parallax tricks; cramming a slide to avoid adding one — add the slide.
 
-Components: [../markup/SKILL.md](../markup/SKILL.md); publish API: [../publishing/SKILL.md](../publishing/SKILL.md).
+Components: [markup.md](markup.md); publish API: [publishing.md](publishing.md).

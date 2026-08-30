@@ -71,7 +71,7 @@ a writable dataset works for every reader, and readers never carry it.
 A document writes it by declaring a `<Mutation>` in `<Helmet>` — a `<Query>`
 that writes — and running it with `<Button run="$name">` or
 `mx.mutate(name)`; the grammar (one INSERT/UPDATE/DELETE, one `ref_<id>`,
-`$name` bound never interpolated) is in [../markup/SKILL.md](../markup/SKILL.md)'s
+`$name` bound never interpolated) is in [markup.md](markup.md)'s
 `data.md`. The target must be a dataset YOU own with `access: readwrite` —
 reading a public dataset you do not own is fine, writing one is not.
 Everything is checked at publish, so a button that would fail is a 400
@@ -85,7 +85,10 @@ Capped at 10,000 rows (`409 dataset_full`) and rate-limited per visitor.
 
 An agent writes rows without a document through
 `POST https://artifactbin.dev/api/artifacts/<id>/mutate { "sql": "insert into ref_<id> …", "values": {…} }`
-— the same rules, and cheaper than re-PUTting a whole table.
+— the same rules, and cheaper than re-PUTting a whole table. Refusals:
+`400 not_a_dataset` (the id is another tier), `403 dataset_read_only` (set
+`access: readwrite` first), `400 invalid_sql` (the detail says why), and
+`503 dataset_busy` (concurrent writes contended — retry after a moment).
 
 ## Viz recipes
 

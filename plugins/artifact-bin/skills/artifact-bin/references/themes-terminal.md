@@ -28,4 +28,4 @@ chart, long paragraphs in pure neon (body copy stays in the muted foreground).
 
 Author with token classes (`text-muted-foreground`, `bg-muted`, …) and the
 theme does the rest — hardcoded palettes fight it. Components:
-[../markup/SKILL.md](../markup/SKILL.md).
+[markup.md](markup.md).

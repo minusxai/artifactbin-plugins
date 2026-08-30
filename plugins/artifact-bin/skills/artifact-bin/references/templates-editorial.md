@@ -118,4 +118,4 @@ Don't
   title block.
 - Topic headlines; a section that shows nothing (no figure, no table, no number).
 
-Components: [../markup/SKILL.md](../markup/SKILL.md); publish API: [../publishing/SKILL.md](../publishing/SKILL.md).
+Components: [markup.md](markup.md); publish API: [publishing.md](publishing.md).

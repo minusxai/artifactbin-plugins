@@ -24,4 +24,4 @@ tables, neon accents.
 
 Author with token classes (`text-muted-foreground`, `bg-muted`, …) and the
 theme does the rest — hardcoded palettes fight it. Components:
-[../markup/SKILL.md](../markup/SKILL.md).
+[markup.md](markup.md).

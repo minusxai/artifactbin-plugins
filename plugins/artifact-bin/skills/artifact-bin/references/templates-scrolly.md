@@ -110,4 +110,4 @@ Do
 Don't
 - Fake sticky scenes; walls of prose; two conceits; a payoff without its number.
 
-Components: [../markup/SKILL.md](../markup/SKILL.md); publish API: [../publishing/SKILL.md](../publishing/SKILL.md).
+Components: [markup.md](markup.md); publish API: [publishing.md](publishing.md).

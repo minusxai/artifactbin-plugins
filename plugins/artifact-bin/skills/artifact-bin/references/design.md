@@ -1,5 +1,5 @@
 ---
-name: design
+name: "design"
 description: "Design craft: treatment, motif, hierarchy, type, space, color, charts, the default-AI looks to avoid. Read only for a document a human will judge by eye and only if no design skill is already held."
 ---
 ## Read first
@@ -54,9 +54,9 @@ Copy · Structure · When it is a UI · Avoid the default AI look · Restraint.
 
 ## Plan before you build
 
-Sketch a compact plan first: which theme and WHY ([../themes/SKILL.md](../themes/SKILL.md)),
+Sketch a compact plan first: which theme and WHY ([themes.md](themes.md)),
 the layout concept in a sentence, where the one bold moment goes, and the
-subject's MOTIF (below). Templates ([../templates/SKILL.md](../templates/SKILL.md))
+subject's MOTIF (below). Templates ([templates.md](templates.md))
 are references, not contracts — deviate where the subject knows better, omit
 one when the subject suggests its own structure. If any part of the plan
 reads like the generic default for any similar page, revise it. Then build.
@@ -123,7 +123,7 @@ SVG element — then stop; one motif, total commitment, no second conceit.
   moment lands harder than scattered effects; extra animation reads as
   AI-generated. The vocabulary — keyframes, the kit's one-class shortcuts, the
   scroll-reveal observer — is the markup skill's `motion.md`
-  ([../markup/SKILL.md](../markup/SKILL.md)); the judgment is yours.
+  ([markup.md](markup.md)); the judgment is yours.
 
 ## Charts
 

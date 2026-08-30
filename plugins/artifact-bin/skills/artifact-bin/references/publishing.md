@@ -1,5 +1,5 @@
 ---
-name: publishing
+name: "publishing"
 description: "The HTTP API beyond the brief: replace, the edit_id protocol in full, read back, list, the error table. Read when a call is refused or a human may be editing the same page."
 ---
 ## Read first
@@ -11,14 +11,14 @@ Upload a self-contained document, get back a **link** to share with your user.
 - **Every `/api` call, `GET` included, sends `Authorization: Bearer mx_...`.**
   No token? `POST https://artifactbin.dev/api/tokens/anonymous` returns one; a pasted start
   link answers `{"token"}` when `POST`ed once. Saved config, claiming, scope,
-  the 401: [auth.md](auth.md).
+  the 401: [auth](publishing-auth.md).
 - A document is **static JSX**, not HTML: HTML tags plus a component kit,
   under the JSX rules — every tag closes (`<br />`), comments are `{/* … */}`,
   no `<html>`/`<head>`/`<body>` (`<title>`, `<style>`, `<script>` go in
-  `<Helmet>`), style with `className`: [../markup/SKILL.md](../markup/SKILL.md).
+  `<Helmet>`), style with `className`: [markup.md](markup.md).
 - Datasets, images and chart recipes are their own artifacts, created first:
-  [datasets.md](datasets.md). Pinned feedback: [annotations.md](annotations.md).
-  History, revert, delete, PNG export: [versions.md](versions.md). MCP: [mcp.md](mcp.md).
+  [datasets](publishing-datasets.md). Pinned feedback: [annotations](publishing-annotations.md).
+  History, revert, delete, PNG export: [versions](publishing-versions.md). MCP: [mcp](publishing-mcp.md).
 
 ## Contents
 
@@ -62,8 +62,8 @@ returns the resulting `markup`: you sent a splice.)
 anyone with the link, listed on the owner's `/@username`; `unlisted` = the
 same link, listed nowhere; `private` = the owner plus emails invited on the
 share page (as an **editor**, or a **commenter** who may annotate but not
-edit) — a document shared with your user is reachable by every route below
-as if they owned it. Anonymous tokens publish `public`, images and datasets
+edit) — a document shared with your user is reachable as if they owned it.
+Anonymous tokens publish `public`, images and datasets
 `unlisted`; `private` without an account is `400 private_requires_account`,
 never a silent downgrade.
 
@@ -123,14 +123,14 @@ GET https://artifactbin.dev/api/artifacts
 → 200 { "artifacts": [ { "id", "url", "title", "format", "version", "updated_at", ... } ] }
 ```
 
-EVERYTHING you own — datasets, images and viz recipes are artifacts too, each
-with its `format`; there is no separate datasets endpoint.
+EVERYTHING you own — datasets, images and viz recipes are artifacts too;
+there is no separate datasets endpoint.
 
 ## Errors
 
 | Status | Meaning | What to do |
 |---|---|---|
-| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `invalid_sql` / `unknown_theme` | Fix the body — `details` names each problem with its span (`invalid_sql`: the engine's message and candidate columns) |
+| 400 | `invalid_json` / `markup_only` / `one_of_markup_dataset_viz_image` / `invalid_jsx` / `invalid_refs` / `invalid_sql` / `unknown_theme` / `retired_theme` | Fix the body — `details` names each problem with its span; `retired_theme`'s hint names the successor |
 | 400 | `invalid_visibility` / `private_requires_account` | `visibility` is `public`, `unlisted` or `private`; `private` needs an account-owned token |
 | 400 | `public_not_enabled` | This deployment does not offer `public`; use `unlisted` (already anyone-with-the-link) |
 | 400 | `invalid_folder` | `folder` segments are `[a-zA-Z0-9_-]` (max 40 chars each, 8 deep) |
@@ -140,7 +140,7 @@ with its `format`; there is no separate datasets endpoint.
 | 409 | `version_conflict` | Your `expectedVersion` is stale — re-read, merge, retry with `currentVersion` |
 | 409 | `doc_changed` | Someone edited the SAME node — re-anchor on the returned `edit_id`/`source`, retry |
 | 409 | `stale_edit_id` | That `edit_id` is unknown — `GET` the artifact, use its `edit_id` |
-| 400 | `bad_diff` | `old_string` matched zero times or more than once — pick a unique anchor |
+| 400 | `bad_diff` / `not_editable` | `old_string` matched zero or several times — pick a unique anchor; `not_editable`: not markup, PUT it whole |
 | 400 | `invalid_annotation_action` | The annotation POST needs `reply`, `resolve: true` or `reopen: true` |
 | 400 | `image_fetch_failed` | An `https://` image could not be imported (unreachable, not an image, private address, over the cap) — `details` names it |
 | 403 | `dataset_read_only` | The `<Mutation>` target must be your own dataset with `"access": "readwrite"` |

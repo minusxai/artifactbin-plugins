@@ -16,13 +16,9 @@ Local development (from the artifact-bin repo): `npm run build:plugin`, then
 ## What you get
 
 - **MCP tools** (`create_artifact`, `edit_artifact`, …) against `https://artifactbin.dev/mcp`.
-- **Skills** — the same files https://artifactbin.dev/docs serves, one directory per skill:
+- **The skill** — the same files https://artifactbin.dev/docs serves: one `SKILL.md` brief with
+  a dispatch table over `references/` topic files, loaded on demand:
   - `artifact-bin` — Publish documents to artifact-bin over HTTP and share the link. Read first, always: everything a straightforward document needs. Use when asked to publish, share or host a page, report, dashboard, deck, dataset, chart or image.
-  - `design` — Design craft: treatment, motif, hierarchy, type, space, color, charts, the default-AI looks to avoid. Read only for a document a human will judge by eye and only if no design skill is already held.
-  - `markup` — The vocabulary beyond the brief: the full component list, <Helmet> CSS/script/theme overrides, web fonts, layout. Read only for what the brief does not show, or a 400 the message does not settle.
-  - `publishing` — The HTTP API beyond the brief: replace, the edit_id protocol in full, read back, list, the error table. Read when a call is refused or a human may be editing the same page.
-  - `templates` — How to choose a genre when the ask does not name one. The brief already carries a usable grammar for all four — read this only to compare genres; then only the chosen genre's file, if at all.
-  - `themes` — What a theme is and how to override tokens. The brief already lists the six and the token classes — read this only for :root overrides.
 
 ## Self-hosting
 

@@ -37,4 +37,4 @@ finished, fully visible page.
   hover:-translate-y-1`, `hover:bg-muted` — on cards and links.
 - Platform rules that always win over authored CSS: `position: fixed/sticky`
   is stripped at save and `100vh` becomes the reader-viewport variable
-  ([SKILL.md](SKILL.md), `<Helmet>`).
+  ([markup.md](markup.md), `<Helmet>`).

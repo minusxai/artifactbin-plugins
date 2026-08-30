@@ -112,4 +112,4 @@ Don't
 - Entrance or reveal animation on tiles — hover states and the controls' own transitions
   are the only motion a dashboard needs.
 
-Components: [../markup/SKILL.md](../markup/SKILL.md); publish API: [../publishing/SKILL.md](../publishing/SKILL.md).
+Components: [markup.md](markup.md); publish API: [publishing.md](publishing.md).

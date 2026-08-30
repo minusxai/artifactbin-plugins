@@ -8,12 +8,16 @@ Every `PUT`, edit and revert archives the previous state, so a bad edit is
 recoverable and the link never changes:
 
 ```
-GET  https://artifactbin.dev/api/artifacts/<id>/versions   → 200 { "versions": [ { "version", "title", "created_at" } ] }
-POST https://artifactbin.dev/api/artifacts/<id>/revert     { "version": 1 } → 200 { "id", "url", "version": <new> }
+GET  https://artifactbin.dev/api/artifacts/<id>/versions           → 200 { "versions": [ { "version", "title", "created_at" } ] }
+GET  https://artifactbin.dev/api/artifacts/<id>/versions/<version> → 200 one archived version, `markup` carrying its source
+POST https://artifactbin.dev/api/artifacts/<id>/revert             { "version": 1 } → 200 { "id", "url", "version": <new> }
 ```
 
 A revert creates a NEW version (the pre-revert state is archived too), so
-reverts are themselves undoable. Dataset writes version the same way.
+reverts are themselves undoable. Dataset writes version the same way. A
+missing/non-integer `version` is `400 version_required`; a checkpoint that was
+never archived (save-less edits coalesce) is `409 version_not_archived` — the
+list above shows the real ones.
 
 ## Delete an artifact
 

@@ -14,15 +14,14 @@ Quick rules:
 
 Before authoring, read the docs over plain HTTP (no auth needed) — small files, critical content at the top of each:
 - https://artifactbin.dev/docs/artifact-bin/SKILL.md — the brief: everything a straightforward document needs. Read it first.
-- https://artifactbin.dev/docs/markup/SKILL.md — the document vocabulary; data.md beside it is the data grammar in full.
-- https://artifactbin.dev/docs/templates/<name>.md and https://artifactbin.dev/docs/themes/<name>.md — AFTER picking a template and a theme, the chosen one in full.
+- https://artifactbin.dev/docs/artifact-bin/references/markup.md — the document vocabulary; markup-data.md beside it is the data grammar in full.
+- https://artifactbin.dev/docs/artifact-bin/references/templates-<name>.md and …/themes-<name>.md — AFTER picking a template and a theme, the chosen one in full.
 - https://artifactbin.dev/docs — the whole tree listed with a one-line "when to read" per file.
 
 ## The MCP server
 
 `https://artifactbin.dev/mcp` — a Streamable HTTP MCP server speaking this exact API
-(`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`, `list_artifacts`,
-`list_versions`, `get_version`, `revert_artifact`, `delete_artifact`, `annotate`).
+(`create_artifact`, `update_artifact`, `edit_artifact`, `get_artifact`, `list_artifacts`, `list_versions`, `get_version`, `revert_artifact`, `delete_artifact`, `annotate`, `mutate_dataset`, `export_artifact` — one tool per operation, from the same registry the HTTP routes run).
 It supports OAuth: add it with no credentials and the client pops a browser
 where your user logs in with their email (a one-time code — no password) and
 approves. Artifacts published through the connection belong to that account:
@@ -33,5 +32,5 @@ claude mcp add --transport http artifact-bin https://artifactbin.dev/mcp
 
 Already have an `mx_` token? Skip the browser: pass it as a header instead
 (`--header "Authorization: Bearer mx_..."`) — the tokens are interchangeable.
-The HTTP reference in [SKILL.md](SKILL.md) doubles as the tools' semantics:
+The HTTP reference in [publishing.md](publishing.md) doubles as the tools' semantics:
 content tiers, the edit protocol, and what each error means.

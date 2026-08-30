@@ -32,7 +32,7 @@ against that at publish — a typo is a `400` naming the token.
 
 `ref:<id>` survives ONLY for images and recipes; `data="ref:<id>"`, inline
 `data={[…]}` and the old Param control are retired and refused by name.
-Uploading rows: the publishing skill's `datasets.md` ([../publishing/SKILL.md](../publishing/SKILL.md)).
+Uploading rows: the publishing skill's `datasets.md` ([publishing.md](publishing.md)).
 
 ## Contents
 
