@@ -9,9 +9,9 @@ Upload a self-contained document, get back a **link** to share with your user.
 - **Publish** is one `POST https://artifactbin.dev/api/artifacts` with `{ "title", "markup" }`
   (+ optional `theme`, `template`, `colorMode`); the deliverable is the `url`.
 - **Every `/api` call, `GET` included, sends `Authorization: Bearer mx_...`.**
-  No token? `POST https://artifactbin.dev/api/tokens/anonymous` returns one; a pasted start
-  link answers `{"token"}` when `POST`ed once. Saved config, claiming, scope,
-  the 401: [auth](publishing-auth.md).
+  No token? Read [auth](publishing-auth.md): use a pasted token or start link,
+  send your user to `https://artifactbin.dev/tokens/new`, or without a human `POST
+  https://artifactbin.dev/api/tokens/anonymous`.
 - A document is **static JSX**, not HTML: HTML tags plus a component kit,
   under the JSX rules — every tag closes (`<br />`), comments are `{/* … */}`,
   no `<html>`/`<head>`/`<body>` (`<title>`, `<style>`, `<script>` go in
