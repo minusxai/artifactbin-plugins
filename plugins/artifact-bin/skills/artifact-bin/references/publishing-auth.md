@@ -4,39 +4,26 @@ description: "Where a token comes from, saving it, claiming, scope. Read only wi
 ---
 ## Read first
 
-Every `/api` call needs a bearer token:
+**Agent token contract**
 
-```
-Authorization: Bearer mx_...
-```
+Check it first: `~/.artifactbin.env` stores the current connection as:
 
-Find one in this order, and stop at the first that works:
-
-0. **Your user pasted a start link** (`https://artifactbin.dev/a/<id>/start?k=...`) — GET it
-   for that document's instructions, then `POST` the same `/start?k=` URL
-   once: it answers `{ "token": "mx_..." }`. The link is single-use and
-   expires in minutes; the token it yields is yours for every later call.
-1. **Saved config** — check `~/.config/artifact-bin/config.json` for
-   `{ "url", "token" }`. If it exists, use it.
-2. **Your user gave you one** (or it's in your MCP/agent config) — use it.
-3. **No token? Mint an anonymous one** — zero setup:
-
-```
-POST https://artifactbin.dev/api/tokens/anonymous
-→ 201 { "id", "token": "mx_..." }
+```dotenv
+ARTIFACTBIN_URL=https://artifactbin.dev
+ARTIFACTBIN_TOKEN=<token>
 ```
 
-A `401` means the token is wrong or revoked — mint a fresh anonymous one or
-ask your user; do not retry the same token.
+If a token is there, use it. Store every newly received token there; the most recent token wins. As a legacy fallback, also read `~/.config/artifact-bin/config.json` with `{ "url", "token" }`.
 
-## After minting: save it, and tell your user
+If your user's paste says `using this token: mx_…`, that IS your token: save it to `~/.artifactbin.env` and use it.
 
-Write the token to `~/.config/artifact-bin/config.json` as
-`{ "url": "https://artifactbin.dev", "token": "mx_..." }` so future sessions (yours and other
-agents') reuse the same token instead of scattering artifacts across fresh
-ones. Anonymous artifacts work fully but belong to nobody — **tell your
-user**: *"to keep these under your account, log in at https://artifactbin.dev and claim token `mx_...`"* (they paste it in the Claim box on the dashboard). Claiming attaches everything the token already published,
-past and future.
+There are two ways to get a token: the human can paste a start link, which you POST once for `{ "token", "expiresAt" }`, or you can send the human to https://artifactbin.dev/tokens/new and ask them to paste the new token back. Tokens expire after 6 h by default; `expiresInHours` may be 1–720 at mint, and `expiresAt` says exactly when.
+
+With no token, or after a `401` or expired token, do not retry blindly. Send the human to https://artifactbin.dev/tokens/new, save the replacement token, and resume the interrupted work. Anonymous tokens can be claimed by an account on https://artifactbin.dev/ or rejected there.
+
+Never put a token in a URL or commit it. Send it only in the `Authorization: Bearer <token>` header.
+
+Without a human in the loop, `POST https://artifactbin.dev/api/tokens/anonymous` mints an anonymous token. After publishing, tell your user: *"to keep these under your account, log in at https://artifactbin.dev and claim token `mx_...`"* (they paste it in the Claim box on the dashboard).
 
 ## Scope
 
