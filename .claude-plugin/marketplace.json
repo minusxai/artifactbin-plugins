@@ -1,14 +1,14 @@
 {
-  "name": "minusx",
-  "description": "minusx plugins for Claude Code.",
+  "name": "artifactbin",
+  "description": "Stable artifactbin plugin backed by the production service.",
   "owner": {
     "name": "minusx"
   },
   "plugins": [
     {
-      "name": "artifact-bin",
-      "source": "./plugins/artifact-bin",
-      "description": "Publish self-contained HTML artifacts (reports, dashboards, slides, datasets, charts, images) to artifact-bin and share the public link."
+      "name": "artifactbin",
+      "source": "./plugins/artifactbin",
+      "description": "Publish self-contained HTML artifacts (reports, dashboards, decks, datasets, charts, images) to artifactbin and share the public link."
     }
   ]
 }

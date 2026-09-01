@@ -1,0 +1,8 @@
+{
+  "channel": "production",
+  "plugin": "artifactbin",
+  "baseUrl": "https://artifactbin.dev",
+  "sourceRepository": "minusxai/artifactbin",
+  "sourceSha": "0ff60461bc68a1088c3ad5aef5e0c4336b084854",
+  "version": "0.6.0"
+}

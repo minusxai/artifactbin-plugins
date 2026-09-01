@@ -1,6 +1,6 @@
 ---
-name: artifact-bin
-description: "Publish documents to artifact-bin over HTTP and share the link. Read first, always: everything a straightforward document needs. Use when asked to publish, share or host a page, report, dashboard, deck, dataset, chart or image."
+name: artifactbin
+description: "Publish documents to artifactbin over HTTP and share the link. Read first, always: everything a straightforward document needs. Use when asked to publish, share or host a page, report, dashboard, deck, dataset, chart or image."
 ---
 ## Read first — everything a straightforward document needs
 
