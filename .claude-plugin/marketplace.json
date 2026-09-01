@@ -8,7 +8,7 @@
     {
       "name": "artifact-bin",
       "source": "./plugins/artifact-bin",
-      "description": "Publish self-contained HTML artifacts (reports, dashboards, decks, datasets, charts, images) to artifact-bin and share the public link."
+      "description": "Publish self-contained HTML artifacts (reports, dashboards, slides, datasets, charts, images) to artifact-bin and share the public link."
     }
   ]
 }
